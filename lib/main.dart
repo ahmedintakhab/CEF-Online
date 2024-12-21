@@ -13,9 +13,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-
-        theme:  ThemeData(scaffoldBackgroundColor: const Color(0xFFF5F5F5)),
-        home: const Splashscreen(),
+      theme: ThemeData(
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent, // Transparent AppBar background
+          elevation: 0, // Remove AppBar shadow
+          titleTextStyle: TextStyle(
+            color: Colors.black, // Default text color
+            fontSize: 18, // Default font size
+          ),
+        ),
+      ),
+      home: const Splashscreen(),
     );
   }
 }
+

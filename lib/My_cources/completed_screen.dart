@@ -72,7 +72,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
                                           child: Text("100%",style: TextStyle(fontFamily: 'Gilroy',fontSize: 14,fontWeight: FontWeight.w400),),
                                         ),
                                         backgroundColor: const Color(0XFFDEDEDE),
-                                        progressColor: const Color(0XFF23408F),
+                                        progressColor: const Color(0XFF8CC13F),
                                         barRadius:  Radius.circular(22.w),
 
                                       ),

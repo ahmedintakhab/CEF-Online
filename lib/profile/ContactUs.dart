@@ -33,7 +33,8 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           padding:  EdgeInsets.only(left: 15.w,right: 15.w),
           child: Row(
             children: [
-              Image(image: AssetImage(contect[index].contectIcon),height: 24.h,width: 24.w,),
+              Image(image: AssetImage(contect[index].contectIcon),
+                height: 24.h,width: 24.w,color: Color(0XFF8CC13F),),
               SizedBox(width: 10.w),
               Text(contect[index].contectTitle,style: TextStyle(fontSize: 15.sp,fontFamily: 'Gilroy',fontWeight: FontWeight.w700),)
             ],

@@ -36,7 +36,7 @@ class _FAQScreenState extends State<FAQScreen> {
 
 
               borderRadius: BorderRadius.circular(22.h),
-              trailing:Image.asset("assets/down.png",height: 24.h,width: 24.w),
+              trailing:Image.asset("assets/down.png",height: 24.h,width: 24.w,color: Color(0XFF78A03F),),
               animateTrailing: true,
               title: Text(
                 question[index].question!,

@@ -2,13 +2,14 @@
     package="com.example.learn_megnagmet">
     <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="learn_megnagmet"
+       android:label="@string/CEF_Online"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
        >
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:label="@string/CEF_Online"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:hardwareAccelerated="true"

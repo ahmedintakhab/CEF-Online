@@ -27,7 +27,7 @@ class _ChateScreenState extends State<ChateScreen> {
     return Scaffold(
         floatingActionButton: FloatingActionButton(
             onPressed: () {},
-            backgroundColor: const Color(0XFF23408F),
+            backgroundColor: const Color(0XFF8CC13F),
             child:  Image(
               image: AssetImage("assets/floatingaction.png"),
               height: 24.h,
@@ -177,7 +177,7 @@ class _ChateScreenState extends State<ChateScreen> {
                                                           shape:
                                                           BoxShape.circle,
                                                           color: Color(
-                                                              0XFF23408F)),
+                                                              0XFF8CC13F)),
                                                       child: Center(
                                                           child: Text(
                                                               chate[index]
@@ -214,7 +214,7 @@ class _ChateScreenState extends State<ChateScreen> {
         child: TextFormField(
             decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
-              borderSide:  BorderSide(color: Color(0XFF23408F), width: 1.w),
+              borderSide:  BorderSide(color: Color(0XFF78A03F), width: 1.w),
               borderRadius: BorderRadius.circular(22)),
           hintText: 'Search',
           hintStyle:  TextStyle(

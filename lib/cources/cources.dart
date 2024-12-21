@@ -143,14 +143,14 @@ class _MyCourcesState extends State<MyCources> {
                           fontWeight: FontWeight.bold,
                           fontSize: 15.sp,
                           fontFamily: 'Gilroy'),
-                      labelColor: const Color(0XFF23408F),
+                      labelColor: const Color(0XFF78A03F),
                       unselectedLabelStyle:  TextStyle(
                           color: const Color(0XFF23408F),
                           fontWeight: FontWeight.w700,
                           fontSize: 15.sp,
                           fontFamily: 'Gilroy'),
                       indicator: ShapeDecoration(
-                          color: const Color(0XFFE5ECFF),
+                          color: const Color(0XFFEBE2C2),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(22.h))),
                       controller: courceController.tabController,

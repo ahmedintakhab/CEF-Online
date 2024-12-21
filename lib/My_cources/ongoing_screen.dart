@@ -97,7 +97,7 @@ class _OngoingScreenState extends State<OngoingScreen> {
                                 backgroundColor:
                                     const Color(0XFFDEDEDE),
                                 progressColor:
-                                    const Color(0XFF23408F),
+                                    const Color(0XFF8CC13F),
                                 barRadius:
                                     const Radius.circular(22),
                               ),

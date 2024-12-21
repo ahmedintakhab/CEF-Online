@@ -48,12 +48,14 @@ class _SplashscreenState extends State<Splashscreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Center(
-              child:Container(height:95.h,width:95.h,child: Image(image: const AssetImage("assets/education_image.png"),fit: BoxFit.cover,))),
+              child:Container(height:95.h,width:95.h,
+                  child: Image(image:
+                  const AssetImage("assets/education_image.png",),fit: BoxFit.cover,color: Color(0XFF8CC13F),))),
            Text(
             "Learn Management",
             style: TextStyle(
                 fontSize: 28.sp,
-                color: const Color(0XFF23408F),
+                color: const Color(0XFF8cc13f),
                 fontFamily: 'AvenirLTPro',
                 fontWeight: FontWeight.w700),
           ),

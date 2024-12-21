@@ -70,7 +70,7 @@ class _OverviewState extends State<Overview> {
                       collapseText: 'Learn less.',
                       maxLines: 3,
                       linkStyle: TextStyle(
-                          color: const Color(0XFF23408F),
+                          color: const Color(0XFF78A03F),
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
                           fontFamily: 'Gilroy'),
@@ -102,7 +102,7 @@ class _OverviewState extends State<Overview> {
                                           Image(
                                             image: AssetImage(e.image!),
                                             height: 30.h,
-                                            width: 30.w,
+                                            width: 30.w,color: Color(0XFF8CC13F),
                                             fit: BoxFit.cover,
                                           ),
                                           SizedBox(height: 10.h),
@@ -231,13 +231,13 @@ class _OverviewState extends State<Overview> {
                                     decoration: BoxDecoration(
                                       color: selectedCategory
                                               .contains(categoryList[i])
-                                          ? Color(0XFFE5ECFF)
+                                          ? Color(0XFFEBF2C2)
                                           : Colors.white,
                                       borderRadius: BorderRadius.circular(26.h),
                                       border: Border.all(
                                           color: selectedCategory
                                                   .contains(categoryList[i])
-                                              ? Color(0XFF23408F)
+                                              ? Color(0XFF8CC13F)
                                               : Color(0XFF6E758A),
                                           width: 1.w),
                                     ),
@@ -247,7 +247,7 @@ class _OverviewState extends State<Overview> {
                                               .contains(categoryList[i])
                                           ? const TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              color: Color(0XFF23408F),
+                                              color: Color(0XFF78A03F),
                                               fontFamily: 'Gilroy')
                                           : const TextStyle(
                                               color: Color(0XFF6E758A),

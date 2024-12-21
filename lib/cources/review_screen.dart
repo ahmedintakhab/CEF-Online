@@ -90,7 +90,7 @@ class _ReviewState extends State<Review> {
                             itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.h),
                             itemBuilder: (context, _) => const Icon(
                               Icons.star_border,
-                              color: Color(0XFF23408F),
+                              color: Color(0XFF78A03F),
                             ),
                             onRatingUpdate: (rating) {},
                           ),
@@ -100,7 +100,7 @@ class _ReviewState extends State<Review> {
                             lineHeight: 4.h,
                             percent: 0.5,
                             backgroundColor: Colors.grey,
-                            progressColor: Colors.blue,
+                            progressColor: Colors.lightGreen,
                           ),
 
                         ],
@@ -119,7 +119,7 @@ class _ReviewState extends State<Review> {
                             itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
                             itemBuilder: (context, _) => const Icon(
                               Icons.star_border,
-                              color: Color(0XFF23408F),
+                              color: Color(0XFF78A03F),
                             ),
                             onRatingUpdate: (rating) {},
                           ),
@@ -129,7 +129,7 @@ class _ReviewState extends State<Review> {
                             lineHeight: 4.h,
                             percent: 0.5,
                             backgroundColor: Colors.grey,
-                            progressColor: Colors.blue,
+                            progressColor: Colors.lightGreen,
                           ),
 
                         ],
@@ -148,7 +148,7 @@ class _ReviewState extends State<Review> {
                             itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
                             itemBuilder: (context, _) => const Icon(
                               Icons.star_border,
-                              color: Color(0XFF23408F),
+                              color: Color(0XFF78A03F),
                             ),
                             onRatingUpdate: (rating) {},
                           ),
@@ -158,7 +158,7 @@ class _ReviewState extends State<Review> {
                             lineHeight: 4.h,
                             percent: 0.5,
                             backgroundColor: Colors.grey,
-                            progressColor: Colors.blue,
+                            progressColor: Colors.lightGreen,
                           ),
 
                         ],
@@ -177,7 +177,7 @@ class _ReviewState extends State<Review> {
                             itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
                             itemBuilder: (context, _) => const Icon(
                               Icons.star_border,
-                              color: Color(0XFF23408F),
+                              color: Color(0XFF78A03F),
                             ),
                             onRatingUpdate: (rating) {},
                           ),
@@ -187,7 +187,7 @@ class _ReviewState extends State<Review> {
                             lineHeight: 4.h,
                             percent: 0.5,
                             backgroundColor: Colors.grey,
-                            progressColor: Colors.blue,
+                            progressColor: Colors.lightGreen,
                           ),
 
                         ],
@@ -207,7 +207,7 @@ class _ReviewState extends State<Review> {
                             itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
                             itemBuilder: (context, _) => const Icon(
                               Icons.star_border,
-                              color: Color(0XFF23408F),
+                              color: Color(0XFF78A03F),
                             ),
                             onRatingUpdate: (rating) {},
                           ),
@@ -217,7 +217,7 @@ class _ReviewState extends State<Review> {
                             lineHeight: 4.h,
                             percent: 0.5,
                             backgroundColor: Colors.grey,
-                            progressColor: Colors.blue,
+                            progressColor: Colors.lightGreen,
                           ),
 
                         ],
@@ -320,7 +320,7 @@ class _ReviewState extends State<Review> {
                                   child: Text(
                                     review[index].time!,
                                     style:  TextStyle(
-                                        fontSize: 12.sp, color: Color(0XFF23408F),fontFamily: 'Gilroy'),
+                                        fontSize: 12.sp, color: Color(0XFF5E8421),fontFamily: 'Gilroy'),
                                   ),
                                 ),
                               ],

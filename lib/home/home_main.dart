@@ -59,12 +59,14 @@ class _HomeMainScreenState extends State<HomeMainScreen> {
                             Image(
                                 image: AssetImage("assets/bottomhomeblue.png"),
                                 height: 24,
-                                width: 24),
+                                width: 24,
+                            color: Color(0xFF8cc13f),),
                             SizedBox(height: 8.79),
                             Image(
                                 image: AssetImage("assets/line.png"),
                                 height: 1.75,
-                                width: 24),
+                                width: 24,
+                              color: const Color(0xFF8CC13F),   ),
                           ],
                         ),
                         icon: const Image(
@@ -79,12 +81,14 @@ class _HomeMainScreenState extends State<HomeMainScreen> {
                             Image(
                                 image: AssetImage("assets/bottombookblue.png"),
                                 height: 24,
-                                width: 24),
+                                width: 24,
+                                color: const Color(0xFF8CC13F),),
                             SizedBox(height: 8.79),
                             Image(
                                 image: AssetImage("assets/line.png"),
                                 height: 1.75,
-                                width: 24),
+                                width: 24,
+                              color: const Color(0xFF8CC13F),),
                           ],
                         ),
                         icon: const Image(
@@ -99,12 +103,14 @@ class _HomeMainScreenState extends State<HomeMainScreen> {
                                 image:
                                     AssetImage("assets/bottommessegeblue.png"),
                                 height: 24,
-                                width: 24),
+                                width: 24,
+                              color: const Color(0xFF8CC13F),),
                             SizedBox(height: 8.79),
                             Image(
                                 image: AssetImage("assets/line.png"),
                                 height: 1.75,
-                                width: 24),
+                                width: 24,
+                              color: const Color(0xFF8CC13F),),
                           ],
                         ),
                         icon: const Image(
@@ -119,12 +125,14 @@ class _HomeMainScreenState extends State<HomeMainScreen> {
                                 image:
                                     AssetImage("assets/bottomprofileblue.png"),
                                 height: 24,
-                                width: 24),
+                                width: 24,
+                              color: const Color(0xFF8CC13F),),
                             SizedBox(height: 8.79),
                             Image(
                                 image: AssetImage("assets/line.png"),
                                 height: 1.75,
-                                width: 24),
+                                width: 24,
+                              color: const Color(0xFF8CC13F),),
                           ],
                         ),
                         icon: const Image(
@@ -132,7 +140,10 @@ class _HomeMainScreenState extends State<HomeMainScreen> {
                             height: 24,
                             width: 24),
                         label: ''),
-                  ]),
+                  ],
+                  selectedItemColor: const Color(0xFF8CC13F), // Overall selected color
+              unselectedItemColor: Colors.black, // Unselected color
+              ),
             )),
       ),
     );

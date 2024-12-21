@@ -85,14 +85,14 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> {
                         fontWeight: FontWeight.bold,
                         fontSize: 15.sp,
                         fontFamily: 'Gilroy'),
-                    labelColor: const Color(0XFF23408F),
+                    labelColor: const Color(0XFF78A02A),
                     unselectedLabelStyle:  TextStyle(
                         color: Color(0XFF23408F),
                         fontWeight: FontWeight.bold,
                         fontSize: 15.sp,
                         fontFamily: 'Gilroy'),
                     indicator: ShapeDecoration(
-                        color: const Color(0XFFE5ECFF),
+                        color: const Color(0XFFEBF2C2),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(22.h))),
                     controller: ongoingCompletedController.tabController,

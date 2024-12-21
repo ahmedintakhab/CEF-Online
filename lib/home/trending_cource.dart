@@ -213,7 +213,7 @@ class _TrendingCourceState extends State<TrendingCource> {
                                             image: const AssetImage(
                                                 "assets/clock.png"),
                                             height: 17.h,
-                                            width: 17.w,
+                                            width: 17.w,color: Color(0XFF8CC13F),
                                           ),
                                           SizedBox(width: 4.w),
                                           Text(

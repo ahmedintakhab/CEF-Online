@@ -112,7 +112,7 @@ class _EditScreenState extends State<EditScreen> {
                   height: 24.h,
                   width: 24.h,
                   child: Image(
-                    image: AssetImage(i),
+                    image: AssetImage(i),color: Color(0XFF8CC13F),
                   ),
                 ),
               ),
@@ -140,13 +140,13 @@ class _EditScreenState extends State<EditScreen> {
           //color: Color(0XFF23408F),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20.h),
-            color: const Color(0XFF23408F),
+            color: const Color(0XFF78A03F),
           ),
           child: Center(
             child: Text("Save",
                 style: TextStyle(
                     color: Color(0XFFFFFFFF),
-                    fontSize: 18.sp,
+                    fontSize: 22.sp,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'Gilroy')),
           ),

@@ -139,12 +139,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: Container(
                                           height: 5.h,
                                           width: 5.w,
-                                          decoration: const BoxDecoration(
-                                            image: DecorationImage(
-                                              image: AssetImage("assets/filico.png"),
+                                          child: ColorFiltered(
+                                            colorFilter: const ColorFilter.mode(
+                                              Color(0xFF8CC13F), // Desired color
+                                              BlendMode.srcIn,   // Applies the color to the image
                                             ),
+                                            child: Image.asset("assets/filico.png"),
                                           ),
                                         ),
+
                                       ),
                                       border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(22)))),
@@ -175,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         style: TextStyle(
                                             fontSize: 18.sp,
                                             fontFamily: 'Gilroy',
-                                            color: const Color(0XFF23408F),
+                                            color: const Color(0XFF78A03F),
                                             fontWeight: FontWeight.bold)))
                               ],
                             ),
@@ -199,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         style: TextStyle(
                                             fontFamily: 'Gilroy',
                                             fontSize: 18.sp,
-                                            color: const Color(0XFF23408F),
+                                            color: const Color(0XFF78A03F),
                                             fontWeight: FontWeight.w700)))
                               ],
                             ),
@@ -265,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     "Get Start",
                     style: TextStyle(
-                        color: const Color(0XFF23408F),
+                        color: const Color(0XFF78A03F),
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Gilroy',
                     fontSize: 18.sp),
@@ -294,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
                   color: (index == homecontroller.currentpage.value)
-                      ? const Color(0XFF23408F)
+                      ? const Color(0XFF8CC13F)
                       : const Color(0XFFDEDEDE)),
             ),
           );
@@ -557,6 +560,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   image:const  AssetImage("assets/clock.png"),
                                   height: 17.h,
                                   width: 17.w,
+                                   color: Color(0XFF8CC13F),
                                 ),
                                 SizedBox(width: 4.w),
                                 Text(
@@ -603,7 +607,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style:  TextStyle(
                                       fontFamily: 'Gilroy',
                                       fontWeight: FontWeight.w400,
-                                      color: Color(0XFF23408F),
+                                      color: Color(0XFF5E8421),
                                       fontSize: 15.sp),
                                 ),
                               ],
@@ -613,13 +617,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: 76.w,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
-                                color: const Color(0XFFE5ECFF),
+                                color: const Color(0XFFEBF2C2),
                               ),
                               child: Center(
                                   child: Text(
                                 recentAdded[index].price!,
                                 style:  TextStyle(
-                                    color: const Color(0XFF23408F),
+                                    color: const Color(0XFF78A03F),
                                     fontFamily: 'Gilroy',
                                     fontSize: 19.sp,
                                     fontWeight: FontWeight.bold),

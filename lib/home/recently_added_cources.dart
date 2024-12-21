@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/home/recent_added_cource_detail.dart';
 
@@ -21,11 +21,9 @@ class RecentlyAdded extends StatefulWidget {
 class _RecentlyAddedState extends State<RecentlyAdded> {
 
   Future<void> share() async {
-    await FlutterShare.share(
-        title: 'Example share',
-        text: 'Example share text',
-        linkUrl: 'https://flutter.dev/',
-        chooserTitle: 'Example Chooser Title'
+    await Share.share(
+      'Example share text',  // Text content to share
+      subject: 'Example share subject',
     );
   }
   List<Recent> recentcource = [];
@@ -215,7 +213,8 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                                   //color: Colors.red,
                                   child: Row(
                                     children: [
-                                      Image(image: const AssetImage("assets/clock.png"),height: 17.h,width: 17.w),
+                                      Image(image: const AssetImage("assets/clock.png")
+                                          ,height: 17.h,width: 17.w,color: Color(0XFF8CC13F),),
                                        SizedBox(width: 4.w),
                                       Text(
                                         recentcource[index].time!,
@@ -265,7 +264,7 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                                     Text(
                                       recentcource[index].personname!,
                                       style:  TextStyle(
-                                          color: Color(0XFF23408F),
+                                          color: Color(0XFF5E8421),
                                           fontSize: 15.sp,
                                           fontWeight: FontWeight.w400,
                                           fontFamily: 'Gilroy'),
@@ -279,12 +278,12 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                                       width: 74.w,
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(12.h),
-                                          color:const  Color(0XFFE5ECFF)),
+                                          color:const  Color(0XFFEBF2C2)),
                                       child: Center(
                                           child: Text(
                                         recentcource[index].price!,
                                         style:  TextStyle(
-                                            color: const Color(0XFF23408F),
+                                            color: const Color(0XFF78A03F),
                                             fontFamily: 'Gilroy',
                                             fontSize: 19.sp,
                                             fontWeight: FontWeight.w700),

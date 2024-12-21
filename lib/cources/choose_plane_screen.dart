@@ -95,7 +95,7 @@ class _ChoosePlaneState extends State<ChoosePlane> {
                                                       fontWeight: FontWeight.w700),
                                                 ),
                                                 Radio(
-                                                    activeColor: Color(0XFF23408F),
+                                                    activeColor: Color(0XFF78A03F),
                                                     value: profilePageController
                                                         .choice[index],
                                                     groupValue:
@@ -115,7 +115,7 @@ class _ChoosePlaneState extends State<ChoosePlane> {
                                                   image: AssetImage(
                                                       plane[index].image!),
                                                   height: 16.h,
-                                                  width: 16.w,
+                                                  width: 16.w,color: Color(0XFF78A03F),
                                                 ),
                                                  SizedBox(width: 10.w),
                                                 Text(
@@ -135,7 +135,7 @@ class _ChoosePlaneState extends State<ChoosePlane> {
                                                   image: AssetImage(
                                                       plane[index].image!),
                                                   height: 16.h,
-                                                  width: 16.w,
+                                                  width: 16.w,color: Color(0XFF78A03F)
                                                 ),
                                                  SizedBox(width: 10.w),
                                                 Text(
@@ -155,7 +155,7 @@ class _ChoosePlaneState extends State<ChoosePlane> {
                                                   image: AssetImage(
                                                       plane[index].image!),
                                                   height: 16.h,
-                                                  width: 16.w,
+                                                  width: 16.w,color: Color(0XFF78A03F)
                                                 ),
                                                  SizedBox(width: 10.w),
                                                 Text(
@@ -197,13 +197,13 @@ class _ChoosePlaneState extends State<ChoosePlane> {
         //color: Color(0XFF23408F),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.h),
-          color: const Color(0XFF23408F),
+          color: const Color(0XFF78A03F),
         ),
         child:  Center(
           child: Text("Payment",
               style: TextStyle(
                   color: const Color(0XFFFFFFFF),
-                  fontSize: 18.sp,
+                  fontSize: 22.sp,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Gilroy')),
         ),

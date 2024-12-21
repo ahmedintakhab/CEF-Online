@@ -1,7 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
-
 import 'dart:io';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,7 +8,8 @@ import 'package:learn_megnagmet/home/home_main.dart';
 import 'package:learn_megnagmet/login/forgot_password.dart';
 import 'package:learn_megnagmet/login/sign_up/sign_up_empty_screen.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../utils/screen_size.dart';
 
 class EmptyState extends StatefulWidget {
@@ -19,12 +18,59 @@ class EmptyState extends StatefulWidget {
   @override
   State<EmptyState> createState() => _EmptyStateState();
 }
+bool isLoading = false;
 
 class _EmptyStateState extends State<EmptyState> {
   final formkey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool ispassHiden = false;
+
+  Future<void> login(String email, String password) async {
+    // Define the API URL
+    final String apiUrl = "https://cefonlineacademy.com/api/login";
+
+    // Prepare the request body
+    Map<String, String> requestBody = {
+      'email': email,
+      'password': password,
+    };
+
+    try {
+      // Make the POST request
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json', // Set the content type to JSON
+        },
+        body: jsonEncode(requestBody), // Convert the request body to JSON
+      );
+
+      // Handle the response
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        final data = jsonDecode(response.body);
+        PrefData.setLogin(true); // Update login state
+        print("Login successful: ${data}");
+        Get.to(const HomeMainScreen());
+
+        // Process the response data as needed
+      } else {
+        Get.snackbar('Login Failed', 'Invalid email or password', snackPosition: SnackPosition.BOTTOM);
+        print("Login failed: ${response.body}");
+        // Handle errors
+      }
+    } catch (e) {
+      print("Error: $e");
+      // Handle exceptions
+    }finally {
+      // Stop the loading indicator after the API call finishes
+      setState(() {
+        isLoading = false;
+      });
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +179,7 @@ class _EmptyStateState extends State<EmptyState> {
             fontFamily: 'Gilroy',
             fontWeight: FontWeight.w700,
             fontSize: 15.sp,
-            color: Color(0XFF23408F),
+            color: Color(0XFF78A03F),
           ),
         ),
       ),
@@ -143,12 +189,14 @@ class _EmptyStateState extends State<EmptyState> {
   Widget loginbutton() {
     return Center(
       child: GestureDetector(
-        onTap: () {
+        onTap: () async{
           if (formkey.currentState!.validate()) {
-            PrefData.setLogin(true);
-
+            setState(() {
+              isLoading = true; // Start showing loading spinner
+            });
+            // PrefData.setLogin(true);
+            await login(emailController.text, passwordController.text);
             //PrefData.setVarification(true);
-            Get.to(const HomeMainScreen());
           }
 
 
@@ -159,13 +207,16 @@ class _EmptyStateState extends State<EmptyState> {
           //color: Color(0XFF23408F),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: const Color(0XFF23408F),
+            color: const Color(0XFF78A03F),
           ),
           child:  Center(
-            child: Text("Log In",
+            child:isLoading
+                ? CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ):Text("Log In",
                 style: TextStyle(
                     color: Color(0XFFFFFFFF),
-                    fontSize: 18.sp,
+                    fontSize: 22.sp,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'Gilroy')),
           ),
@@ -286,6 +337,7 @@ class _EmptyStateState extends State<EmptyState> {
         children: [
           TextFormField(
             controller: emailController,
+            cursorColor: const Color(0xFF78A03F),
             decoration: InputDecoration(
 
                 hintText: 'Email',
@@ -299,7 +351,7 @@ class _EmptyStateState extends State<EmptyState> {
                   borderRadius: BorderRadius.circular(12),
                 ),
             focusedBorder:OutlineInputBorder(
-              borderSide:  BorderSide(color: const Color(0XFF23408F),width: 1.w),
+              borderSide:  BorderSide(color: const Color(0XFF8CC13F),width: 1.w),
               borderRadius: BorderRadius.circular(12),
             ) ,
             enabledBorder:OutlineInputBorder(
@@ -324,6 +376,7 @@ class _EmptyStateState extends State<EmptyState> {
            SizedBox(height: 15.h),
           TextFormField(
             controller: passwordController,
+            cursorColor: const Color(0xFF78A03F),
             obscureText: ispassHiden,
             decoration: InputDecoration(
                 hintText: 'Password',
@@ -336,7 +389,7 @@ class _EmptyStateState extends State<EmptyState> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 focusedBorder:OutlineInputBorder(
-                  borderSide: BorderSide(color: const Color(0XFF23408F),width: 1.w),
+                  borderSide: BorderSide(color: const Color(0XFF8CC13F),width: 1.w),
                   borderRadius: BorderRadius.circular(12),
                 ) ,
                 enabledBorder:OutlineInputBorder(
@@ -352,7 +405,8 @@ class _EmptyStateState extends State<EmptyState> {
                         child:  Image(image:const  AssetImage("assets/notvisible_eye.png"),height: 20.h,width: 20.w,))
                     : GestureDetector(
                         onTap: () => toggle(),
-                        child:  Image(image: const AssetImage("assets/visible_eye.png"),height: 20.h,width: 20.w,))),
+                        child:  Image(image: const AssetImage("assets/visible_eye.png")
+                          ,height: 20.h,width: 20.w,color: Color(0XFF8CC13F),))),
             validator: (val) {
               if (val!.isEmpty) {
                 return 'Enter the  password';

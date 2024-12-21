@@ -92,7 +92,7 @@ class _CardBottomSheetState extends State<CardBottomSheet> {
                     width: 24.h,
                   child: Image(
                     image: AssetImage(t), height: 24.h,
-                    width: 24.h,
+                    width: 24.h,color: Color(0XFF8CC13F),
                   ),
                 ),
               ),
@@ -146,7 +146,7 @@ class _CardBottomSheetState extends State<CardBottomSheet> {
       children: [
         Checkbox(
           value: ischeaked,
-          activeColor:const  Color(0XFF23408F),
+          activeColor:const  Color(0XFF78A03F),
           side: const BorderSide(color: Color(0XFFDEDEDE)),
 
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.h)),
@@ -177,7 +177,8 @@ class _CardBottomSheetState extends State<CardBottomSheet> {
         height: 56.h,
         width: 374.w,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.h), color:  ischeaked?const Color(0XFF23408F):Colors.grey,
+          borderRadius: BorderRadius.circular(20.h),
+          color:  ischeaked?const Color(0XFF78A03F):Colors.grey,
         ),
         child:  Center(
           child: Text("Add",

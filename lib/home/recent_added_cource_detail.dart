@@ -89,7 +89,7 @@ class _RecentCourceDetailState extends State<RecentCourceDetail> {
                                       borderRadius:
                                       BorderRadius.circular(
                                           22.h),
-                                      color: const Color(0XFFE5ECFF),
+                                      color: const Color(0XFFEBF2C2),
                                     ),
                                     child:  Center(
                                       child: Text(
@@ -98,7 +98,7 @@ class _RecentCourceDetailState extends State<RecentCourceDetail> {
                                             fontFamily:
                                             'Gilroy',
                                             color:
-                                            Color(0XFF23408F),
+                                            Color(0XFF78A03F),
                                             fontSize: 12.sp,
                                             fontWeight: FontWeight.w700),
                                       ),
@@ -131,7 +131,7 @@ class _RecentCourceDetailState extends State<RecentCourceDetail> {
                                       borderRadius:
                                       BorderRadius.circular(
                                           22.h),
-                                      color: const Color(0XFFE5ECFF),
+                                      color: const Color(0XFFEBF2C2),
                                     ),
                                     child:  Center(
                                       child: Text(
@@ -140,7 +140,7 @@ class _RecentCourceDetailState extends State<RecentCourceDetail> {
                                             fontFamily:
                                             'Gilroy',
                                             color:
-                                            Color(0XFF23408F),
+                                            Color(0XFF78A03F),
                                             fontSize: 12.sp,
                                             fontWeight: FontWeight.w700),
                                       ),
@@ -171,12 +171,12 @@ class _RecentCourceDetailState extends State<RecentCourceDetail> {
                                     decoration: BoxDecoration(
                                         borderRadius:
                                         BorderRadius.circular(22.h),
-                                        color: const Color(0XFFE5ECFF)),
+                                        color: const Color(0XFFEBF2C2)),
                                     child: Center(
                                       child: Text(
                                         "${cource_detail[index].lessonID}",
                                         style:  TextStyle(
-                                            color: Color(0XFF23408F),
+                                            color: Color(0XFF78A03F),
                                             fontSize: 15.sp,
                                             fontFamily: 'Gilroy',
                                             fontWeight:
@@ -220,6 +220,7 @@ class _RecentCourceDetailState extends State<RecentCourceDetail> {
                                                 .playIconImage!),
                                         height: 26.h,
                                         width: 26.w,
+                                        color: Color(0XFF8CC13F),
                                       ),
                                       onTap: () {
                                         Navigator.push(
@@ -239,6 +240,7 @@ class _RecentCourceDetailState extends State<RecentCourceDetail> {
                                                 .lockImageImage!),
                                         height: 26.h,
                                         width: 26.w,
+                                        color: Color(0XFF8CC13F),
                                       ),
                                       onTap: () {
                                         Get.snackbar('error',
@@ -267,7 +269,7 @@ class _RecentCourceDetailState extends State<RecentCourceDetail> {
                   //color: Color(0XFF23408F),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20.h),
-                    color: const Color(0XFF23408F),
+                    color: const Color(0XFF8CC13F),
                   ),
                   child:  Center(
                     child: Text("Continue Course",

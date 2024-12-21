@@ -100,14 +100,14 @@ class _SearchScreenState extends State<SearchScreen> {
                                             decoration: BoxDecoration(
                                               color: selectedCategory
                                                       .contains(categoryList[i])
-                                                  ? Color(0XFFE5ECFF)
+                                                  ? Color(0XFFEBF2C2)
                                                   : Colors.white,
                                               borderRadius:
                                                   BorderRadius.circular(6.h),
                                               border: Border.all(
                                                   color: selectedCategory
                                                           .contains(categoryList[i])
-                                                      ? Color(0XFF23408F)
+                                                      ? Color(0XFF)
                                                       : Color(0XFF6E758A),
                                                   width: 1.w),
                                             ),
@@ -118,7 +118,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                                   ? TextStyle(
                                                       fontSize: 15.sp,
                                                       fontWeight: FontWeight.w700,
-                                                      color: Color(0XFF23408F),
+                                                      color: Color(0XFF78A03F),
                                                       fontFamily: 'Gilroy')
                                                   : TextStyle(
                                                       fontSize: 15.sp,
@@ -155,7 +155,7 @@ class _SearchScreenState extends State<SearchScreen> {
       child: TextFormField(
           decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0XFF23408F), width: 1.w),
+                  borderSide: BorderSide(color: Color(0XFF78A03F), width: 1.w),
                   borderRadius: BorderRadius.circular(22.h)),
               hintText: 'Search',
               hintStyle: TextStyle(
@@ -183,9 +183,14 @@ class _SearchScreenState extends State<SearchScreen> {
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage("assets/filico.png"),
+                      colorFilter: ColorFilter.mode(
+                        Color(0xFF8CC13F), // Use your desired color here
+                        BlendMode.srcIn,  // Applies the color filter to the image
+                      ),
                     ),
                   ),
                 ),
+
               ),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(22.h)))),
@@ -350,6 +355,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       image: AssetImage("assets/clock.png"),
                                       height: 17.h,
                                       width: 17.w,
+                                      color: Color(0XFF8CC13F),
                                     ),
                                     SizedBox(width: 4.w),
                                     Text(
@@ -379,7 +385,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           Text(
                             cource[index].personname!,
                             style: TextStyle(
-                                color: const Color(0XFF23408F),
+                                color: const Color(0XFF5E8421),
                                 fontSize: 14.sp,
                                 fontFamily: 'Gilroy'),
                           )
@@ -492,6 +498,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               image: const AssetImage("assets/clock.png"),
                               height: 17.h,
                               width: 17.w,
+                              color: Color(0XFF8CC13F),
                             ),
                             SizedBox(width: 4.w),
                             Text(
@@ -538,7 +545,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               style: TextStyle(
                                   fontFamily: 'Gilroy',
                                   fontWeight: FontWeight.w400,
-                                  color: const Color(0XFF23408F),
+                                  color: const Color(0XFF5E8421),
                                   fontSize: 15.sp),
                             ),
                           ],
@@ -548,13 +555,13 @@ class _SearchScreenState extends State<SearchScreen> {
                           width: 76.w,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12.h),
-                            color: const Color(0XFFE5ECFF),
+                            color: const Color(0XFFEBF2C2),
                           ),
                           child: Center(
                               child: Text(
                             recentAdded[index].price!,
                             style: TextStyle(
-                                color: Color(0XFF23408F),
+                                color: Color(0XFF78A03F),
                                 fontFamily: 'Gilroy',
                                 fontSize: 19.sp,
                                 fontWeight: FontWeight.w400),

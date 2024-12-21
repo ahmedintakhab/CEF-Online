@@ -98,7 +98,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
         children: [
           TextFormField(
             controller: nameController,
-
+            cursorColor: const Color(0xFF78A03F),
             decoration: InputDecoration(
 
                 hintText: 'Name',
@@ -110,7 +110,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
 
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: const Color(0XFF23408F), width: 1.w)),
+                    borderSide: BorderSide(color: const Color(0XFF8CC13F), width: 1.w)),
                 enabledBorder:OutlineInputBorder(
                   borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
                   borderRadius: BorderRadius.circular(12),
@@ -127,6 +127,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
           SizedBox(height: 20.h),
           TextFormField(
             controller: emailController,
+            cursorColor: const Color(0xFF78A03F),
             decoration: InputDecoration(
                 hintText: 'Email',
                 hintStyle:  TextStyle(
@@ -136,7 +137,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
                     fontWeight: FontWeight.bold),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: const Color(0XFF23408F), width: 1.w)),
+                    borderSide: BorderSide(color: const Color(0XFF8CC13F), width: 1.w)),
                 enabledBorder:OutlineInputBorder(
                   borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
                   borderRadius: BorderRadius.circular(12),
@@ -159,6 +160,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
            SizedBox(height: 20.h),
           TextFormField(
             controller: passwordController,
+            cursorColor: const Color(0xFF78A03F),
             obscureText: ispassHiden,
             decoration: InputDecoration(
                 suffixIcon:ispassHiden
@@ -167,7 +169,8 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
                     child:  Image(image: const AssetImage("assets/notvisible_eye.png"),height: 20.h,width: 20.w,))
                     : GestureDetector(
                     onTap: () => toggle(),
-                    child:  Image(image: const AssetImage("assets/visible_eye.png"),height: 20.h,width: 20.w,)),
+                    child:  Image(image: const AssetImage("assets/visible_eye.png"),height: 20.h,width: 20.w,
+                    color: Color(0XFF8CC13F),)),
                 hintText: 'Password',
                 hintStyle: const TextStyle(
                     fontSize: 15,
@@ -176,7 +179,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
                     fontWeight: FontWeight.bold),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: const Color(0XFF23408F), width: 1.w)),
+                    borderSide: BorderSide(color: const Color(0XFF8CC13F), width: 1.w)),
                 enabledBorder:OutlineInputBorder(
                   borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
                   borderRadius: BorderRadius.circular(12),
@@ -191,6 +194,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
            SizedBox(height: 20.h),
           TextFormField(
             controller: confirmpassController,
+            cursorColor: const Color(0xFF78A03F),
             obscureText: ispassHiden1,
             decoration: InputDecoration(
                 suffixIcon: ispassHiden1
@@ -199,7 +203,8 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
                     child:  Image(image:const  AssetImage("assets/notvisible_eye.png"),height: 20.h,width: 20.w,))
                     : GestureDetector(
                     onTap: () => toggle1(),
-                    child:  Image(image: const AssetImage("assets/visible_eye.png"),height: 20.h,width: 20.w,)),
+                    child:  Image(image: const AssetImage("assets/visible_eye.png"),
+                      height: 20.h,width: 20.w,color: Color(0XFF8CC13F))),
                 hintText: 'Confirm password',
                 hintStyle:  TextStyle(
                     fontSize: 15.sp,
@@ -208,7 +213,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
                     fontWeight: FontWeight.bold),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: const Color(0XFF23408F), width: 1.w)),
+                    borderSide: BorderSide(color: const Color(0XFF8CC13F), width: 1.w)),
                 enabledBorder:OutlineInputBorder(
                   borderSide:  BorderSide(color: Color(0XFFDEDEDE),width: 1.w),
                   borderRadius: BorderRadius.circular(12),
@@ -230,7 +235,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
       children: [
         Checkbox(
 
-          activeColor: const Color(0XFF23408F),
+          activeColor: const Color(0XFF78A03F),
           side: const BorderSide(color: Color(0XFFDEDEDE)),
           value: ischeaked,
           onChanged: (value) {
@@ -252,7 +257,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
                   },
                 text: 'Terms and condition',
                 style: const TextStyle(
-                    color: Color(0XFF23408F),
+                    color: Color(0XFF78A03F),
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'Gilroy'),
@@ -268,7 +273,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
       width: 374.w,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: const Color(0XFF23408F),
+        color: const Color(0XFF78A03F),
       ),
       child: TextButton(
         onPressed: ischeaked
@@ -283,7 +288,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
         child:  Text("Sign Up",
             style: TextStyle(
                 color: Color(0XFFFFFFFF),
-                fontSize: 18.sp,
+                fontSize: 22.sp,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Gilroy')),
       ),

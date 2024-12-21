@@ -263,7 +263,7 @@ class _CertificatePaymentState extends State<CertificatePayment> {
           width: 374.w,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20.h),
-            color: const Color(0XFF23408F),
+            color: const Color(0XFF78A03F),
           ),
           child:  Center(
             child: Text("Add New Card",

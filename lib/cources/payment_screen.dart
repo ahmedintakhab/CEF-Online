@@ -97,7 +97,7 @@ class _PaymenConfirmState extends State<PaymenConfirm> {
                                         fontWeight: FontWeight.w700,
                                         fontSize: 20.sp,
                                         fontFamily: 'Gilroy',
-                                        color: Color(0XFF23408F)),
+                                        color: Color(0XFF78A03F)),
                                   ),
                                 ],
                               ),
@@ -165,7 +165,7 @@ class _PaymenConfirmState extends State<PaymenConfirm> {
                                               ),
                                               Radio(
                                                   activeColor:
-                                                      const Color(0XFF23408F),
+                                                      const Color(0XFF78A03F),
                                                   value:
                                                       paymentSelectionController
                                                           .choice[index],
@@ -216,7 +216,7 @@ class _PaymenConfirmState extends State<PaymenConfirm> {
       child: Text(
         "Add New +",
         style: TextStyle(
-            fontSize: 18.sp, color: Color(0XFF23408F), fontFamily: 'Gilroy'),
+            fontSize: 18.sp, color: Color(0XFF5E8421), fontFamily: 'Gilroy'),
       ),
     ));
   }
@@ -291,13 +291,13 @@ class _PaymenConfirmState extends State<PaymenConfirm> {
               //color: Color(0XFF23408F),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: const Color(0XFF23408F),
+                color: const Color(0XFF78A03F),
               ),
               child: const Center(
                 child: Text("Confirm",
                     style: TextStyle(
                         color: Color(0XFFFFFFFF),
-                        fontSize: 18,
+                        fontSize: 22,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Gilroy')),
               ),

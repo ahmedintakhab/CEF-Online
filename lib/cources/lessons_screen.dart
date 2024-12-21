@@ -48,7 +48,7 @@ class _LessonState extends State<Lesson> {
                             child: ExpansionTileCard(
                               trailing:Padding(
                                 padding:  EdgeInsets.only(right: 20.w),
-                                child: Image.asset("assets/down.png",height: 24.h,width: 24.w),
+                                child: Image.asset("assets/down.png",height: 24.h,width: 24.w,color: Color(0XFF78A03F),),
                               ),
                               animateTrailing: true,
 
@@ -79,14 +79,14 @@ class _LessonState extends State<Lesson> {
                                     width: 63.w,
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(22.h),
-                                        color: const Color(0XFFE5ECFF)),
+                                        color: const Color(0XFFEBF2C2)),
                                     child: Center(
                                         child: Text(
                                       lessonLists[index].buttonName!,
                                       style:  TextStyle(
                                           fontSize: 12.sp,
                                           fontWeight: FontWeight.bold,
-                                          color: const Color(0XFF23408F)),
+                                          color: const Color(0XFF78A03F)),
                                     )),
                                   ),
                                 ],
@@ -129,7 +129,7 @@ class _LessonState extends State<Lesson> {
                     lessonLists[index]
                         .detailicon1!,
                     height: 20.h,
-                    width: 20.w),
+                    width: 20.w,color: Color(0XFF8CC13F),),
                  SizedBox(width: 10.w),
                 Flexible(
                     child: Text(
@@ -159,7 +159,7 @@ class _LessonState extends State<Lesson> {
                     lessonLists[index]
                         .detailicon2!,
                     height: 20.h,
-                    width: 20.w),
+                    width: 20.w,color: Color(0XFF8CC13F)),
                  SizedBox(width: 10.w),
                 Flexible(
                     child: Text(
@@ -178,7 +178,7 @@ class _LessonState extends State<Lesson> {
                     lessonLists[index]
                         .detailicon3!,
                     height: 20.h,
-                    width: 20.w),
+                    width: 20.w,color: Color(0XFF8CC13F)),
                  SizedBox(width: 10.w),
                 Flexible(
                     child: Text(
@@ -197,7 +197,7 @@ class _LessonState extends State<Lesson> {
                     lessonLists[index]
                         .detailicon4!,
                     height: 20.h,
-                    width: 20.w),
+                    width: 20.w,color: Color(0XFF8CC13F)),
                  SizedBox(width: 10.w),
                 Flexible(
                     child: Text(
