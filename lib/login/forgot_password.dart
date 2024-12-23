@@ -4,8 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:learn_megnagmet/login/reset_password.dart';
+import 'package:learn_megnagmet/login/sign_up/phone_number_field.dart';
 
 import '../utils/screen_size.dart';
 import 'login_empty_state.dart';
@@ -70,7 +70,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                          ),
                        ),
                        SizedBox(height: 54.h),
-                       phone_number_field(),
+                        phone_number_field(),
                        SizedBox(height: 30.h),
                        submitbutton(),
                       // SizedBox(height: 151.h),
@@ -102,13 +102,13 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           //color: Color(0XFF23408F),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: const Color(0XFF23408F),
+            color: const Color(0XFF78a03f),
           ),
           child:  Center(
             child: Text("Submit",
                 style: TextStyle(
                     color: Color(0XFFFFFFFF),
-                    fontSize: 18.sp,
+                    fontSize: 22.sp,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'Gilroy')),
           ),
@@ -139,34 +139,34 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           ])),
     );
   }
-
-  Widget phone_number_field() {
-    return IntlPhoneField(
-
-      decoration:  InputDecoration(
-        labelText: 'Phone Number',
-        labelStyle: TextStyle(fontFamily: 'Gilroy',fontWeight: FontWeight.w700,fontSize: 15.sp,color: const Color(0XFF9B9B9B)),
-        border: OutlineInputBorder(
-            borderRadius:BorderRadius.circular(12),borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w)
-        ),
-    focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: const Color(0XFF23408F), width: 1.w)),
-    enabledBorder:OutlineInputBorder(
-    borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
-    borderRadius: BorderRadius.circular(12),
-    )
-
-      ),
-      initialCountryCode: 'IN',
-
-
-
-      onChanged: (phone) {
-        print(phone.completeNumber);
-      },
-    );
-  }
+  //
+  // Widget phone_number_field() {
+  //   return IntlPhoneField(
+  //
+  //     decoration:  InputDecoration(
+  //       labelText: 'Phone Number',
+  //       labelStyle: TextStyle(fontFamily: 'Gilroy',fontWeight: FontWeight.w700,fontSize: 15.sp,color: const Color(0XFF9B9B9B)),
+  //       border: OutlineInputBorder(
+  //           borderRadius:BorderRadius.circular(12),borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w)
+  //       ),
+  //   focusedBorder: OutlineInputBorder(
+  //   borderRadius: BorderRadius.circular(12),
+  //   borderSide: BorderSide(color: const Color(0XFF23408F), width: 1.w)),
+  //   enabledBorder:OutlineInputBorder(
+  //   borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
+  //   borderRadius: BorderRadius.circular(12),
+  //   )
+  //
+  //     ),
+  //     initialCountryCode: 'IN',
+  //
+  //
+  //
+  //     onChanged: (phone) {
+  //       print(phone.completeNumber);
+  //     },
+  //   );
+  // }
 
   Widget backbutton() {
     return GestureDetector(

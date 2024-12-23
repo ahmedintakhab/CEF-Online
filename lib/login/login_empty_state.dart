@@ -10,6 +10,7 @@ import 'package:learn_megnagmet/login/sign_up/sign_up_empty_screen.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:learn_megnagmet/widget/custom_text_form_field.dart';
 import '../utils/screen_size.dart';
 
 class EmptyState extends StatefulWidget {
@@ -25,6 +26,13 @@ class _EmptyStateState extends State<EmptyState> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool ispassHiden = false;
+  bool isPasswordHidden = true;
+
+  void togglePasswordVisibility() {
+    setState(() {
+      isPasswordHidden = !isPasswordHidden;
+    });
+  }
 
   Future<void> login(String email, String password) async {
     // Define the API URL
@@ -335,85 +343,42 @@ class _EmptyStateState extends State<EmptyState> {
       key: formkey,
       child: Column(
         children: [
-          TextFormField(
-            controller: emailController,
-            cursorColor: const Color(0xFF78A03F),
-            decoration: InputDecoration(
-
-                hintText: 'Email',
-                hintStyle:  TextStyle(
-                    fontSize: 15.sp,
-                    fontFamily: 'Gilroy',
-                    color: const Color(0XFF9B9B9B),
-                    fontWeight: FontWeight.w700),
-                border: OutlineInputBorder(
-                  borderSide:  BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-            focusedBorder:OutlineInputBorder(
-              borderSide:  BorderSide(color: const Color(0XFF8CC13F),width: 1.w),
-              borderRadius: BorderRadius.circular(12),
-            ) ,
-            enabledBorder:OutlineInputBorder(
-              borderSide:  BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
-              borderRadius: BorderRadius.circular(12),
-            ),
-              filled: true,
-              fillColor: const Color(0xFFF5F5F5),
-              contentPadding:  EdgeInsets.only(left: 20.w,top:20.h,bottom: 20.h),),
-            validator: (val) {
-              if (val!.isEmpty) {
-                return 'Enter the  email';
-              } else {
-                if (!RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
-                    .hasMatch(val)) {
-                  return 'Please enter valid email address';
+          customTextFormField(controller: emailController, hintText: "Email",
+              validator: (val) {
+                if (val!.isEmpty) {
+                  return 'Enter the  email';
+                } else {
+                  if (!RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
+                      .hasMatch(val)) {
+                    return 'Please enter valid email address';
+                  }
                 }
-              }
-              return null;
-            },
-          ),
+                return null;
+              },),
+           
            SizedBox(height: 15.h),
-          TextFormField(
+          customTextFormField(
             controller: passwordController,
-            cursorColor: const Color(0xFF78A03F),
-            obscureText: ispassHiden,
-            decoration: InputDecoration(
-                hintText: 'Password',
-                hintStyle:  TextStyle(
-                    fontSize: 15.sp,
-                    fontFamily: 'Gilroy',
-                    color: const Color(0XFF9B9B9B),
-                    fontWeight: FontWeight.w700),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                focusedBorder:OutlineInputBorder(
-                  borderSide: BorderSide(color: const Color(0XFF8CC13F),width: 1.w),
-                  borderRadius: BorderRadius.circular(12),
-                ) ,
-                enabledBorder:OutlineInputBorder(
-                  borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-                contentPadding:  EdgeInsets.only(left: 20.w,top:20.h,bottom: 20.h),
-                suffixIcon: ispassHiden
-                    ? GestureDetector(
-                        onTap: () => toggle(),
-                        child:  Image(image:const  AssetImage("assets/notvisible_eye.png"),height: 20.h,width: 20.w,))
-                    : GestureDetector(
-                        onTap: () => toggle(),
-                        child:  Image(image: const AssetImage("assets/visible_eye.png")
-                          ,height: 20.h,width: 20.w,color: Color(0XFF8CC13F),))),
+            hintText: "Password",
+            isPasswordField: true, // Specify it's a password field
+            obscureText: isPasswordHidden, // Dynamically updating with state
             validator: (val) {
-              if (val!.isEmpty) {
-                return 'Enter the  password';
-              }
+              if (val == null || val.isEmpty) return 'Enter the password';
               return null;
             },
+            suffixIcon: GestureDetector(
+              onTap: togglePasswordVisibility,
+              child: Image(
+                image: AssetImage(isPasswordHidden
+                    ? "assets/notvisible_eye.png"
+                    : "assets/visible_eye.png"),
+                height: 20.h,
+                width: 20.w,
+                color: isPasswordHidden ? null : const Color(0XFF8CC13F),
+              ),
+            ),
           ),
+
         ],
       ),
     );
