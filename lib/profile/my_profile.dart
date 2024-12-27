@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:learn_megnagmet/home/home_main.dart';
 import 'package:learn_megnagmet/home/home_screen.dart';
 import 'package:learn_megnagmet/profile/edit_screen.dart';
@@ -33,6 +34,23 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfileState extends State<MyProfile> {
+  String userName = "User Name"; // Default placeholder
+  String email = "Email"; // Default placeholder
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      userName = prefs.getString('user_name') ?? "User Name";
+      email = prefs.getString('email') ?? "Email";
+    });
+  }
+
+
   MyProfileController myProfileController = Get.put(MyProfileController());
   List<ProfileOption> profileoption = Utils.getProfileOption();
   List profileOptionClass = [
@@ -55,6 +73,7 @@ class _MyProfileState extends State<MyProfile> {
   // }
 
   @override
+
   Widget build(BuildContext context) {
     initializeScreenSize(context);
     return WillPopScope(
@@ -100,7 +119,9 @@ class _MyProfileState extends State<MyProfile> {
                       ),
                        SizedBox(height: 12.h),
                       Text(
-                        widget.user_detail.name!,
+                         userName,
+
+                        // widget.user_detail.name!,
                         style:  TextStyle(
                             fontSize: 18.sp,
                             fontFamily: 'Gilroy',

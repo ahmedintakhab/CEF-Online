@@ -6,9 +6,10 @@ import 'package:learn_megnagmet/login/login_empty_state.dart';
 import 'package:learn_megnagmet/login/sign_up/phone_number_field.dart';
 import 'package:learn_megnagmet/login/sign_up/sign_in_phonenumber.dart';
 import 'package:learn_megnagmet/login/sign_up/term_and_condition.dart';
-import 'package:learn_megnagmet/widget/custom_text_form_field.dart';
+import 'package:learn_megnagmet/widget/custom_text_form_field.dart'; // Update the import path if necessary
 
 import '../../utils/screen_size.dart';
+import '../../widget/dropdown_button.dart';
 
 class SignInEmptyScreen extends StatefulWidget {
   const SignInEmptyScreen({Key? key}) : super(key: key);
@@ -166,8 +167,9 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
             ),
           ),
         ),
+
            SizedBox(height: 20.h),
-          customTextFormField(controller: timezoneController, hintText: "Select Time Zone",
+          DropdownButtonWidget(controller: timezoneController, hintText: "Select Time Zone",
               validator: (val) {
                 if (val == null || val.isEmpty) return 'Please select time zone ';
                 return null;
@@ -205,6 +207,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
               return null;
             },),
         ],
+
       ),
     );
   }
@@ -320,3 +323,4 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
     super.dispose();
   }
 }
+

@@ -51,6 +51,7 @@ dependencies:
   wakelock_plus: ^1.2.8
   win32: ^5.9.0
   http: ^1.2.2
+  dropdown_button2: ^2.3.9
 
 
 

@@ -1,0 +1,118 @@
+// dropdown_button.dart
+import 'package:flutter/material.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+class DropdownButtonWidget extends StatefulWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final String? Function(String?)? validator;
+
+  const DropdownButtonWidget({
+    Key? key,
+    required this.controller,
+    required this.hintText,
+    required this.validator,
+  }) : super(key: key);
+
+  @override
+  _DropdownButtonWidgetState createState() => _DropdownButtonWidgetState();
+}
+
+class _DropdownButtonWidgetState extends State<DropdownButtonWidget> {
+  String? selectedValue;
+  List<String> timeZones = []; // To store fetched time zones
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTimeZones(); // Fetch time zones when the widget is initialized
+  }
+
+  Future<void> _fetchTimeZones() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://cefonlineacademy.com/api/frontend/get-all-timezones'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        setState(() {
+          timeZones = jsonResponse.values.cast<String>().toList(); // Fix for type issue
+        });
+      } else {
+        print('Failed to fetch time zones: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching time zones: $e');
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton2<String>(
+        isExpanded: true,
+        hint: Text(
+          widget.hintText,
+          style: TextStyle(
+            fontSize: 15,
+            fontFamily: 'Gilroy',
+            color: const Color(0XFF9B9B9B),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        items: timeZones
+            .map((String item) => DropdownMenuItem<String>(
+          value: item,
+          child: Text(
+            item,
+            style: const TextStyle(
+              fontSize: 14,
+            ),
+          ),
+        ))
+            .toList(),
+        value: selectedValue,
+        onChanged: (String? value) {
+          setState(() {
+            selectedValue = value;
+            widget.controller.text = selectedValue ?? '';
+          });
+        },
+        buttonStyleData:  ButtonStyleData(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          height: 50, // Height of the button
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color:  Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(12), // Border radius for dropdown button
+            border: Border.all(
+              color:  Color(0XFFDEDEDE),
+              width: 1,
+            ),
+          ),
+
+          // Full width
+        ),
+        menuItemStyleData: const MenuItemStyleData(
+          height: 40,
+
+        ),
+        dropdownStyleData: DropdownStyleData(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0XFF8CC13F),
+              width: 1,
+            ),
+            color: const Color(0xFFF5F5F5),
+          ),
+          maxHeight: 200, // Make the dropdown scrollable
+        ),
+      ),
+    );
+  }
+}

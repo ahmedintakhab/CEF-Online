@@ -11,6 +11,7 @@ import 'package:learn_megnagmet/utils/shared_pref.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/widget/custom_text_form_field.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/screen_size.dart';
 
 class EmptyState extends StatefulWidget {
@@ -32,6 +33,17 @@ class _EmptyStateState extends State<EmptyState> {
     setState(() {
       isPasswordHidden = !isPasswordHidden;
     });
+  }
+  Future<void> saveUserData(Map<String, dynamic> userDetails) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Save user details
+    prefs.setString('user_name', userDetails['name'] ?? '');
+    prefs.setString('email', userDetails['email'] ?? '');
+    prefs.setString('phone_number', userDetails['mobile_number'] ?? '');
+    prefs.setString('avatar', userDetails['avatar'] ?? '');
+
+    // Save any additional fields you need
   }
 
   Future<void> login(String email, String password) async {
@@ -60,6 +72,8 @@ class _EmptyStateState extends State<EmptyState> {
         final data = jsonDecode(response.body);
         PrefData.setLogin(true); // Update login state
         print("Login successful: ${data}");
+        await saveUserData(data['userDetails']);
+        print("User data saved successfully!");
         Get.to(const HomeMainScreen());
 
         // Process the response data as needed
@@ -355,7 +369,7 @@ class _EmptyStateState extends State<EmptyState> {
                 }
                 return null;
               },),
-           
+
            SizedBox(height: 15.h),
           customTextFormField(
             controller: passwordController,
