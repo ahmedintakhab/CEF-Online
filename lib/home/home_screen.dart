@@ -15,17 +15,22 @@ import 'package:learn_megnagmet/models/design_list.dart';
 import 'package:learn_megnagmet/models/home_slider.dart';
 import 'package:learn_megnagmet/models/recently_added.dart';
 import 'package:learn_megnagmet/models/trending_cource.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 import '../utils/screen_size.dart';
 
 class HomeScreen extends StatefulWidget {
+
   const HomeScreen({Key? key}) : super(key: key);
+
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
+
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -34,6 +39,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Trending> trendingCource = Utils.getTrending();
   List<Recent> recentAdded =Utils.getRecentAdded();
   HomeController homecontroller = Get.put(HomeController());
+  Map<String, dynamic>? apiData;
+  bool isLoading = true; // Add loading state
+
+
 
   // int currentpage = 0;
   PageController controller = PageController();
@@ -44,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     pages = Utils.getHomeSliderPages();
     super.initState();
+    fetchApiData();
+
   }
   toggle(int index){
    setState(() {
@@ -65,6 +76,32 @@ class _HomeScreenState extends State<HomeScreen> {
         recentAdded[index].buttonStatus = true;
       }});
   }
+  Future<void> fetchApiData() async {
+    final url = Uri.parse("https://cefonlineacademy.com/api/frontend/home");
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        print("API successfully fetched data!");
+        final data = json.decode(response.body);
+        print("API Data: $data"); // Print the full API data
+        setState(() {
+          apiData = data; // Assuming the API returns a 'data' array
+          print('apidata check: $apiData');
+          isLoading = false; // Set loading to false after data is fetched
+        });
+      } else {
+        print("Error: Failed to fetch data. Status Code: ${response.statusCode}");
+        print("Response Body: ${response.body}");
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print("Exception occurred: $e");
+      setState(() {
+        isLoading = false; // Stop loading if there's an error
+      });
+    }
+  }
+
 
 
   @override
@@ -154,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                            SizedBox(height: 20.h),
-                          generatepage(),
+                          generatePage(),
                            SizedBox(height: 20.h),
                           indicator(),
                            SizedBox(height: 20.h),
@@ -165,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                 Text("Trending Course",
+                                 Text("Latest Course",
                                     style: TextStyle(
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.w700,
@@ -222,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget generatepage() {
+  Widget generatePage() {
     return CarouselSlider.builder(
       options: CarouselOptions(
         autoPlay: false,
@@ -236,6 +273,30 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
       itemBuilder: (BuildContext context, int index, int realIndex) {
+        // Check if apiData is null
+        if (apiData == null) {
+          print("API data is null!");
+          return Center(child: CircularProgressIndicator());
+        }
+
+        // Check if banners field is null
+        final banners = apiData?['banners'];
+
+        if (banners == null) {
+          print("Banners are null!");
+          return Center(child: CircularProgressIndicator());
+        }
+
+        // Check if image URL is valid
+        final imageUrl = banners['image'] ?? '';
+        bool isValidImageUrl = Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false;
+
+        if (isValidImageUrl) {
+          print("Valid Image URL: $imageUrl");
+        } else {
+          print("Invalid Image URL, fallback to default image");
+        }
+
         return Padding(
           padding: EdgeInsets.only(
               left: index == 0 ? 0.w : 12.w, right: index == 2 ? 12.w : 0.w),
@@ -244,7 +305,10 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 322.w,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(pages[index].image!),
+                image: isValidImageUrl
+                    ? NetworkImage(imageUrl) // Use image from API
+                    : AssetImage('assets/person.png') as ImageProvider, // Fallback image
+                fit: BoxFit.cover, // Ensure the image covers the area
               ),
               borderRadius: BorderRadius.circular(22),
             ),
@@ -252,26 +316,37 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding:  EdgeInsets.only(top: 20.h, left: 25.w, right: 110.w),
+                  padding: EdgeInsets.only(top: 20.h, left: 25.w, right: 110.w),
                   child: Text(
-                    pages[index].title!,
-                    style:  TextStyle(
+                    banners['title'] ?? '', // Use title from API
+                    style: TextStyle(
                       fontFamily: 'Gilroy',
-                        color: Color(0XFF000000),
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700),
+                      color: Color(0XFF000000),
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                 SizedBox(height: 29.sp),
-                 Padding(
-                  padding:  EdgeInsets.only(left: 25.w),
-                  child: Text(
-                    "Get Start",
-                    style: TextStyle(
+                SizedBox(height: 29.sp),
+                Padding(
+                  padding: EdgeInsets.only(left: 25.w),
+                  child: GestureDetector(
+                    onTap: () {
+                      // Open the link when "Get Start" is clicked
+                      final link = banners['link'];
+                      if (link != null && link != "#" && Uri.tryParse(link) != null) {
+                        launchUrl(Uri.parse(link));
+                      }
+                    },
+                    child: Text(
+                      "Get Start",
+                      style: TextStyle(
                         color: const Color(0XFF78A03F),
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Gilroy',
-                    fontSize: 18.sp),
+                        fontSize: 18.sp,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -279,9 +354,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
-      itemCount: pages.length,
+      itemCount: (apiData?['banners'] != null) ? 1 : 0, // Only 1 banner object
     );
   }
+
+
+
 
   Widget indicator() {
     return Row(

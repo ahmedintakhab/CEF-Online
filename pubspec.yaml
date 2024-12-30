@@ -52,6 +52,7 @@ dependencies:
   win32: ^5.9.0
   http: ^1.2.2
   dropdown_button2: ^2.3.9
+  url_launcher: ^6.3.1
 
 
 

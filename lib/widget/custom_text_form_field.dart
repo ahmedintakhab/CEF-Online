@@ -9,7 +9,6 @@ Widget customTextFormField({
   bool isPasswordField = false,
   bool obscureText = false,
   Widget? suffixIcon,
-
 }) {
   return TextFormField(
     controller: controller,
@@ -31,6 +30,14 @@ Widget customTextFormField({
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: const Color(0XFFDEDEDE), width: 1.w),
         borderRadius: BorderRadius.circular(12),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.red, width: 1.w),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.red, width: 1.w),
       ),
       filled: true,
       fillColor: const Color(0xFFF5F5F5),

@@ -7,7 +7,8 @@ import 'package:learn_megnagmet/login/sign_up/phone_number_field.dart';
 import 'package:learn_megnagmet/login/sign_up/sign_in_phonenumber.dart';
 import 'package:learn_megnagmet/login/sign_up/term_and_condition.dart';
 import 'package:learn_megnagmet/widget/custom_text_form_field.dart'; // Update the import path if necessary
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../utils/screen_size.dart';
 import '../../widget/dropdown_button.dart';
 
@@ -33,6 +34,9 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
   TextEditingController confirmpassController = TextEditingController();
   TextEditingController timezoneController = TextEditingController();
   TextEditingController referralcodeController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  String phoneNumber = "";
+
 
 
   bool isPasswordHidden = true;
@@ -48,6 +52,45 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
       isConfirmPasswordHidden = !isConfirmPasswordHidden;
     });
   }
+  Future<void> registerUser() async {
+    final url = 'https://cefonlineacademy.com/api/register';
+
+    // Prepare the data for the API
+    final data = {
+      'first_name': firstnameController.text,
+      'last_name': lastnameController.text,
+      'email': emailController.text,
+      'password': passwordController.text,
+      'time_zone': timezoneController.text,
+      'phone_number': phoneNumber,
+      'referral_code': referralcodeController.text,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      );
+
+      if (response.statusCode == 200) {
+        // Successfully registered
+        final responseData = json.decode(response.body);
+        // Handle the response data as needed
+        print('Signup successful: $responseData');
+        Get.to(const EmptyState()); // Redirect to phone number screen
+      } else {
+        // Error handling
+        print('Signup failed: ${response.body}');
+        // Show error message to the user
+      }
+    } catch (e) {
+      // Handle network errors
+      print('Error: $e');
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -174,32 +217,24 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
                 if (val == null || val.isEmpty) return 'Please select time zone ';
                 return null;
               },),
-          //
-          // customTextFormField(
-          //   controller: confirmpassController,
-          //   hintText: "Confirm Password",
-          //   isPasswordField: true, // Specify it's a password field
-          //   obscureText: isConfirmPasswordHidden, // Dynamically updating with state
-          //   validator: (val) {
-          //     if (val == null || val.isEmpty) return 'Enter the Confirm password';
-          //     return null;
-          //   },
-          //   suffixIcon: GestureDetector(
-          //     onTap: toggleConfirmPasswordVisibility,
-          //     child: Image(
-          //       image: AssetImage(isConfirmPasswordHidden
-          //           ? "assets/notvisible_eye.png"
-          //           : "assets/visible_eye.png"),
-          //       height: 20.h,
-          //       width: 20.w,
-          //       color: isConfirmPasswordHidden ? null : const Color(0XFF8CC13F),
-          //     ),
-          //   ),
-          // ),
+
 
           SizedBox(height: 20.h),
-         phone_number_field(),
-          SizedBox(height: 10.h),
+        phone_number_field(
+          onPhoneNumberChanged: (String phone) {
+            setState(() {
+              phoneNumber = phone; // Store the phone number
+            });
+          },
+          validator: (String? value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter phone number';
+            }
+            return null;
+          },
+        ),
+
+        SizedBox(height: 10.h),
 
           customTextFormField(controller: referralcodeController, hintText: "Referral Code",
             validator: (val) {
@@ -261,11 +296,13 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
         onPressed: ischeaked
             ? () {
                 if (formkey.currentState!.validate()) {
-                  if (confirmpassController.value == passwordController.value) {
-                    Get.to(const SignInPhonenumber());
+                  // if (confirmpassController.value == passwordController.value) {
+                  //   Get.to(const SignInPhonenumber());
+                    registerUser(); // Call your register function here
+
                   }
                 }
-              }
+
             : null,
         child:  Text("Sign Up",
             style: TextStyle(

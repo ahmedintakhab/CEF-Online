@@ -70,7 +70,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                          ),
                        ),
                        SizedBox(height: 54.h),
-                        phone_number_field(),
+                         phone_number_field(onPhoneNumberChanged: (String ) {  }),
                        SizedBox(height: 30.h),
                        submitbutton(),
                       // SizedBox(height: 151.h),
