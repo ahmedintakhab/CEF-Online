@@ -87,7 +87,7 @@ class _OngoingScreenState extends State<OngoingScreen> {
                               const SizedBox(height: 15),
                               LinearPercentIndicator(
                                 padding: EdgeInsets.zero,
-                                width: 202.0,
+                                width: 170.0,
                                 lineHeight: 6.0,
                                 percent: 0.5,
                                 trailing: Padding(

@@ -42,6 +42,7 @@ class _EmptyStateState extends State<EmptyState> {
     prefs.setString('email', userDetails['email'] ?? '');
     prefs.setString('phone_number', userDetails['mobile_number'] ?? '');
     prefs.setString('avatar', userDetails['avatar'] ?? '');
+    prefs.setString('auth_token', userDetails['auth_token'] ?? ''); // Save the token
 
     // Save any additional fields you need
   }
@@ -74,6 +75,14 @@ class _EmptyStateState extends State<EmptyState> {
         print("Login successful: ${data}");
         await saveUserData(data['userDetails']);
         print("User data saved successfully!");
+        // Include token in userDetails
+        final userDetails = data['userDetails'];
+        userDetails['auth_token'] = data['token']; // Add token to userDetails
+
+        // Save userDetails with token
+        await saveUserData(userDetails);
+
+        print("User details and token saved successfully!");
         Get.to(const HomeMainScreen());
 
         // Process the response data as needed

@@ -102,7 +102,7 @@ class _ResetPasswordState extends State<ResetPassword> {
           contentPadding:  EdgeInsets.only(left: 20.w),
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide:  BorderSide(color: const Color(0XFF23408F), width: 1.w)),
+              borderSide:  BorderSide(color: const Color(0XFF8CC13F), width: 1.w)),
           enabledBorder:OutlineInputBorder(
             borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
             borderRadius: BorderRadius.circular(12),
@@ -120,7 +120,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                   child:  Image(
                     image: const AssetImage("assets/visible_eye.png"),
                     height: 20.h,
-                    width: 20.w,
+                    width: 20.w,color: Color(0XFF8CC13F),
                   ))),
     );
   }
@@ -156,7 +156,8 @@ class _ResetPasswordState extends State<ResetPassword> {
                     child: Column(
                       children: [
                          SizedBox(height: 20.h),
-                          Image(image:const  AssetImage("assets/Privacy2.png"),height: 88.13.h,width: 76.33.w,),
+                          Image(image:const  AssetImage("assets/Privacy2.png"),
+                            height: 88.13.h,width: 76.33.w,color: Color(0XFF8CC13F),),
                          SizedBox(height: 20.h),
                          Text(
                           "Changed !",
@@ -193,13 +194,13 @@ class _ResetPasswordState extends State<ResetPassword> {
           //color: Color(0XFF23408F),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: const Color(0XFF23408F),
+            color: const Color(0XFF78A03F),
           ),
           child:  Center(
             child: Text("Done",
                 style: TextStyle(
                     color: const Color(0XFFFFFFFF),
-                    fontSize: 18.sp,
+                    fontSize: 22.sp,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Gilroy')),
           ),
@@ -223,7 +224,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             //color: Color(0XFF23408F),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: const Color(0XFF23408F),
+              color: const Color(0XFF78A03F),
             ),
             child:  Center(
               child: Text("Ok",

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:learn_megnagmet/home/home_main.dart';
 import 'package:learn_megnagmet/home/home_screen.dart';
@@ -48,6 +49,35 @@ class _MyProfileState extends State<MyProfile> {
       userName = prefs.getString('user_name') ?? "User Name";
       email = prefs.getString('email') ?? "Email";
     });
+  }
+  Future<void> logoutApiCall() async {
+    final String apiUrl = "https://cefonlineacademy.com/api/logoutApi";
+
+    try {
+      // Assuming the token is saved in shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+      print('Token check: $token');
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Include token in the header
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Successfully logged out
+        print("Logout successful");
+        // Clear user data from SharedPreferences
+        prefs.clear(); // Optionally clear all saved data
+      } else {
+        print("Logout failed: ${response.body}");
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
   }
 
 
@@ -447,7 +477,10 @@ class _MyProfileState extends State<MyProfile> {
                   children: [
                     Expanded(
                         child: GestureDetector(
-                          onTap: () {
+                          onTap: () async {
+                            // Call logout API
+                            await logoutApiCall();
+
                             PrefData.setLogin(false);
                                 Get.off(EmptyState());
                           },

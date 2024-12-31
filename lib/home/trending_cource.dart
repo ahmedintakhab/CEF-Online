@@ -40,7 +40,7 @@ class _TrendingCourceState extends State<TrendingCource> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 22.h),
+            SizedBox(height: 27.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Row(
@@ -100,7 +100,7 @@ class _TrendingCourceState extends State<TrendingCource> {
                   child: Column(
                     children: [
                       Container(
-                        height: 165.h,
+                        height: 155.h,
                         width: 190.w,
                         decoration: BoxDecoration(
                           image: DecorationImage(
@@ -152,7 +152,7 @@ class _TrendingCourceState extends State<TrendingCource> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: 6.h),
+                            SizedBox(height: 4.h),
                             Text(
                               index.title!,
                               style: TextStyle(

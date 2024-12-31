@@ -86,7 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
         print("API Data: $data"); // Print the full API data
         setState(() {
           apiData = data; // Assuming the API returns a 'data' array
-          print('apidata check: $apiData');
           isLoading = false; // Set loading to false after data is fetched
         });
       } else {
@@ -220,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ),
-                          trending_cource_list(),
+                          trending_cource_list(apiData ??{}),
                           Padding(
                             padding:  EdgeInsets.symmetric(horizontal: 20.w),
                             child: Row(
@@ -244,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ),
-                          recent_added_list(),
+                          recent_added_list(apiData ?? {}),
 
                         ],
                       ),
@@ -274,10 +273,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       itemBuilder: (BuildContext context, int index, int realIndex) {
         // Check if apiData is null
-        if (apiData == null) {
-          print("API data is null!");
-          return Center(child: CircularProgressIndicator());
-        }
+        // if (apiData == null) {
+        //   print("API data is null!");
+        //   return Center(child: CircularProgressIndicator());
+        // }
 
         // Check if banners field is null
         final banners = apiData?['banners'];
@@ -405,129 +404,193 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget horizontal_disidn() {
+    final categories = apiData?['categories']; // Fetch categories from apiData
+
+    if (categories == null || categories.isEmpty) {
+      return Center(
+        child: Text(
+          'No categories available',
+          style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+        ),
+      );
+    }
+
     return Container(
-      //color: Colors.red,
-      height: 100.h,
+      height: 120.h, // Adjust height to fit image and name together
       width: double.infinity,
       child: ListView.builder(
-          padding:  EdgeInsets.symmetric(horizontal: 20.w),
-          shrinkWrap: true,
-          primary: false,
-          physics: const BouncingScrollPhysics(),
-          scrollDirection: Axis.horizontal,
-          itemCount: design.length,
-          itemBuilder: (BuildContext context, index) {
-            return Stack(
-              alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        shrinkWrap: true,
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        itemCount: categories.length,
+        itemBuilder: (BuildContext context, index) {
+          final category = categories[index]; // Access each category from the list
+
+          return Padding(
+            padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Padding(
-                  padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
-                  child: Image(
-                    image: AssetImage(design[index].image!),
-                    height: 110.h,
-                    width: 110.w,
+                Container(
+                  height: 80.h,
+                  width: 80.w,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.r),
+                    image: DecorationImage(
+                      image: NetworkImage(category['image']), // Fetch image
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-                Padding(
-                  padding:  EdgeInsets.only(top: 60.h),
-                  child: Text(
-                    design[index].name!,
-                    style:  TextStyle(
-                        color: Color(0XFF000000),
-                        fontSize: 14.sp,
-                        fontFamily: 'Gilroy',
-                        fontWeight: FontWeight.bold),
+                SizedBox(height: 8.h), // Space between image and text
+                Text(
+                  category['name'] ?? '', // Fetch name
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0XFF000000),
+                    fontSize: 12.sp,
+                    fontFamily: 'Gilroy',
+                    fontWeight: FontWeight.bold,
                   ),
-                )
+                ),
               ],
-            );
-          }),
+            ),
+          );
+        },
+      ),
     );
   }
 
-  Widget trending_cource_list() {
+
+  Widget trending_cource_list(Map<String, dynamic> apiData) {
+    final trendingCourses = apiData['trendingCourses']; // Fetch trendingCourses from apiData
+
+    if (trendingCourses == null || trendingCourses.isEmpty) {
+      return Center(
+        child: Text(
+          'No trending courses available',
+          style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+        ),
+      );
+    }
+
     return SizedBox(
-      //color: Colors.red,
       height: 234.h,
-      width: double.infinity.w,
+      width: double.infinity,
       child: ListView.builder(
-          padding:  EdgeInsets.symmetric(horizontal: 16.w),
-          physics: const BouncingScrollPhysics(),
-          primary: false,
-          shrinkWrap: true,
-          scrollDirection: Axis.horizontal,
-          itemCount: 3,
-          itemBuilder: (BuildContext context, index) {
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
-              child: GestureDetector(
-                onTap: () {
-                  Get.to(MyCources(trende: trendingCource[index]));
-                },
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        physics: const BouncingScrollPhysics(),
+        primary: false,
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        itemCount: trendingCourses.length,
+        itemBuilder: (BuildContext context, index) {
+          final course = trendingCourses[index]; // Access each course from the list
+
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            child: GestureDetector(
+              onTap: () {
+                Get.to(MyCources(trende: course));
+              },
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       height: 172.h,
                       width: 177.w,
                       decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.r),
                         image: DecorationImage(
-                          image: AssetImage(trendingCource[index].image!),
+                          image: NetworkImage(course['image'] ?? ''), // Fetch image from API
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      //alignment: Alignment.topLeft,
                       child: Padding(
-                        padding:  EdgeInsets.only(
-                            left: 10.w, right: 147.w, bottom: 142.h),
+                        padding: EdgeInsets.only(
+                          left: 10.w,
+                          right: 147.w,
+                          bottom: 142.h,
+                        ),
                         child: Container(
-                            height: 20.h,
-                            width: 20.w,
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle, color: Colors.white),
-                            child:  Center(
-                              child: GestureDetector(
-                                onTap: (){
-                                  toggle(index);
-                                },
-                                child: trendingCource[index].buttonStatus==true?Image(
-                                  image: AssetImage("assets/saveboldblue.png"),
-                                  height: 10.h,
-                                  width: 9.w,
-                                ):
-                                Image(
-                                  image: AssetImage("assets/savebold.png"),
-                                  height: 10.h,
-                                  width: 9.w,
-                                ),
+                          height: 20.h,
+                          width: 20.w,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                toggle(index);
+                              },
+                              child: course['buttonStatus'] == true
+                                  ? Image(
+                                image: AssetImage("assets/saveboldblue.png"),
+                                height: 10.h,
+                                width: 9.w,
+                              )
+                                  : Image(
+                                image: AssetImage("assets/savebold.png"),
+                                height: 10.h,
+                                width: 9.w,
                               ),
-                            )),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                     SizedBox(height: 8.h),
-                    Text(
-                      trendingCource[index].title!,
-                      style:  TextStyle(
+                    SizedBox(height: 6.h),
+                    SizedBox(
+                      width: 177.w, // Same width as the image
+                      child: Text(
+                        course['title'] ?? '', // Fetch title from API
+                        style: TextStyle(
                           fontFamily: 'Gilroy',
                           fontWeight: FontWeight.w700,
                           fontSize: 15.sp,
-                          color: const Color(0XFF000000)),
+                          color: const Color(0XFF000000),
+                        ),
+                        maxLines: 2, // Allow at most 2 lines
+                        overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                        softWrap: true, // Ensure wrapping
+                      ),
                     ),
-                     SizedBox(height: 5.h),
-                    Text(trendingCource[index].subtitle!,
-                        style:  TextStyle(
-                            fontFamily: 'Gilroy',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15.sp,
-                            color:const Color(0XFF000000))),
+                    SizedBox(height: 5.h),
+                    Text(
+                      course['subtitle'] ?? '', // Optional subtitle (check if it exists in the API)
+                      style: TextStyle(
+                        fontFamily: 'Gilroy',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15.sp,
+                        color: const Color(0XFF000000),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            );
-          }),
+
+
+            ),
+          );
+        },
+      ),
     );
   }
 
-  Widget recent_added_list() {
+
+  Widget recent_added_list(Map<String, dynamic> apiData) {
+    final latestCourses = apiData['latestCourses']; // Fetch latestcourses from apiData
+
+    if (latestCourses == null || latestCourses.isEmpty) {
+      return Center(
+        child: Text(
+          'No latest courses available',
+          style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+        ),
+      );
+    }
     return Container(
       color: const Color(0XFFFFFFFF),
       height: 323.h,
@@ -540,6 +603,8 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: recentAdded.length,
           scrollDirection: Axis.horizontal,
           itemBuilder: (BuildContext context, index) {
+            final latest = latestCourses[index]; // Access each course from the list
+
             return GestureDetector(
               onTap: (){
                 Get.to(RecentCourceDetail(corcedetail: recentAdded[index],));
@@ -570,7 +635,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           image: DecorationImage(
-                            image: AssetImage(recentAdded[index].image!,),fit: BoxFit.cover
+                            image: NetworkImage(latest['image'] ?? ''),
+                            fit: BoxFit.cover,
                           ),
                         ),
                         child: Padding(
@@ -596,7 +662,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         image: AssetImage("assets/savebold.png"),
                                         height: 10.h,
                                         width: 9.w,
-                                      ),))),
+                                      ),
+                                  )
+                              )
+                          ),
                         ),
                       ),
                       Row(
@@ -620,7 +689,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     width: 17.w,
                                   ),
                                   Text(
-                                    recentAdded[index].review!,
+                                    latest['star_rating'] ?? '',
                                     style:  TextStyle(
                                         fontFamily: 'Gilroy',
                                         color: const Color(0XFFFFC403),
@@ -642,7 +711,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 SizedBox(width: 4.w),
                                 Text(
-                                  recentAdded[index].time!,
+                                  latest['duration'] ?? '2 hour',
                                   style:  TextStyle(
                                       fontSize: 15.sp,
                                       color: Color(0XFF000000),
@@ -657,7 +726,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Padding(
                         padding:  EdgeInsets.only(left: 10.w, right: 10.w),
                         child: Text(
-                          recentAdded[index].title!,
+                          latest['title'] ?? '',
                           style:  TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 15.sp,
@@ -674,14 +743,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             Row(
                               children: [
                                 Image(
-                                  image:
-                                      AssetImage(recentAdded[index].circleimage!),
+                                  image: NetworkImage(latest['user_pic'] ?? ''),
                                   height: 40.h,
                                   width: 40.w,
                                 ),
-                                 SizedBox(width: 10.w),
+
+                                SizedBox(width: 10.w),
                                 Text(
-                                  recentAdded[index].personname!,
+                                  latest['user_name'] ?? '',
                                   style:  TextStyle(
                                       fontFamily: 'Gilroy',
                                       fontWeight: FontWeight.w400,
@@ -699,7 +768,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               child: Center(
                                   child: Text(
-                                recentAdded[index].price!,
+                                latest['price'] ?? '',
                                 style:  TextStyle(
                                     color: const Color(0XFF78A03F),
                                     fontFamily: 'Gilroy',
