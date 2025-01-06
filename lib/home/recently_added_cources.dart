@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:learn_megnagmet/home/recent_added_cource_detail.dart';
 
 import 'package:learn_megnagmet/models/recently_added.dart';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 
 import '../My_cources/cources_details.dart';
+import '../login/login_empty_state.dart';
 import '../utils/screen_size.dart';
 
 
@@ -27,13 +30,40 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
     );
   }
   List<Recent> recentcource = [];
+  Map<String, dynamic>? fetchData;
+
 
 
   @override
   void initState() {
     recentcource = Utils.getRecentAdded();
     super.initState();
+    fetchCourses(); // Call the API on page load
+
   }
+  Future<void> fetchCourses() async {
+    const String apiUrl = "https://cefonlineacademy.com/api/frontend/all-courses?sortBy_id=2";
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      print("API Response Status: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("API Data Fetched Successfully: $data");
+
+        setState(() {
+          fetchData = data;
+          isLoading = false; // Hide the loading spinner
+        });
+      } else {
+        print("Failed to fetch data. Status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -68,22 +98,35 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
               ],
             ),
           ),
-          recently_added_cources_list(),
+          Expanded(child:  recently_added_cources_list(fetchData ?? {}),)
+
         ],
       ),
     );
   }
 
-  Widget recently_added_cources_list() {
+  Widget recently_added_cources_list(Map<String,dynamic>fetchData) {
+    if (fetchData == null || fetchData['courses_section_data'] == null) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF8CC13F), // Loader color
+        ),
+      );
+    }
+    // Assuming `fetchData['data']` contains the list of courses
+    final courses = fetchData?['courses_section_data'] ?? [];
+
     return Expanded(
       child: ListView.builder(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
-          itemCount: recentcource.length,
+          itemCount: courses.length,
           itemBuilder: (BuildContext, index) {
+            final course = courses[index];
             return GestureDetector(
               onTap: (){
-                Get.to(RecentCourceDetail(corcedetail: recentcource[index],));
+
+                Get.to(RecentCourceDetail(corcedetail: course,));
               },
               child: Padding(
                 padding:  EdgeInsets.only(left: 20.w,right: 20.w,top:index==0?0.h: 10.h,bottom: 10.h),
@@ -124,11 +167,11 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20.h),
                                         color: Colors.white),
-                                    child: Image(
-                                      image:
-                                          AssetImage(recentcource[index].image!),
+                                    child: Image.network(
+                                      course['course_image'].toString(), // Update with your API's image key
                                       fit: BoxFit.fill,
                                     ),
+
                                   ),
                                   Padding(
                                     padding:
@@ -194,7 +237,7 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                                     children: [
                                        Image(image:const AssetImage("assets/staricon.png"),height: 17.h,width: 17.w),
                                       Text(
-                                        recentcource[index].review!,
+                                        course['course_total_reviews'].toString() ,
                                         style:  TextStyle(
                                             color: Color(0XFFFFC403),
                                             fontFamily: 'Gilroy',
@@ -209,7 +252,7 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                               children: [
                                 SizedBox(
                                   height: 23.h,
-                                  width: 91.w,
+                                  width: 120.w,
                                   //color: Colors.red,
                                   child: Row(
                                     children: [
@@ -217,9 +260,9 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                                           ,height: 17.h,width: 17.w,color: Color(0XFF8CC13F),),
                                        SizedBox(width: 4.w),
                                       Text(
-                                        recentcource[index].time!,
+                                        course['course_duration'].toString(),
                                         style:  TextStyle(
-                                            fontSize: 15.sp,
+                                            fontSize: 12.sp,
                                             color: const Color(0XFF000000),
                                             fontFamily: 'Gilroy'),
                                       )
@@ -240,7 +283,7 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                             Padding(
                               padding:  EdgeInsets.only(right: 68.w),
                               child: Text(
-                                recentcource[index].title!,
+                                course['course_title'].toString(),
                                 style:  TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 15.sp,
@@ -255,14 +298,14 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                                 Row(
                                   children: [
                                     Image(
-                                      image: AssetImage(
-                                          recentcource[index].circleimage!),
+                                      image: NetworkImage(
+                                          course['course_user_pic'].toString()),
                                       height: 40.h,
                                       width: 40.w,
                                     ),
                                      SizedBox(width: 10.w),
                                     Text(
-                                      recentcource[index].personname!,
+                                      course['course_user_name'].toString(),
                                       style:  TextStyle(
                                           color: Color(0XFF5E8421),
                                           fontSize: 15.sp,
@@ -281,11 +324,11 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                                           color:const  Color(0XFFEBF2C2)),
                                       child: Center(
                                           child: Text(
-                                        recentcource[index].price!,
+                                        course['course_price'].toString(),
                                         style:  TextStyle(
                                             color: const Color(0XFF78A03F),
                                             fontFamily: 'Gilroy',
-                                            fontSize: 19.sp,
+                                            fontSize: 15.sp,
                                             fontWeight: FontWeight.w700),
                                       )),
                                     )

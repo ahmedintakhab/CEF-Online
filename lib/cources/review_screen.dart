@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:learn_megnagmet/cources/rating_row_widget.dart';
+import 'package:learn_megnagmet/cources/review_dialog_box.dart';
 import 'package:learn_megnagmet/models/riview_data.dart';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -74,156 +76,191 @@ class _ReviewState extends State<Review> {
                       ),
                     ],
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          RatingBar.builder(
-                            initialRating: 5,
-                            glow: false,
-                            minRating: 1,
-                            direction: Axis.horizontal,
-                            allowHalfRating: true,
-                            itemCount: 5,
-                            itemSize: 10,
-                            itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.h),
-                            itemBuilder: (context, _) => const Icon(
-                              Icons.star_border,
-                              color: Color(0XFF78A03F),
-                            ),
-                            onRatingUpdate: (rating) {},
-                          ),
-                          LinearPercentIndicator(
 
-                            width: 204.w,
-                            lineHeight: 4.h,
-                            percent: 0.5,
-                            backgroundColor: Colors.grey,
-                            progressColor: Colors.lightGreen,
-                          ),
-
-                        ],
-                      ),
-                       SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          RatingBar.builder(
-                            initialRating: 4,
-                            glow: false,
-                            minRating: 1,
-                            direction: Axis.horizontal,
-                            allowHalfRating: true,
-                            itemCount: 4,
-                            itemSize: 10,
-                            itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
-                            itemBuilder: (context, _) => const Icon(
-                              Icons.star_border,
-                              color: Color(0XFF78A03F),
-                            ),
-                            onRatingUpdate: (rating) {},
-                          ),
-                          LinearPercentIndicator(
-
-                            width: 204.w,
-                            lineHeight: 4.h,
-                            percent: 0.5,
-                            backgroundColor: Colors.grey,
-                            progressColor: Colors.lightGreen,
-                          ),
-
-                        ],
-                      ),
-                       SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          RatingBar.builder(
-                            initialRating: 3,
-                            glow: false,
-                            minRating: 1,
-                            direction: Axis.horizontal,
-                            allowHalfRating: true,
-                            itemCount: 3,
-                            itemSize: 10,
-                            itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
-                            itemBuilder: (context, _) => const Icon(
-                              Icons.star_border,
-                              color: Color(0XFF78A03F),
-                            ),
-                            onRatingUpdate: (rating) {},
-                          ),
-                          LinearPercentIndicator(
-
-                            width: 204.w,
-                            lineHeight: 4.h,
-                            percent: 0.5,
-                            backgroundColor: Colors.grey,
-                            progressColor: Colors.lightGreen,
-                          ),
-
-                        ],
-                      ),
-                       SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          RatingBar.builder(
-                            initialRating: 2,
-                            glow: false,
-                            minRating: 1,
-                            direction: Axis.horizontal,
-                            allowHalfRating: true,
-                            itemCount: 2,
-                            itemSize: 10,
-                            itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
-                            itemBuilder: (context, _) => const Icon(
-                              Icons.star_border,
-                              color: Color(0XFF78A03F),
-                            ),
-                            onRatingUpdate: (rating) {},
-                          ),
-                          LinearPercentIndicator(
-
-                            width: 204.w,
-                            lineHeight: 4.h,
-                            percent: 0.5,
-                            backgroundColor: Colors.grey,
-                            progressColor: Colors.lightGreen,
-                          ),
-
-                        ],
-                      ),
-                       SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          RatingBar.builder(
-
-                            initialRating: 1,
-                            glow: false,
-                            minRating: 1,
-                            direction: Axis.horizontal,
-                            allowHalfRating: true,
-                            itemCount: 1,
-                            itemSize: 10,
-                            itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
-                            itemBuilder: (context, _) => const Icon(
-                              Icons.star_border,
-                              color: Color(0XFF78A03F),
-                            ),
-                            onRatingUpdate: (rating) {},
-                          ),
-                          LinearPercentIndicator(
-
-                            width: 204.w,
-                            lineHeight: 4.h,
-                            percent: 0.5,
-                            backgroundColor: Colors.grey,
-                            progressColor: Colors.lightGreen,
-                          ),
-
-                        ],
-                      ),
-                    ],
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              RatingRowWidget(
+                initialRating: 5,
+                itemCount: 5,
+                percent: 0.5,
+              ),
+              SizedBox(height: 10.h),
+              RatingRowWidget(
+                initialRating: 4,
+                itemCount: 4,
+                percent: 0.4,
+              ),
+              SizedBox(height: 10.h),
+              RatingRowWidget(
+                initialRating: 3,
+                itemCount: 3,
+                percent: 0.3,
+              ),
+              SizedBox(height: 10.h),
+              RatingRowWidget(
+                initialRating: 2,
+                itemCount: 2,
+                percent: 0.2,
+              ),
+              SizedBox(height: 10.h),
+              RatingRowWidget(
+                initialRating: 1,
+                itemCount: 1,
+                percent: 0.1,
+              ),
+            ],
+          )
+                  // Column(
+                  //   crossAxisAlignment: CrossAxisAlignment.end,
+                  //   children: [
+                  //     Row(
+                  //       children: [
+                  //         RatingBar.builder(
+                  //           initialRating: 5,
+                  //           glow: false,
+                  //           minRating: 1,
+                  //           direction: Axis.horizontal,
+                  //           allowHalfRating: true,
+                  //           itemCount: 5,
+                  //           itemSize: 10,
+                  //           itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.h),
+                  //           itemBuilder: (context, _) => const Icon(
+                  //             Icons.star_border,
+                  //             color: Color(0XFF78A03F),
+                  //           ),
+                  //           onRatingUpdate: (rating) {},
+                  //         ),
+                  //         LinearPercentIndicator(
+                  //
+                  //           width: 204.w,
+                  //           lineHeight: 4.h,
+                  //           percent: 0.5,
+                  //           backgroundColor: Colors.grey,
+                  //           progressColor: Colors.lightGreen,
+                  //         ),
+                  //
+                  //       ],
+                  //     ),
+                  //      SizedBox(height: 10.h),
+                  //     Row(
+                  //       children: [
+                  //         RatingBar.builder(
+                  //           initialRating: 4,
+                  //           glow: false,
+                  //           minRating: 1,
+                  //           direction: Axis.horizontal,
+                  //           allowHalfRating: true,
+                  //           itemCount: 4,
+                  //           itemSize: 10,
+                  //           itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
+                  //           itemBuilder: (context, _) => const Icon(
+                  //             Icons.star_border,
+                  //             color: Color(0XFF78A03F),
+                  //           ),
+                  //           onRatingUpdate: (rating) {},
+                  //         ),
+                  //         LinearPercentIndicator(
+                  //
+                  //           width: 204.w,
+                  //           lineHeight: 4.h,
+                  //           percent: 0.5,
+                  //           backgroundColor: Colors.grey,
+                  //           progressColor: Colors.lightGreen,
+                  //         ),
+                  //
+                  //       ],
+                  //     ),
+                  //      SizedBox(height: 10.h),
+                  //     Row(
+                  //       children: [
+                  //         RatingBar.builder(
+                  //           initialRating: 3,
+                  //           glow: false,
+                  //           minRating: 1,
+                  //           direction: Axis.horizontal,
+                  //           allowHalfRating: true,
+                  //           itemCount: 3,
+                  //           itemSize: 10,
+                  //           itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
+                  //           itemBuilder: (context, _) => const Icon(
+                  //             Icons.star_border,
+                  //             color: Color(0XFF78A03F),
+                  //           ),
+                  //           onRatingUpdate: (rating) {},
+                  //         ),
+                  //         LinearPercentIndicator(
+                  //
+                  //           width: 204.w,
+                  //           lineHeight: 4.h,
+                  //           percent: 0.5,
+                  //           backgroundColor: Colors.grey,
+                  //           progressColor: Colors.lightGreen,
+                  //         ),
+                  //
+                  //       ],
+                  //     ),
+                  //      SizedBox(height: 10.h),
+                  //     Row(
+                  //       children: [
+                  //         RatingBar.builder(
+                  //           initialRating: 2,
+                  //           glow: false,
+                  //           minRating: 1,
+                  //           direction: Axis.horizontal,
+                  //           allowHalfRating: true,
+                  //           itemCount: 2,
+                  //           itemSize: 10,
+                  //           itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
+                  //           itemBuilder: (context, _) => const Icon(
+                  //             Icons.star_border,
+                  //             color: Color(0XFF78A03F),
+                  //           ),
+                  //           onRatingUpdate: (rating) {},
+                  //         ),
+                  //         LinearPercentIndicator(
+                  //
+                  //           width: 204.w,
+                  //           lineHeight: 4.h,
+                  //           percent: 0.5,
+                  //           backgroundColor: Colors.grey,
+                  //           progressColor: Colors.lightGreen,
+                  //         ),
+                  //
+                  //       ],
+                  //     ),
+                  //      SizedBox(height: 10.h),
+                  //     Row(
+                  //       children: [
+                  //         RatingBar.builder(
+                  //
+                  //           initialRating: 1,
+                  //           glow: false,
+                  //           minRating: 1,
+                  //           direction: Axis.horizontal,
+                  //           allowHalfRating: true,
+                  //           itemCount: 1,
+                  //           itemSize: 10,
+                  //           itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
+                  //           itemBuilder: (context, _) => const Icon(
+                  //             Icons.star_border,
+                  //             color: Color(0XFF78A03F),
+                  //           ),
+                  //           onRatingUpdate: (rating) {},
+                  //         ),
+                  //         LinearPercentIndicator(
+                  //
+                  //           width: 204.w,
+                  //           lineHeight: 4.h,
+                  //           percent: 0.5,
+                  //           backgroundColor: Colors.grey,
+                  //           progressColor: Colors.lightGreen,
+                  //         ),
+                  //
+                  //       ],
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
                SizedBox(height: 8.h),
@@ -238,34 +275,44 @@ class _ReviewState extends State<Review> {
                   ),
                   alignment: Alignment.centerRight),
               SizedBox(height: 12.h),
+
               Row(
                 children: [
-                   Text(
-                    "Write A Review",
-                    style: TextStyle(
-                        fontFamily: 'Gilroy',
-                        fontSize: 15.sp,
-                        color: const Color(0XFF000000),
-                        fontWeight: FontWeight.w600),
+                  GestureDetector(onTap: (){
+                    showDialog(context: context,
+                      builder: (BuildContext context){
+                      return WriteReviewDialog();
+                    }, );
+                  },
+                    child:Text(
+                      "Write A Review",
+                      style: TextStyle(
+                          fontFamily: 'Gilroy',
+                          fontSize: 18.sp,
+                          color: const Color(0XFF000000),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  const SizedBox(width: 11),
-          RatingBar(
-            initialRating: 3,
-            direction: Axis.horizontal,
-            allowHalfRating: true,
-            itemCount: 5,
-            itemSize: 21,
-            glow: false,
-            ratingWidget: RatingWidget(
-              full: Image(image: AssetImage("assets/courcesreviewfillicon.png"),height: 21.h,width: 21.w,),
-              half: Image(image: AssetImage("assets/courcesreviewemptyicon.png"),height: 21.h,width: 21.w,),
-              empty:Image(image: AssetImage("assets/courcesreviewemptyicon.png"),height: 21.h,width: 21.w,)
-            ),
-            itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-            onRatingUpdate: (rating) {
-              print(rating);
-            },
-          ),
+
+          //         const SizedBox(width: 11),
+          // RatingBar(
+          //   initialRating: 3,
+          //   direction: Axis.horizontal,
+          //   allowHalfRating: true,
+          //   itemCount: 5,
+          //   itemSize: 21,
+          //   glow: false,
+          //   ratingWidget: RatingWidget(
+          //     full: Image(image: AssetImage("assets/courcesreviewfillicon.png"),height: 21.h,width: 21.w,),
+          //     half: Image(image: AssetImage("assets/courcesreviewemptyicon.png"),height: 21.h,width: 21.w,),
+          //     empty:Image(image: AssetImage("assets/courcesreviewemptyicon.png"),height: 21.h,width: 21.w,)
+          //   ),
+          //   itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+          //   onRatingUpdate: (rating) {
+          //     print(rating);
+          //   },
+          // ),
+
                   // RatingBar.builder(
                   //   glow: false,
                   //   minRating: 1,

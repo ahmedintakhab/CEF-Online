@@ -1,5 +1,3 @@
-
-
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -9,7 +7,6 @@ import 'package:learn_megnagmet/cources/overview_page.dart';
 import 'package:learn_megnagmet/cources/review_screen.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
-
 import '../models/trending_cource.dart';
 import '../utils/screen_size.dart';
 import '../widget/button.dart';

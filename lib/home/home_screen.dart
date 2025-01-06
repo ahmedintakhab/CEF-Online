@@ -85,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final data = json.decode(response.body);
         print("API Data: $data"); // Print the full API data
         setState(() {
-          apiData = data; // Assuming the API returns a 'data' array
+          apiData = data;
           isLoading = false; // Set loading to false after data is fetched
         });
       } else {
@@ -484,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> {
         primary: false,
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
-        itemCount: trendingCourses.length,
+        itemCount:trendingCourses.length,
         itemBuilder: (BuildContext context, index) {
           final course = trendingCourses[index]; // Access each course from the list
 
@@ -492,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.symmetric(horizontal: 6.w),
             child: GestureDetector(
               onTap: () {
-                Get.to(MyCources(trende: course));
+                Get.to(MyCources(trende: trendingCource[index]));
               },
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -581,9 +581,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Widget recent_added_list(Map<String, dynamic> apiData) {
-    final latestCourses = apiData['latestCourses']; // Fetch latestcourses from apiData
-
-    if (latestCourses == null || latestCourses.isEmpty) {
+    final newCourses = apiData?['latestCourses'] ?? []; // Fetch latestcourses from apiData
+// Initialize recentAdded dynamically with the same length as newCourses
+    List<Map<String, dynamic>> recentAdded = List.generate(
+      newCourses.length,
+          (index) => {'buttonStatus': false}, // Default buttonStatus to false
+    );
+    if (newCourses == null || newCourses.isEmpty) {
       return Center(
         child: Text(
           'No latest courses available',
@@ -600,14 +604,13 @@ class _HomeScreenState extends State<HomeScreen> {
           physics: const BouncingScrollPhysics(),
           primary: false,
           shrinkWrap: true,
-          itemCount: recentAdded.length,
+          itemCount: newCourses.length,
           scrollDirection: Axis.horizontal,
           itemBuilder: (BuildContext context, index) {
-            final latest = latestCourses[index]; // Access each course from the list
-
+            final latest = newCourses[index]; // Access each course from the list
             return GestureDetector(
               onTap: (){
-                Get.to(RecentCourceDetail(corcedetail: recentAdded[index],));
+                Get.to(RecentCourceDetail(corcedetail: latest,));
               },
               child: Padding(
                 padding: EdgeInsets.symmetric(
@@ -635,7 +638,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           image: DecorationImage(
-                            image: NetworkImage(latest['image'] ?? ''),
+                            image: NetworkImage(latest['image'].toString()),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -650,15 +653,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: IconButton(
                                   splashRadius: 10,
                                   onPressed: () {
-                                    toggleRecent(index);
+                                    setState(() {
+                                      // Toggle buttonStatus
+                                      recentAdded[index]['buttonStatus'] =
+                                      !recentAdded[index]['buttonStatus'];
+                                    });
                                   },
+
                                   icon:  Center(
-                                      child:  recentAdded[index].buttonStatus==true?Image(
-                                        image: AssetImage("assets/saveboldblue.png"),
-                                        height: 10.h,
-                                        width: 9.w,
-                                      ):
-                                      Image(
+                                    child: recentAdded[index]['buttonStatus']
+                                        ? Image.asset(
+                                      "assets/saveboldblue.png",
+                                      height: 10.h,
+                                      width: 9.w,
+                                    )
+                                      :Image(
                                         image: AssetImage("assets/savebold.png"),
                                         height: 10.h,
                                         width: 9.w,
@@ -689,7 +698,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     width: 17.w,
                                   ),
                                   Text(
-                                    latest['star_rating'] ?? '',
+                                    latest['star_rating'].toString(),
                                     style:  TextStyle(
                                         fontFamily: 'Gilroy',
                                         color: const Color(0XFFFFC403),
@@ -711,7 +720,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 SizedBox(width: 4.w),
                                 Text(
-                                  latest['duration'] ?? '2 hour',
+                                  latest['duration'].toString(),
                                   style:  TextStyle(
                                       fontSize: 15.sp,
                                       color: Color(0XFF000000),
@@ -726,7 +735,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Padding(
                         padding:  EdgeInsets.only(left: 10.w, right: 10.w),
                         child: Text(
-                          latest['title'] ?? '',
+                          latest['title'].toString(),
                           style:  TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 15.sp,
@@ -743,14 +752,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             Row(
                               children: [
                                 Image(
-                                  image: NetworkImage(latest['user_pic'] ?? ''),
+                                  image: NetworkImage(latest['user_pic'].toString()),
                                   height: 40.h,
                                   width: 40.w,
                                 ),
 
                                 SizedBox(width: 10.w),
                                 Text(
-                                  latest['user_name'] ?? '',
+                                  latest['user_name'].toString(),
                                   style:  TextStyle(
                                       fontFamily: 'Gilroy',
                                       fontWeight: FontWeight.w400,
@@ -768,7 +777,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               child: Center(
                                   child: Text(
-                                latest['price'] ?? '',
+                                latest['price'].toString(),
                                 style:  TextStyle(
                                     color: const Color(0XFF78A03F),
                                     fontFamily: 'Gilroy',
