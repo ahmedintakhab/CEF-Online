@@ -492,9 +492,13 @@ print('Details of TrendingCourses : $trendingCourses');
             padding: EdgeInsets.symmetric(horizontal: 6.w),
             child: GestureDetector(
               onTap: () {
-                Get.to(MyCources(trende: trendingCource[index]));
+                final slug = course['slug']; // Fetch the slug from the course data
+                if (slug != null) {
+                  Get.to(MyCources(slug: slug));
+                }
               },
-                child: Column(
+
+              child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

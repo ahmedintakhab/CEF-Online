@@ -1,6 +1,8 @@
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/cources/lessons_screen.dart';
 import 'package:learn_megnagmet/cources/overview_page.dart';
@@ -13,8 +15,8 @@ import '../widget/button.dart';
 import 'choose_plane_screen.dart';
 
 class MyCources extends StatefulWidget {
-  const MyCources({Key? key,required this.trende}) : super(key: key);
-  final Trending trende;
+  const MyCources({Key? key,required this.slug}) : super(key: key);
+  final String slug;
 
 
   @override
@@ -39,7 +41,7 @@ class _MyCourcesState extends State<MyCources> {
 
   @override
   void initState() {
-
+    fetchCourseDetails(); // Fetch course details on page load
     super.initState();
     flickManager = FlickManager(
       videoPlayerController: VideoPlayerController.network(
@@ -48,6 +50,26 @@ class _MyCourcesState extends State<MyCources> {
 
     );
   }
+  Future<void> fetchCourseDetails() async {
+    final url = 'https://cefonlineacademy.com/api/frontend/course/detail/${widget.slug}';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print("API Successfullt fetched data");
+        print('Check the value of slug: ${widget.slug}');
+        print('Course Details: $data');
+        // Update state with course details
+      } else {
+        print('Failed to load course details. Status code: ${response.statusCode}');
+        print('Check the value of slug: ${widget.slug}');
+
+      }
+    } catch (e) {
+      print('Error fetching course details: $e');
+    }
+  }
+
 
   @override
   void dispose() {
