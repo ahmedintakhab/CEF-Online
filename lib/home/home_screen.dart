@@ -465,7 +465,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget trending_cource_list(Map<String, dynamic> apiData) {
     final trendingCourses = apiData['trendingCourses']; // Fetch trendingCourses from apiData
-
+print('Details of TrendingCourses : $trendingCourses');
     if (trendingCourses == null || trendingCourses.isEmpty) {
       return Center(
         child: Text(

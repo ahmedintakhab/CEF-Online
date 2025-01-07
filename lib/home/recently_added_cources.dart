@@ -116,8 +116,7 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
     // Assuming `fetchData['data']` contains the list of courses
     final courses = fetchData?['courses_section_data'] ?? [];
 
-    return Expanded(
-      child: ListView.builder(
+    return ListView.builder(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
           itemCount: courses.length,
@@ -345,7 +344,7 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                 ),
               ),
             );
-          }),
-    );
+          });
+
   }
 }
