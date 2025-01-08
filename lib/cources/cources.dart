@@ -84,6 +84,11 @@ class _MyCourcesState extends State<MyCources> {
         final data = json.decode(response.body);
         final fetchedCourseType = data['course_type'];
         final coursePreviewSrc = data['course_preview_src'];
+        print('API fetched data Successfully: $data ');
+        print('Check the slug: ${widget.slug} ');
+        print('Check the course type: $fetchedCourseType ');
+        print('Check the coursr preview src: $coursePreviewSrc ');
+
 
         setState(() {
           courseType = fetchedCourseType;
@@ -199,12 +204,96 @@ class _MyCourcesState extends State<MyCources> {
                       ),
                       tabs: List.generate(
                         pageclass.length,
-                            (index) => Tab(text: ["Overview", "Lessons", "Reviews"][index]),
+                            (index) {
+                          // Adjust tab titles based on courseType
+                              if (courseType == "Live") {
+                                // Only show "Overview" and "Review"
+                                if (index == 0) {
+                                  return Tab(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center, // Center the text
+                                      children: [
+                                        SizedBox(
+                                          width: 100, // Set equal spacing width
+                                          child: Text(
+                                            "Overview",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 14), // Set consistent text size
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                } else if (index == 1) {
+                                  return Tab(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 100, // Set equal spacing width
+                                          child: Text(
+                                            "Review",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              } else {
+                                // For "General", show "Overview", "Lesson", and "Review"
+                                if (index == 0) {
+                                  return Tab(
+                                    child: SizedBox(
+                                      width: 70, // Fixed width for all tabs
+                                      child: Center(
+                                        child: Text(
+                                          "Overview",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 14), // Consistent font size
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                } else if (index == 1) {
+                                  return Tab(
+                                    child: SizedBox(
+                                      width: 70,
+                                      child: Center(
+                                        child: Text(
+                                          "Lessons",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                } else if (index == 2) {
+                                  return Tab(
+                                    child: SizedBox(
+                                      width: 70,
+                                      child: Center(
+                                        child: Text(
+                                          "Review",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+
+
+                              return Container(); // This should never be reached
+                        },
                       ),
                       onTap: (index) {
                         courceController.pController.jumpToPage(index); // Navigate to correct page
                       },
-                    ),
+                    )
+
 
                   ),
                 ),
