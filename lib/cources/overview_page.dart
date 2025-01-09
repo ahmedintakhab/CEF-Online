@@ -12,13 +12,14 @@ import '../widget/button.dart';
 import 'choose_plane_screen.dart';
 
 class Overview extends StatefulWidget {
-  const Overview({Key? key}) : super(key: key);
+  final dynamic overviewData; // Add this to accept the overviewData passed from previous page
+  const Overview({Key? key, required this.overviewData}) : super(key: key);
 
   @override
   State<Overview> createState() => _OverviewState();
 }
-
 class _OverviewState extends State<Overview> {
+  late final dynamic overviewData;
   HomeController homecontroller = Get.put(HomeController());
   List<OverViewGrid> grid = [];
   List<Instructor> instuctor = [];
@@ -31,16 +32,18 @@ class _OverviewState extends State<Overview> {
     "Typography"
   ];
   List<String> selectedCategory = [];
-
   @override
   void initState() {
     grid = Utils.getOverView();
     instuctor = Utils.getInstruter();
     super.initState();
-  }
+    overviewData = widget.overviewData;  // Assign passed data
+    print('check tha overview data on overview page: $overviewData');
 
+  }
   @override
   Widget build(BuildContext context) {
+    final List<dynamic> skills = overviewData['skills'] ?? [];
     initializeScreenSize(context);
     return GetBuilder(
         init: HomeController(),
@@ -52,7 +55,7 @@ class _OverviewState extends State<Overview> {
                   children: [
                     SizedBox(height: 10.h),
                     Text(
-                      'UI UX Design',
+                      overviewData['title'],
                       style: TextStyle(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w500,
@@ -60,7 +63,7 @@ class _OverviewState extends State<Overview> {
                           fontFamily: 'Gilroy'),
                     ),
                     ExpandableText(
-                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed d o eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed d o eiusmod tempor incididunt ut labore et ",
+                      overviewData['description'],
                       expandText: 'Learn more.',
                       style: TextStyle(
                           fontSize: 14.sp,
@@ -133,12 +136,14 @@ class _OverviewState extends State<Overview> {
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: instuctor.length,
-                        itemBuilder: (BuildContext, index) {
+                        itemCount: overviewData['instructors']?.length ?? 0, // Safely handle null or empty
+                        itemBuilder: (BuildContext,int index) {
+                          // Get instructor data dynamically
+                          final instructor = overviewData['instructors'][index];
                           return Padding(
                             padding: EdgeInsets.only(
                                 top: index == 0 ? 0.h : 8.h,
-                                bottom: index == 1 ? 0.w : 8.w),
+                              bottom: index == overviewData['instructors'].length - 1 ? 0.h : 8.h,),
                             child: Container(
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(22.h),
@@ -160,8 +165,8 @@ class _OverviewState extends State<Overview> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       Image(
-                                          image: AssetImage(
-                                              instuctor[index].image!),
+                                          image: NetworkImage(
+                                              instructor['image'] ?? ''),
                                           height: 71.h,
                                           width: 71.w),
                                       SizedBox(width: 10.w),
@@ -172,7 +177,7 @@ class _OverviewState extends State<Overview> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Text(
-                                            instuctor[index].title!,
+                                            instructor['name'] ?? 'No Name',
                                             style: TextStyle(
                                                 fontSize: 16.sp,
                                                 color: const Color(0XFF000000),
@@ -180,7 +185,7 @@ class _OverviewState extends State<Overview> {
                                                 fontFamily: 'Gilroy'),
                                           ), //SizedBox(height: 5),
                                           Text(
-                                            instuctor[index].subtitle!,
+                                            instructor['professional_title'] ?? '',
                                             style: TextStyle(
                                                 fontSize: 16.sp,
                                                 color: const Color(0XFF000000),
@@ -194,6 +199,7 @@ class _OverviewState extends State<Overview> {
                           );
                         }),
                     SizedBox(height: 20.h),
+
                     Text(
                       "Skill",
                       style: TextStyle(
@@ -206,60 +212,52 @@ class _OverviewState extends State<Overview> {
                     Wrap(
                       alignment: WrapAlignment.start,
                       children: [
-                        for (final i in List.generate(
-                            categoryList.length, (index) => index))
+                        for (final skill in skills)
                           Padding(
-                            padding: EdgeInsets.only(
-                                top: 8.h, bottom: 8.h, right: 8.w),
-                            child: Wrap(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (!selectedCategory
-                                          .contains(categoryList[i])) {
-                                        selectedCategory.add(categoryList[i]);
-                                      } else {
-                                        selectedCategory
-                                            .remove(categoryList[i]);
-                                      }
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 6.h, horizontal: 13.w),
-                                    decoration: BoxDecoration(
-                                      color: selectedCategory
-                                              .contains(categoryList[i])
-                                          ? Color(0XFFEBF2C2)
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(26.h),
-                                      border: Border.all(
-                                          color: selectedCategory
-                                                  .contains(categoryList[i])
-                                              ? Color(0XFF8CC13F)
-                                              : Color(0XFF6E758A),
-                                          width: 1.w),
-                                    ),
-                                    child: Text(
-                                      categoryList[i],
-                                      style: selectedCategory
-                                              .contains(categoryList[i])
-                                          ? const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Color(0XFF78A03F),
-                                              fontFamily: 'Gilroy')
-                                          : const TextStyle(
-                                              color: Color(0XFF6E758A),
-                                              fontFamily: 'Gilroy'),
-                                    ),
+                            padding: EdgeInsets.only(top: 8.h, bottom: 8.h, right: 8.w),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (!selectedCategory.contains(skill)) {
+                                    selectedCategory.add(skill);
+                                  } else {
+                                    selectedCategory.remove(skill);
+                                  }
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 13.w),
+                                decoration: BoxDecoration(
+                                  color: selectedCategory.contains(skill)
+                                      ? const Color(0XFFEBF2C2)
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(26.h),
+                                  border: Border.all(
+                                    color: selectedCategory.contains(skill)
+                                        ? const Color(0XFF8CC13F)
+                                        : const Color(0XFF6E758A),
+                                    width: 1.w,
                                   ),
                                 ),
-                              ],
+                                child: Text(
+                                  skill, // Use the skill directly here
+                                  style: selectedCategory.contains(skill)
+                                      ? const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0XFF78A03F),
+                                    fontFamily: 'Gilroy',
+                                  )
+                                      : const TextStyle(
+                                    color: Color(0XFF6E758A),
+                                    fontFamily: 'Gilroy',
+                                  ),
+                                ),
+                              ),
                             ),
-                          )
+                          ),
                       ],
                     ),
+
 
                   ],
                 ),
