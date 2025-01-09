@@ -85,12 +85,13 @@ class _MyCourcesState extends State<MyCources> {
         final fetchedCourseType = data['course_type'];
         final coursePreviewSrc = data['course_preview_src'];
         final overviewData = data['overview']; // Extract overview data
+        final reviewData = data['reviews']; //Extract Reviews data
 
         print('API fetched data Successfully: $data ');
         print('Check the slug: ${widget.slug} ');
         print('Check the course type: $fetchedCourseType ');
         print('Check the coursr preview src: $coursePreviewSrc ');
-        print('Overview Data: $overviewData');
+        print('Review Data: $reviewData');
 
 
 
@@ -105,8 +106,8 @@ class _MyCourcesState extends State<MyCources> {
           }
           // Adjust pages and initialize the controllers
           pageclass = (courseType == "Live")
-              ? [Overview(overviewData: overviewData), Review()]
-              : [Overview(overviewData: overviewData), Lesson(), Review()];
+              ? [Overview(overviewData: overviewData), Review(reviewData: reviewData)]
+              : [Overview(overviewData: overviewData), Lesson(), Review(reviewData: reviewData,)];
 
           courceController.initializeController(pageclass.length);
           isLoading = false;

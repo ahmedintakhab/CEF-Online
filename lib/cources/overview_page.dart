@@ -55,7 +55,7 @@ class _OverviewState extends State<Overview> {
                   children: [
                     SizedBox(height: 10.h),
                     Text(
-                      overviewData['title'],
+                      overviewData['title'] ?? 'No Title',
                       style: TextStyle(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w500,
