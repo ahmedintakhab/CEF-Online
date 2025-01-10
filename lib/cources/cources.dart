@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:learn_megnagmet/cources/choose_plane_screen.dart';
 import 'package:learn_megnagmet/cources/lessons_screen.dart';
+import 'package:learn_megnagmet/cources/review_dialog_box.dart';
 import 'package:learn_megnagmet/cources/review_screen.dart';
 import 'package:video_player/video_player.dart';
 import '../utils/screen_size.dart';
@@ -75,6 +76,13 @@ class _MyCourcesState extends State<MyCources> {
     flickManager.dispose();
     super.dispose();
   }
+  void showWriteReviewDialog(BuildContext context, String courseId) {
+    showDialog(
+      context: context,
+      builder: (context) => WriteReviewDialog(courseId: courseId),
+    );
+  }
+
 
   Future<void> fetchCourseDetails() async {
     final url = 'https://cefonlineacademy.com/api/frontend/course/detail/${widget.slug}';
@@ -86,14 +94,15 @@ class _MyCourcesState extends State<MyCources> {
         final coursePreviewSrc = data['course_preview_src'];
         final overviewData = data['overview']; // Extract overview data
         final reviewData = data['reviews']; //Extract Reviews data
+        final courseID = data['course_id'].toString();
+        final lessonsData = data['lessons'];
 
         print('API fetched data Successfully: $data ');
         print('Check the slug: ${widget.slug} ');
         print('Check the course type: $fetchedCourseType ');
         print('Check the coursr preview src: $coursePreviewSrc ');
-        print('Review Data: $reviewData');
-
-
+        print('Check the course id: $courseID');
+        print('Check the lessons Data: $lessonsData');
 
 
         setState(() {
@@ -106,12 +115,14 @@ class _MyCourcesState extends State<MyCources> {
           }
           // Adjust pages and initialize the controllers
           pageclass = (courseType == "Live")
-              ? [Overview(overviewData: overviewData), Review(reviewData: reviewData)]
-              : [Overview(overviewData: overviewData), Lesson(), Review(reviewData: reviewData,)];
+              ? [Overview(overviewData: overviewData), Review(reviewData: reviewData, courseId: courseID,)]
+              : [Overview(overviewData: overviewData), Lesson(lessonsData: lessonsData), Review(reviewData: reviewData, courseId: courseID,)];
 
           courceController.initializeController(pageclass.length);
           isLoading = false;
         });
+        // showWriteReviewDialog(context, courseID);
+
       } else {
         print('Failed to load course details. Status code: ${response.statusCode}');
       }

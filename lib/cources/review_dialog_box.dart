@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class WriteReviewDialog extends StatefulWidget {
-  const WriteReviewDialog({Key? key}) : super(key: key);
+  final String courseId;
+  const WriteReviewDialog({Key? key, required this.courseId}) : super(key: key);
 
   @override
   _WriteReviewDialogState createState() => _WriteReviewDialogState();
@@ -17,7 +21,7 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
   bool _showSnackbar = false; // Control visibility of the snackbar
   double _snackbarTopPosition = -50; // Initial top position of the snackbar
 
-  void _submitReview() {
+  Future<void> _submitReview() async {
     setState(() {
       _isSubmitPressed = true;
     });
@@ -28,18 +32,56 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
       // Show error snackbar
       _showCustomSnackBar("Please select Star and give feedback", Colors.red);
     } else {
-      // Show success snackbar
-      _showCustomSnackBar("Your review submitted successfully", Colors.green);
+      // Fetch the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
 
-      // Reset form
-      Future.delayed(const Duration(milliseconds: 500), () {
-        setState(() {
-          _selectedRating = null;
-          _feedbackController.clear();
-          _isSubmitPressed = false;
-        });
-        Navigator.of(context).pop(); // Close the dialog
-      });
+      // API URL
+      const String url = "https://cefonlineacademy.com/api/student/course/review-create";
+
+      // API Request Body
+      Map<String, dynamic> requestBody = {
+        "course_id": widget.courseId, // Use the dynamic course ID
+        "rating": _selectedRating?.toInt(),
+        "comment": _feedbackController.text,
+      };
+
+      try {
+        // Make the POST request
+        final response = await http.post(
+          Uri.parse(url),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer $token",
+          },
+          body: json.encode(requestBody),
+        );
+
+        // Handle API response
+        if (response.statusCode == 200) {
+          _showCustomSnackBar("Your review submitted successfully", Colors.green);
+          print('Reponse of Review API: ${response.statusCode}');
+          print('Successfully submitted review');
+          print("Check the selected Rating: $_selectedRating");
+          print('show the feedbackcontroller: $_feedbackController');
+
+          // Reset form
+          Future.delayed(const Duration(milliseconds: 500), () {
+            setState(() {
+              _selectedRating = null;
+              _feedbackController.clear();
+              _isSubmitPressed = false;
+            });
+            Navigator.of(context).pop(); // Close the dialog
+          });
+        }
+        else {
+          _showCustomSnackBar("Already you have reviewed. Thank you.", Colors.red);
+          print('Failed to submit review: ${response.body}');
+        }
+      } catch (e) {
+        _showCustomSnackBar("An error occurred: $e", Colors.red);
+      }
     }
   }
 
@@ -79,7 +121,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Row with Title and Close Icon
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -97,7 +138,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                // Rating Bar
                 const Text(
                   "Select Rating",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -143,7 +183,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
                     ),
                   ),
                 const SizedBox(height: 15),
-                // Feedback Section
                 const Text(
                   "Feedback",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -183,11 +222,9 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
                   },
                 ),
                 const SizedBox(height: 15),
-                // Action Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Cancel Button
                     TextButton(
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.grey[300],
@@ -201,7 +238,6 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
-                    // Submit Review Button
                     TextButton(
                       style: TextButton.styleFrom(
                         backgroundColor: const Color(0xFF8CC13F),
@@ -220,10 +256,9 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
               ],
             ),
           ),
-          // Animated Snackbar at the Top
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
-            top: _snackbarTopPosition, // Top position for animation
+            top: _snackbarTopPosition,
             left: 0,
             right: 0,
             child: _showSnackbar

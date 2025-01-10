@@ -10,7 +10,9 @@ import '../utils/screen_size.dart';
 import '../widget/button.dart';
 
 class Lesson extends StatefulWidget {
-  const Lesson({Key? key}) : super(key: key);
+  final List< dynamic> lessonsData;
+
+  const Lesson({Key? key, required this.lessonsData}) : super(key: key);
 
   @override
   State<Lesson> createState() => _LessonState();
@@ -20,6 +22,7 @@ class _LessonState extends State<Lesson> {
   List<LessonList> lessonLists = Utils.getLesson();
 
   Widget build(BuildContext context) {
+    print('Check lesson Data on lesson Screen: ${widget.lessonsData}');
     initializeScreenSize(context);
     return GetBuilder(
         init: HomeController(),
@@ -30,8 +33,9 @@ class _LessonState extends State<Lesson> {
                       physics: const NeverScrollableScrollPhysics(),
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,
-                      itemCount: lessonLists.length,
+                      itemCount: widget.lessonsData.length,
                       itemBuilder: (BuildContext, index) {
+                        var lesson = widget.lessonsData[index]; // Get each lesson data
                         return Padding(
                           padding:  EdgeInsets.only(top:index==0?0.h: 8.h,bottom: 8.h,left: 15.w,right: 15.w),
                           child: Container(
@@ -66,7 +70,7 @@ class _LessonState extends State<Lesson> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    lessonLists[index].title!,
+                                    lesson['lesson_name'] ?? 'No Name',
                                     style:  TextStyle(
                                         fontSize: 14.sp,
                                         color: Color(0XFF000000),
@@ -82,7 +86,7 @@ class _LessonState extends State<Lesson> {
                                         color: const Color(0XFFEBF2C2)),
                                     child: Center(
                                         child: Text(
-                                      lessonLists[index].buttonName!,
+                                    'Lesson ${lesson['lesson_no'].toString()}',
                                       style:  TextStyle(
                                           fontSize: 12.sp,
                                           fontWeight: FontWeight.bold,

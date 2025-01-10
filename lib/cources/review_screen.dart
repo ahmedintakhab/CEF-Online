@@ -13,8 +13,9 @@ import '../utils/screen_size.dart';
 import '../widget/button.dart';
 
 class Review extends StatefulWidget {
+  final String courseId;
   final Map<String, dynamic> reviewData;
-  const Review({Key? key, required this.reviewData}) : super(key: key);
+  const Review({Key? key, required this.reviewData, required this.courseId}) : super(key: key);
 
   @override
   State<Review> createState() => _ReviewState();
@@ -133,7 +134,7 @@ class _ReviewState extends State<Review> {
                   GestureDetector(onTap: (){
                     showDialog(context: context,
                       builder: (BuildContext context){
-                      return WriteReviewDialog();
+                        return WriteReviewDialog(courseId: widget.courseId); // Pass courseID here
                     }, );
                   },
                     child:Text(
@@ -146,20 +147,6 @@ class _ReviewState extends State<Review> {
                     ),
                   ),
 
-                  // RatingBar.builder(
-                  //   glow: false,
-                  //   minRating: 1,
-                  //   direction: Axis.horizontal,
-                  //   allowHalfRating: true,
-                  //   itemCount: 5,
-                  //   itemSize: 21.62,
-                  //   itemPadding:  EdgeInsets.symmetric(horizontal: 2.17.w),
-                  //   itemBuilder: (context, _) => const Icon(
-                  //     Icons.star_border,
-                  //     color: Colors.amber,
-                  //   ),
-                  //   onRatingUpdate: (rating) {},
-                  // ),
                 ],
               ),
               //SizedBox(height: 12.h),
