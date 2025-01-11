@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/lesson.dart';
 import '../utils/screen_size.dart';
@@ -119,102 +120,177 @@ class _LessonState extends State<Lesson> {
               ),
             ));
   }
-
-
-
   Widget lesson_detail(int index) {
+    // Get the lectures data for the current lesson
+    var lectures = widget.lessonsData[index]['lesson_lectures'] as List;
+
     return Column(
-      children: [
-        Column(
+      children: List.generate(lectures.length, (lectureIndex) {
+        var lecture = lectures[lectureIndex];
+
+        return Column(
           children: [
             Row(
-              children: [
-                Image.asset(
-                    lessonLists[index]
-                        .detailicon1!,
-                    height: 20.h,
-                    width: 20.w,color: Color(0XFF8CC13F),),
-                 SizedBox(width: 10.w),
-                Flexible(
-                    child: Text(
-                      lessonLists[index]
-                          .detail1st!,
-                      style:  TextStyle(
-                          fontSize: 14.sp,
-                          color:
-                          Color(0XFF000000)),
-                    )),
-                 SizedBox(width: 10.w),
-                Text(
-                  "${lessonLists[index].detail1stscore}",
-                  style:  TextStyle(
-                      fontSize: 14.sp,
-                      color:
-                      Color(0XFF23408F)),
-                )
-              ],
-            ),
-             SizedBox(height: 5.h),
-            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Lecture icon dynamically fetched
+                Image.network(
+                  lecture['lecture_icon_src'] ?? '',
+                  height: 20.h,
+                  width: 20.w,
+                  color: const Color(0XFF8CC13F),
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.error,
+                    color: Colors.red,
+                    size: 20.h,
+                  ),
+                ),
+                SizedBox(width: 10.w),
 
-                Image.asset(
-                    lessonLists[index]
-                        .detailicon2!,
-                    height: 20.h,
-                    width: 20.w,color: Color(0XFF8CC13F)),
-                 SizedBox(width: 10.w),
+                // Lecture title dynamically fetched
                 Flexible(
-                    child: Text(
-                        lessonLists[index]
-                            .detail2nd!)),
-                 SizedBox(width: 120.w),
-                Text(
-                    "${lessonLists[index].detail2ndscore}")
+                  child: Text(
+                    lecture['lecture_title'] ?? 'No Title',
+                    style: TextStyle(fontSize: 14.sp, color: const Color(0XFF000000)),
+                  ),
+                ),
+                SizedBox(width: 10.w),
+
+                // Locked or Preview Button condition
+                if (lecture['lecture_is'] == 'Locked')
+                  Icon(
+                    Icons.lock,
+                    color: Colors.grey,
+                    size: 20.h,
+                  )
+                else if (lecture['lecture_is'] == 'Free')
+                  Container(
+                    width: 70,
+                    height: 20,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Open the lecture_preview_btn_src link in a browser
+                        final url = lecture['lecture_preview_btn_src'];
+                        if (url != null && url.isNotEmpty) {
+                          launchUrl(Uri.parse(url)); // Requires `url_launcher` package
+                        } else {
+                          print('Invalid or missing URL for lecture preview');
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0XFF78A03F),
+                      ),
+                      child: Text(
+                        'Preview',
+                        style: TextStyle(fontSize: 8.sp, color: Colors.white),
+                      ),
+                    ),
+                  ),
               ],
             ),
-             SizedBox(height: 5.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Image.asset(
-                    lessonLists[index]
-                        .detailicon3!,
-                    height: 20.h,
-                    width: 20.w,color: Color(0XFF8CC13F)),
-                 SizedBox(width: 10.w),
-                Flexible(
-                    child: Text(
-                        lessonLists[index]
-                            .detail3rd!)),
-                 SizedBox(width: 120.w),
-                Text(
-                    "${lessonLists[index].detail3rdscore}")
-              ],
-            ),
-             SizedBox(height: 5.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Image.asset(
-                    lessonLists[index]
-                        .detailicon4!,
-                    height: 20.h,
-                    width: 20.w,color: Color(0XFF8CC13F)),
-                 SizedBox(width: 10.w),
-                Flexible(
-                    child: Text(
-                        lessonLists[index]
-                            .detail4th!)),
-                 SizedBox(width: 110.w),
-                Text(
-                    "${lessonLists[index].detail4thscore}")
-              ],
-            ),
+            SizedBox(height: 5.h),
           ],
-        )
-      ],
+        );
+      }),
     );
   }
+
+
+
+
+  // Widget lesson_detail(int index) {
+  //   return Column(
+  //     children: [
+  //       Column(
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Image.asset(
+  //                   lessonLists[index]
+  //                       .detailicon1!,
+  //                   height: 20.h,
+  //                   width: 20.w,color: Color(0XFF8CC13F),),
+  //                SizedBox(width: 10.w),
+  //               Flexible(
+  //                   child: Text(
+  //                     lessonLists[index]
+  //                         .detail1st!,
+  //                     style:  TextStyle(
+  //                         fontSize: 14.sp,
+  //                         color:
+  //                         Color(0XFF000000)),
+  //                   )),
+  //                SizedBox(width: 10.w),
+  //               Text(
+  //                 "${lessonLists[index].detail1stscore}",
+  //                 style:  TextStyle(
+  //                     fontSize: 14.sp,
+  //                     color:
+  //                     Color(0XFF23408F)),
+  //               )
+  //             ],
+  //           ),
+  //            SizedBox(height: 5.h),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //
+  //               Image.asset(
+  //                   lessonLists[index]
+  //                       .detailicon2!,
+  //                   height: 20.h,
+  //                   width: 20.w,color: Color(0XFF8CC13F)),
+  //                SizedBox(width: 10.w),
+  //               Flexible(
+  //                   child: Text(
+  //                       lessonLists[index]
+  //                           .detail2nd!)),
+  //                SizedBox(width: 120.w),
+  //               Text(
+  //                   "${lessonLists[index].detail2ndscore}")
+  //             ],
+  //           ),
+  //            SizedBox(height: 5.h),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //               Image.asset(
+  //                   lessonLists[index]
+  //                       .detailicon3!,
+  //                   height: 20.h,
+  //                   width: 20.w,color: Color(0XFF8CC13F)),
+  //                SizedBox(width: 10.w),
+  //               Flexible(
+  //                   child: Text(
+  //                       lessonLists[index]
+  //                           .detail3rd!)),
+  //                SizedBox(width: 120.w),
+  //               Text(
+  //                   "${lessonLists[index].detail3rdscore}")
+  //             ],
+  //           ),
+  //            SizedBox(height: 5.h),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //               Image.asset(
+  //                   lessonLists[index]
+  //                       .detailicon4!,
+  //                   height: 20.h,
+  //                   width: 20.w,color: Color(0XFF8CC13F)),
+  //                SizedBox(width: 10.w),
+  //               Flexible(
+  //                   child: Text(
+  //                       lessonLists[index]
+  //                           .detail4th!)),
+  //                SizedBox(width: 110.w),
+  //               Text(
+  //                   "${lessonLists[index].detail4thscore}")
+  //             ],
+  //           ),
+  //         ],
+  //       )
+  //     ],
+  //   );
+  // }
 }
