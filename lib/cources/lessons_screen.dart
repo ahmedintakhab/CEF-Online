@@ -1,7 +1,9 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -133,21 +135,10 @@ class _LessonState extends State<Lesson> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Lecture icon dynamically fetched
-                Image.network(
-                  lecture['lecture_icon_src'] ?? '',
-                  height: 20.h,
-                  width: 20.w,
-                  color: const Color(0XFF8CC13F),
-                  errorBuilder: (context, error, stackTrace) => Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 20.h,
-                  ),
-                ),
+                // Lecture icon with SVG support
+                _buildLectureIcon(lecture['lecture_icon_src']),
                 SizedBox(width: 10.w),
 
-                // Lecture title dynamically fetched
                 Flexible(
                   child: Text(
                     lecture['lecture_title'] ?? 'No Title',
@@ -156,7 +147,6 @@ class _LessonState extends State<Lesson> {
                 ),
                 SizedBox(width: 10.w),
 
-                // Locked or Preview Button condition
                 if (lecture['lecture_is'] == 'Locked')
                   Icon(
                     Icons.lock,
@@ -169,10 +159,9 @@ class _LessonState extends State<Lesson> {
                     height: 20,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Open the lecture_preview_btn_src link in a browser
                         final url = lecture['lecture_preview_btn_src'];
                         if (url != null && url.isNotEmpty) {
-                          launchUrl(Uri.parse(url)); // Requires `url_launcher` package
+                          launchUrl(Uri.parse(url));
                         } else {
                           print('Invalid or missing URL for lecture preview');
                         }
@@ -193,6 +182,90 @@ class _LessonState extends State<Lesson> {
         );
       }),
     );
+  }
+
+  Future<String> _preprocessSvg(String svgUrl) async {
+    try {
+      final response = await http.get(Uri.parse(svgUrl));
+      if (response.statusCode != 200) {
+        throw Exception('Failed to load SVG');
+      }
+
+      String svgContent = response.body;
+
+      // Fix rotation values using proper RegExp replacement
+      svgContent = svgContent.replaceAll(RegExp(r'rotate\(\s*\d+deg\s*\)'), 'rotate(0)');
+      svgContent = svgContent.replaceAllMapped(
+          RegExp(r'(-?\d+)deg'),
+              (match) => match.group(1) ?? '0'
+      );
+
+      return svgContent;
+    } catch (e) {
+      print('SVG Preprocessing Error: $e');
+      rethrow;
+    }
+  }
+
+  Widget _buildLectureIcon(String? iconUrl) {
+    if (iconUrl == null || iconUrl.isEmpty) {
+      return Icon(
+        Icons.error,
+        color: Colors.red,
+        size: 20.h,
+      );
+    }
+
+    if (iconUrl.toLowerCase().endsWith('.svg')) {
+      return FutureBuilder<String>(
+        future: _preprocessSvg(iconUrl),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return SizedBox(
+              height: 20.h,
+              width: 20.w,
+              child: const CircularProgressIndicator(),
+            );
+          }
+
+          if (snapshot.hasError || !snapshot.hasData) {
+            print('SVG Loading Error: ${snapshot.error}');
+            return Icon(
+              Icons.error,
+              color: Colors.red,
+              size: 20.h,
+            );
+          }
+
+          return SvgPicture.string(
+            snapshot.data!,
+            height: 20.h,
+            width: 20.w,
+            colorFilter: const ColorFilter.mode(
+              Color(0XFF8CC13F),
+              BlendMode.srcIn,
+            ),
+            theme: const SvgTheme(
+              currentColor: Color(0XFF8CC13F),
+              fontSize: 14,
+              xHeight: 0,
+            ),
+          );
+        },
+      );
+    } else {
+      return Image.network(
+        iconUrl,
+        height: 20.h,
+        width: 20.w,
+        color: const Color(0XFF8CC13F),
+        errorBuilder: (context, error, stackTrace) => Icon(
+          Icons.error,
+          color: Colors.red,
+          size: 20.h,
+        ),
+      );
+    }
   }
 
 

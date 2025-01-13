@@ -9,6 +9,7 @@ import 'package:learn_megnagmet/cources/lessons_screen.dart';
 import 'package:learn_megnagmet/cources/review_dialog_box.dart';
 import 'package:learn_megnagmet/cources/review_screen.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../utils/screen_size.dart';
 import '../widget/button.dart';
 import 'overview_page.dart';
@@ -40,6 +41,8 @@ class CourceController extends GetxController with SingleGetTickerProviderMixin 
 
 class _MyCourcesState extends State<MyCources> {
   late FlickManager flickManager;
+  late YoutubePlayerController youtubeController;
+  bool isYouTubeVideo = false;
   String courseType = '';
   String videoUrl = '';
   List<Widget> pageclass = [];
@@ -74,6 +77,9 @@ class _MyCourcesState extends State<MyCources> {
   @override
   void dispose() {
     flickManager.dispose();
+    if (isYouTubeVideo && youtubeController != null) {
+      youtubeController.dispose();
+    }
     super.dispose();
   }
   void showWriteReviewDialog(BuildContext context, String courseId) {
@@ -92,37 +98,76 @@ class _MyCourcesState extends State<MyCources> {
         final data = json.decode(response.body);
         final fetchedCourseType = data['course_type'];
         final coursePreviewSrc = data['course_preview_src'];
-        final overviewData = data['overview']; // Extract overview data
-        final reviewData = data['reviews']; //Extract Reviews data
+        final overviewData = data['overview'];
+        final reviewData = data['reviews'];
         final courseID = data['course_id'].toString();
         final lessonsData = data['lessons'];
 
-        print('API fetched data Successfully: $data ');
-        print('Check the slug: ${widget.slug} ');
-        print('Check the course type: $fetchedCourseType ');
-        print('Check the coursr preview src: $coursePreviewSrc ');
+        print('API fetched data Successfully: $data');
+        print('Check the slug: ${widget.slug}');
+        print('Check the course type: $fetchedCourseType');
+        print('Check the course preview src: $coursePreviewSrc');
         print('Check the course id: $courseID');
         print('Check the lessons Data: $lessonsData');
 
-
         setState(() {
           courseType = fetchedCourseType;
-          if (coursePreviewSrc != null) {
-            flickManager = FlickManager(
-              videoPlayerController: VideoPlayerController.network(coursePreviewSrc),
-              autoPlay: false,
-            );
+
+          // Null check for coursePreviewSrc before accessing it
+          if (coursePreviewSrc != null && coursePreviewSrc.isNotEmpty) {
+            // Check if the video source is a YouTube URL
+            if (coursePreviewSrc.contains('youtube.com/embed/')) {
+              final videoId = coursePreviewSrc.split('embed/').last;
+              isYouTubeVideo = true;
+              youtubeController = YoutubePlayerController(
+                initialVideoId: videoId,
+                flags: YoutubePlayerFlags(
+                  autoPlay: false,
+                  mute: false,
+                ),
+              );
+            } else if (coursePreviewSrc.contains('youtube.com/watch?v=')) {
+              final videoId = Uri.parse(coursePreviewSrc).queryParameters['v'];
+              isYouTubeVideo = true;
+              youtubeController = YoutubePlayerController(
+                initialVideoId: videoId!,
+                flags: YoutubePlayerFlags(
+                  autoPlay: false,
+                  mute: false,
+                ),
+              );
+            } else {
+              // If the URL is not YouTube, check if it's a regular video (mp4)
+              if (coursePreviewSrc.endsWith('.mp4')) {
+                // It's a regular video URL
+                isYouTubeVideo = false;
+                flickManager = FlickManager(
+                  videoPlayerController: VideoPlayerController.network(coursePreviewSrc),
+                  autoPlay: false,
+                );
+              }
+            }
+          } else {
+            // If there's no coursePreviewSrc, show a message saying "No video upload"
+            print("No video uploaded");
+            isYouTubeVideo = false;  // No video
           }
+
           // Adjust pages and initialize the controllers
           pageclass = (courseType == "Live")
-              ? [Overview(overviewData: overviewData), Review(reviewData: reviewData, courseId: courseID,)]
-              : [Overview(overviewData: overviewData), Lesson(lessonsData: lessonsData), Review(reviewData: reviewData, courseId: courseID,)];
+              ? [
+            Overview(overviewData: overviewData),
+            Review(reviewData: reviewData, courseId: courseID),
+          ]
+              : [
+            Overview(overviewData: overviewData),
+            Lesson(lessonsData: lessonsData),
+            Review(reviewData: reviewData, courseId: courseID),
+          ];
 
           courceController.initializeController(pageclass.length);
           isLoading = false;
         });
-        // showWriteReviewDialog(context, courseID);
-
       } else {
         print('Failed to load course details. Status code: ${response.statusCode}');
       }
@@ -130,6 +175,7 @@ class _MyCourcesState extends State<MyCources> {
       print('Error fetching course details: $e');
     }
   }
+
 
 
   @override
@@ -185,11 +231,20 @@ class _MyCourcesState extends State<MyCources> {
                   child: Container(
                     height: 195.h,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22.h)),
+                      borderRadius: BorderRadius.circular(22.h),
+                    ),
                     child: ClipRRect(
-                        borderRadius: BorderRadius.circular(22),
-                        child: FlickVideoPlayer(flickManager: flickManager)),
+                      borderRadius: BorderRadius.circular(22),
+                      child: isYouTubeVideo
+                          ? YoutubePlayer(controller: youtubeController)
+                          : (isYouTubeVideo == false && flickManager != null)
+                          ? FlickVideoPlayer(flickManager: flickManager)  // Show regular video
+                          : Center(child: Text("No video uploaded")),  // Display message when there's no video
+
+
+                    ),
                   ),
+
                 ),
               ),
               SizedBox(height: 12.h),
