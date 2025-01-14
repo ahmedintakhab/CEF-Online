@@ -28,7 +28,7 @@ class _ReviewState extends State<Review> {
   @override
   Widget build(BuildContext context) {
     initializeScreenSize(context);
-    print("Review Data on Review page: ${widget.reviewData}");
+    // print("Review Data on Review page: ${widget.reviewData}");
     return GetBuilder(
       init: HomeController(),
       builder: (controller) => SingleChildScrollView(
