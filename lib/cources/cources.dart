@@ -45,6 +45,8 @@ class _MyCourcesState extends State<MyCources> {
   bool isYouTubeVideo = false;
   String courseType = '';
   String videoUrl = '';
+  String btnText = '';
+  String btnApiRoute = '';
   List<Widget> pageclass = [];
   bool isLoading = true;
   late CourceController courceController;
@@ -102,13 +104,18 @@ class _MyCourcesState extends State<MyCources> {
         final reviewData = data['reviews'];
         final courseID = data['course_id'].toString();
         final lessonsData = data['lessons'];
+        // Fetch button text and API route
+        btnText = data['btn_text'];
+        btnApiRoute = data['btn_api_route'];
 
         print('API fetched data Successfully: $data');
         print('Check the slug: ${widget.slug}');
         print('Check the course type: $fetchedCourseType');
         print('Check the course preview src: $coursePreviewSrc');
         print('Check the course id: $courseID');
-        print('Check the lessons Data: $lessonsData');
+        print('Check the button Data: $btnText');
+        print('Check the button API route Data: $btnApiRoute');
+
 
         setState(() {
           courseType = fetchedCourseType;
@@ -176,7 +183,22 @@ class _MyCourcesState extends State<MyCources> {
     }
   }
 
-
+Future<void> enrollInCourse() async{
+    try{
+      final response = await http.post(Uri.parse(btnApiRoute),body: {
+        // 'course_id': courseID,
+      });
+      if(response.statusCode == 200){
+        print("Successfully enroll in the course");
+        
+      }
+      else{
+        print('Failed to enroll in the course. Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error during enrollment: $e');
+    }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -386,9 +408,10 @@ class _MyCourcesState extends State<MyCources> {
               Padding(
                 padding: EdgeInsets.only(bottom: 30.h),
                 child: CustomButton(
-                  onTap: () => Get.to(const ChoosePlane()),
-                  buttonText: 'Enroll Now',
-                ),
+                  onTap: (){enrollInCourse();},
+                  // onTap: () => Get.to(const ChoosePlane()),
+
+                  buttonText: btnText.isNotEmpty ? btnText : 'Enroll Now',                ),
               ),
             ],
           ),
