@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 class OverviewContainer extends StatelessWidget {
   final List<Map<String, String>> items;
+  final String fetchedCourseType;
 
-  const OverviewContainer({Key? key, required this.items}) : super(key: key);
+  const OverviewContainer({
+    Key? key,
+    required this.items,
+    required this.fetchedCourseType,
+  }) : super(key: key);
 
   // Function to create each small container
   Widget buildSmallContainer(String image, String title) {
@@ -40,35 +45,48 @@ class OverviewContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Filter items based on fetchedCourseType
+    final filteredItems = fetchedCourseType == "Live"
+        ? items.sublist(2) // Exclude the first two items
+        : items;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          // First row with three containers
+          // First row with up to three containers
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: items.sublist(0, 3).map((item) {
+            children: filteredItems
+                .take(3) // Safely take up to 3 items
+                .map((item) {
               return Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: buildSmallContainer(item['image']!, item['title']!),
                 ),
               );
-            }).toList(),
+            })
+                .toList(),
           ),
           const SizedBox(height: 8.0),
-          // Second row with three containers
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: items.sublist(3, 6).map((item) {
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: buildSmallContainer(item['image']!, item['title']!),
-                ),
-              );
-            }).toList(),
-          ),
+          // Second row with remaining containers, if any
+          if (filteredItems.length > 3)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: filteredItems
+                  .skip(3) // Skip the first 3 items
+                  .take(3) // Take up to the next 3 items
+                  .map((item) {
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: buildSmallContainer(item['image']!, item['title']!),
+                  ),
+                );
+              })
+                  .toList(),
+            ),
         ],
       ),
     );

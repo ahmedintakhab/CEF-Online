@@ -48,10 +48,10 @@ class _OverviewState extends State<Overview> {
   Widget build(BuildContext context) {
     // List of items to pass to the OverviewContainer
     final List<Map<String, String>> items = [
-      {'image': 'assets/gridview1.png', 'title': '12 Lessons'},
-      {'image': 'assets/gridview2.png', 'title': 'Beginner'},
-      {'image': 'assets/gridview3.png', 'title': '6 Weeks'},
-      {'image': 'assets/gridview4.png', 'title': 'English'},
+      {'image': 'assets/gridview1.png', 'title': '${overviewData['total_lessons']} Lessons'},
+      {'image': 'assets/gridview2.png', 'title': overviewData['level'] ?? 'No Level' },
+      {'image': 'assets/gridview3.png', 'title': overviewData['duration'] ??'No Duration'},
+      {'image': 'assets/gridview4.png', 'title': overviewData['language'] ??'No Language'},
       {'image': 'assets/gridview5.png', 'title': 'Certificate'},
       {'image': 'assets/gridview6.png', 'title': 'Fully Secure'},
     ];
@@ -91,7 +91,7 @@ class _OverviewState extends State<Overview> {
                           fontFamily: 'Gilroy'),
                     ),
 
-                    OverviewContainer(items: items,),
+                    OverviewContainer(items: items,fetchedCourseType: widget.fetchedCourseType),
 
                     // SizedBox(
                     //   child: GridView.count(
