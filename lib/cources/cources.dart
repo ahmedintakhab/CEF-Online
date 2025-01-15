@@ -163,11 +163,11 @@ class _MyCourcesState extends State<MyCources> {
           // Adjust pages and initialize the controllers
           pageclass = (courseType == "Live")
               ? [
-            Overview(overviewData: overviewData),
+            Overview(overviewData: overviewData,fetchedCourseType:fetchedCourseType),
             Review(reviewData: reviewData, courseId: courseID),
           ]
               : [
-            Overview(overviewData: overviewData),
+            Overview(overviewData: overviewData,fetchedCourseType:fetchedCourseType),
             Lesson(lessonsData: lessonsData),
             Review(reviewData: reviewData, courseId: courseID),
           ];

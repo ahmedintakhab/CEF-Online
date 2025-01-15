@@ -10,10 +10,12 @@ import '../utils/screen_size.dart';
 import '../utils/slider_page_data_model.dart';
 import '../widget/button.dart';
 import 'choose_plane_screen.dart';
+import 'overview_container.dart';
 
 class Overview extends StatefulWidget {
   final dynamic overviewData; // Add this to accept the overviewData passed from previous page
-  const Overview({Key? key, required this.overviewData}) : super(key: key);
+  final String fetchedCourseType;
+  const Overview({Key? key, required this.overviewData, required this.fetchedCourseType, }) : super(key: key);
 
   @override
   State<Overview> createState() => _OverviewState();
@@ -39,10 +41,20 @@ class _OverviewState extends State<Overview> {
     super.initState();
     overviewData = widget.overviewData;  // Assign passed data
     print('check tha overview data on overview page: $overviewData');
+    print("Check the fetch course type on overview page: ${widget.fetchedCourseType}");
 
   }
   @override
   Widget build(BuildContext context) {
+    // List of items to pass to the OverviewContainer
+    final List<Map<String, String>> items = [
+      {'image': 'assets/gridview1.png', 'title': '12 Lessons'},
+      {'image': 'assets/gridview2.png', 'title': 'Beginner'},
+      {'image': 'assets/gridview3.png', 'title': '6 Weeks'},
+      {'image': 'assets/gridview4.png', 'title': 'English'},
+      {'image': 'assets/gridview5.png', 'title': 'Certificate'},
+      {'image': 'assets/gridview6.png', 'title': 'Fully Secure'},
+    ];
     final List<dynamic> skills = overviewData['skills'] ?? [];
     initializeScreenSize(context);
     return GetBuilder(
@@ -78,51 +90,54 @@ class _OverviewState extends State<Overview> {
                           fontWeight: FontWeight.w700,
                           fontFamily: 'Gilroy'),
                     ),
-                    SizedBox(
-                      child: GridView.count(
-                        primary: false,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 4.0,
-                        mainAxisSpacing: 8.0,
 
-                        //reverse: true,
-                        children: grid
-                            .map((e) => Padding(
-                                  padding: EdgeInsets.all(6.0.h),
-                                  child: Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(22.h),
-                                          color: const Color(0XFFF3F6FF)),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Image(
-                                            image: AssetImage(e.image!),
-                                            height: 30.h,
-                                            width: 30.w,color: Color(0XFF8CC13F),
-                                            fit: BoxFit.cover,
-                                          ),
-                                          SizedBox(height: 10.h),
-                                          Text(
-                                            e.title!,
-                                            style: TextStyle(
-                                                fontSize: 14.sp,
-                                                color: const Color(0XFf000000),
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: 'Gilroy'),
-                                          )
-                                        ],
-                                      )),
-                                ))
-                            .toList(),
-                      ),
-                    ),
+                    OverviewContainer(items: items,),
+
+                    // SizedBox(
+                    //   child: GridView.count(
+                    //     primary: false,
+                    //     shrinkWrap: true,
+                    //     physics: const NeverScrollableScrollPhysics(),
+                    //     crossAxisCount: 3,
+                    //     crossAxisSpacing: 4.0,
+                    //     mainAxisSpacing: 8.0,
+                    //
+                    //     //reverse: true,
+                    //     children: grid
+                    //         .map((e) => Padding(
+                    //               padding: EdgeInsets.all(6.0.h),
+                    //               child: Container(
+                    //                   decoration: BoxDecoration(
+                    //                       borderRadius:
+                    //                           BorderRadius.circular(22.h),
+                    //                       color: const Color(0XFFF3F6FF)),
+                    //                   child: Column(
+                    //                     mainAxisAlignment:
+                    //                         MainAxisAlignment.center,
+                    //                     crossAxisAlignment:
+                    //                         CrossAxisAlignment.center,
+                    //                     children: [
+                    //                       Image(
+                    //                         image: AssetImage(e.image!),
+                    //                         height: 30.h,
+                    //                         width: 30.w,color: Color(0XFF8CC13F),
+                    //                         fit: BoxFit.cover,
+                    //                       ),
+                    //                       SizedBox(height: 10.h),
+                    //                       Text(
+                    //                         e.title!,
+                    //                         style: TextStyle(
+                    //                             fontSize: 14.sp,
+                    //                             color: const Color(0XFf000000),
+                    //                             fontWeight: FontWeight.bold,
+                    //                             fontFamily: 'Gilroy'),
+                    //                       )
+                    //                     ],
+                    //                   )),
+                    //             ))
+                    //         .toList(),
+                    //   ),
+                    // ),
                     SizedBox(height: 21.sp),
                     Text(
                       "Instructor",
