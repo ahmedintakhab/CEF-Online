@@ -208,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         fontFamily: 'Gilroy')),
                                 TextButton(
                                     onPressed: () {
-                                      Get.to(const TrendingCource());
+                                      Get.to(()=> TrendingCource());
                                     },
                                     child:  Text("See All",
                                         style: TextStyle(
