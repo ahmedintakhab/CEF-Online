@@ -98,7 +98,7 @@ class OngoingCompletedController extends GetxController
 
 class OngoingController extends GetxController {}
 
-class CompletedController extends GetxController {}
+// class CompletedController extends GetxController {}
 
 class CourceDetailController extends GetxController {}
 
@@ -129,6 +129,15 @@ class HelpCenterController extends GetxController
     tabController = TabController(length: 2, vsync: this);
     pController = PageController();
     super.onInit();
+  }
+}
+// Make sure this CompletedController class is in your controller.dart file
+class CompletedController extends GetxController {
+  var completedCourses = [].obs;
+
+  void setCompletedCourses(List courses) {
+    completedCourses.value = courses;
+    update();
   }
 }
 

@@ -20,10 +20,12 @@ class OngoingScreen extends StatefulWidget {
 
 class _OngoingScreenState extends State<OngoingScreen> {
   OngoingController ongoingController = Get.put(OngoingController());
+  CompletedController completedController = Get.put(CompletedController());
   List ongoingCource = Utils.getOngoingCource();
   bool isLoading = true; // To show a loading indicator
   String errorMessage = '';
   List< dynamic>? ongoingCourses;
+  List <dynamic>? completeCourses;
 
   @override
   void initState() {
@@ -53,6 +55,9 @@ class _OngoingScreenState extends State<OngoingScreen> {
         print("API Data on Ongoing Page: $data"); // Debug: Print the full API data
         ongoingCourses = data['on_going']; // Adjust key based on API response
         print("API fetched ongoing course data!: $ongoingCource");
+        completeCourses = data['completed'];
+        print('Complete courses data strore in completeCourses: $completeCourses');
+        completedController.setCompletedCourses(completeCourses ?? []);
 
 
         setState(() {
@@ -189,3 +194,4 @@ class _OngoingScreenState extends State<OngoingScreen> {
             }));
   }
 }
+

@@ -303,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (banners == null) {
           print("Banners are null!");
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)));
         }
 
         // Check if image URL is valid
