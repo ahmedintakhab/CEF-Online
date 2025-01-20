@@ -18,6 +18,7 @@ import 'package:learn_megnagmet/models/trending_cource.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -34,6 +35,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String userName = "User Name"; // Default placeholder
   List<HomeSlider> pages = [];
   List<Design> design = Utils.getDesign();
   List<Trending> trendingCource = Utils.getTrending();
@@ -54,7 +56,15 @@ class _HomeScreenState extends State<HomeScreen> {
     pages = Utils.getHomeSliderPages();
     super.initState();
     fetchApiData();
+    _loadUserData();
 
+  }
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      userName = prefs.getString('user_name') ?? "User Name";
+    });
   }
   toggle(int index){
    setState(() {
@@ -79,7 +89,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchApiData() async {
     final url = Uri.parse("https://cefonlineacademy.com/api/frontend/home");
     try {
-      final response = await http.get(url);
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final response = await http.get(url,
+        headers: {
+          'Authorization': 'Bearer $token', // Pass the token as a Bearer token
+          'Content-Type': 'application/json', // Optional: Set content type
+        },
+      );
+
       if (response.statusCode == 200) {
         print("API successfully fetched data!");
         final data = json.decode(response.body);
@@ -127,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Row(children: [
                         Image(image: AssetImage(userDetail[0].image),height: 50.h,width: 49.93.w,),
                          SizedBox(width: 10.w),
-                        Text("Welcome,${userDetail[0].name}",
+                        Text("Welcome, $userName",
                             style:  TextStyle(
                                 fontFamily: 'Gilroy',
                                 color: const Color(0XFF000000),
@@ -290,11 +310,11 @@ class _HomeScreenState extends State<HomeScreen> {
         final imageUrl = banners['image'] ?? '';
         bool isValidImageUrl = Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false;
 
-        if (isValidImageUrl) {
-          print("Valid Image URL: $imageUrl");
-        } else {
-          print("Invalid Image URL, fallback to default image");
-        }
+        // if (isValidImageUrl) {
+        //   print("Valid Image URL: $imageUrl");
+        // } else {
+        //   print("Invalid Image URL, fallback to default image");
+        // }
 
         return Padding(
           padding: EdgeInsets.only(
@@ -465,7 +485,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget trending_cource_list(Map<String, dynamic> apiData) {
     final trendingCourses = apiData['trendingCourses']; // Fetch trendingCourses from apiData
-print('Details of TrendingCourses : $trendingCourses');
+// print('Details of TrendingCourses : $trendingCourses');
     if (trendingCourses == null || trendingCourses.isEmpty) {
       return Center(
         child: Text(
@@ -724,11 +744,13 @@ print('Details of TrendingCourses : $trendingCourses');
                                 ),
                                 SizedBox(width: 4.w),
                                 Text(
-                                  latest['duration'].toString(),
+                                  "${latest['duration']} Day's",
                                   style:  TextStyle(
                                       fontSize: 15.sp,
                                       color: Color(0XFF000000),
                                       fontFamily: 'Gilroy'),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 )
                               ],
                             ),

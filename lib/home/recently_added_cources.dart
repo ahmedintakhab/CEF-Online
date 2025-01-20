@@ -8,6 +8,7 @@ import 'package:learn_megnagmet/home/recent_added_cource_detail.dart';
 
 import 'package:learn_megnagmet/models/recently_added.dart';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../My_cources/cources_details.dart';
 import '../login/login_empty_state.dart';
@@ -45,12 +46,20 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
     const String apiUrl = "https://cefonlineacademy.com/api/frontend/all-courses?sortBy_id=2";
 
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+      final response = await http.get(Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $token', // Pass the token as a Bearer token
+          'Content-Type': 'application/json', // Optional: Set content type
+        },
+      );
       print("API Response Status: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("API Data Fetched Successfully: $data");
+        print("API Data Fetched Successfully");
 
         setState(() {
           fetchData = data;
@@ -258,13 +267,17 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                                       Image(image: const AssetImage("assets/clock.png")
                                           ,height: 17.h,width: 17.w,color: Color(0XFF8CC13F),),
                                        SizedBox(width: 4.w),
-                                      Text(
-                                        course['course_duration'].toString(),
-                                        style:  TextStyle(
-                                            fontSize: 12.sp,
-                                            color: const Color(0XFF000000),
-                                            fontFamily: 'Gilroy'),
-                                      )
+                                      Expanded(
+                                        child: Text(
+                                         "${ course['course_duration']} Day's",
+                                          style:  TextStyle(
+                                              fontSize: 12.sp,
+                                              color: const Color(0XFF000000),
+                                              fontFamily: 'Gilroy'),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),

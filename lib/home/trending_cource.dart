@@ -6,10 +6,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:learn_megnagmet/models/trending_cource.dart';
-import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
+// import 'package:learn_megnagmet/utils/slider_page_data_mode';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../login/login_empty_state.dart';
 import '../utils/screen_size.dart';
+import '../utils/slider_page_data_model.dart';
 
 class TrendingCource extends StatefulWidget {
   const TrendingCource({Key? key}) : super(key: key);
@@ -43,12 +45,18 @@ class _TrendingCourceState extends State<TrendingCource> {
     const String apiUrl = "https://cefonlineacademy.com/api/frontend/all-courses?sortBy_id=2";
 
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+      final response = await http.get(Uri.parse(apiUrl),
+      headers: {'Authorization': 'Bearer $token',
+        'content-Type': 'application/json'}
+      );
       print("API Response Status: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("API Data Fetched Successfully on Trending Page: $data");
+        print("API Data Fetched Successfully on Trending Page");
 
         setState(() {
           Allcourses = data;
@@ -67,11 +75,7 @@ class _TrendingCourceState extends State<TrendingCource> {
   @override
   Widget build(BuildContext context) {
     initializeScreenSize(context);
-    return WillPopScope(
-      onWillPop: () {
-        return Future.value(false);
-      },
-      child: Scaffold(
+    return Scaffold(
           body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,11 +107,10 @@ class _TrendingCourceState extends State<TrendingCource> {
               ),
             ),
             SizedBox(height: 20.h),
-            Expanded(child: trending_course_list(Allcourses ?? {})),
+             trending_course_list(Allcourses ?? {})
           ],
         ),
-      )),
-    );
+      ));
   }
 
   Widget trending_course_list(Map<String, dynamic> Allcourses) {

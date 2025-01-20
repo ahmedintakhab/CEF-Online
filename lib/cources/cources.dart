@@ -8,6 +8,9 @@ import 'package:learn_megnagmet/cources/choose_plane_screen.dart';
 import 'package:learn_megnagmet/cources/lessons_screen.dart';
 import 'package:learn_megnagmet/cources/review_dialog_box.dart';
 import 'package:learn_megnagmet/cources/review_screen.dart';
+import 'package:learn_megnagmet/home/home_main.dart';
+import 'package:learn_megnagmet/home/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../utils/screen_size.dart';
@@ -50,6 +53,7 @@ class _MyCourcesState extends State<MyCources> {
   List<Widget> pageclass = [];
   bool isLoading = true;
   late CourceController courceController;
+  late String CourseID;
 
   @override
   void initState() {
@@ -71,7 +75,8 @@ class _MyCourcesState extends State<MyCources> {
     fetchCourseDetails(); // Fetch course details on page load
     flickManager = FlickManager(
       videoPlayerController: VideoPlayerController.network(
-          "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"), // Temporary URL until API response
+          ""), // Temporary URL until API response
+      //https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4
       autoPlay: false,
     );
   }
@@ -95,7 +100,16 @@ class _MyCourcesState extends State<MyCources> {
   Future<void> fetchCourseDetails() async {
     final url = 'https://cefonlineacademy.com/api/frontend/course/detail/${widget.slug}';
     try {
-      final response = await http.get(Uri.parse(url));
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final response = await http.get(Uri.parse(url),
+          headers: {
+        'Authorization': 'Bearer $token', // Authorization Header
+          'content-Type': 'Application/json',
+          },
+      );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final fetchedCourseType = data['course_type'];
@@ -107,12 +121,14 @@ class _MyCourcesState extends State<MyCources> {
         // Fetch button text and API route
         btnText = data['btn_text'];
         btnApiRoute = data['btn_api_route'];
+         CourseID = data['course_id'].toString();
+
 
         print('API fetched data Successfully: $data');
         print('Check the slug: ${widget.slug}');
         print('Check the course type: $fetchedCourseType');
         print('Check the course preview src: $coursePreviewSrc');
-        print('Check the course id: $courseID');
+        print('Check the course id: $CourseID');
         print('Check the button Data: $btnText');
         print('Check the button API route Data: $btnApiRoute');
 
@@ -183,29 +199,54 @@ class _MyCourcesState extends State<MyCources> {
     }
   }
 
-Future<void> enrollInCourse() async{
-    try{
-      final response = await http.post(Uri.parse(btnApiRoute),body: {
-        // 'course_id': courseID,
-      });
-      if(response.statusCode == 200){
-        print("Successfully enroll in the course");
-        
-      }
-      else{
+  Future<void> enrollInCourse(String courseId) async {
+    try {
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      // Log the token and courseId for debugging
+      print('Token for Enroll courses: $token');
+      print('Course ID for Enroll courses: $courseId');
+
+      // Send the API request with the token in the headers and course_id in the body
+      final response = await http.post(
+        Uri.parse(btnApiRoute),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json', // Ensure JSON content type
+        },
+        body:jsonEncode({
+          'course_id': courseId, // Pass the course_id
+        },)
+      );
+
+      if (response.statusCode == 200) {
+        print("Successfully enrolled in the course: ${response.statusCode}");
+        Get.to(() => HomeMainScreen());
+
+        // Show success snackbar
+        Get.snackbar(
+          'Success',
+          'Successfully enrolled in the course',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.black.withOpacity(0.2),
+          colorText: Colors.black,
+          borderRadius: 10,
+          margin: EdgeInsets.all(15),
+          duration: Duration(seconds: 3),
+        );
+      } else {
         print('Failed to enroll in the course. Response body: ${response.body}');
       }
     } catch (e) {
       print('Error during enrollment: $e');
     }
-}
-
+  }
   @override
   Widget build(BuildContext context) {
     initializeScreenSize(context);
-    return WillPopScope(
-      onWillPop: () => Future.value(false),
-      child: Scaffold(
+    return Scaffold(
         body: isLoading
             ? Center(child: CircularProgressIndicator())
             : SafeArea(
@@ -408,7 +449,7 @@ Future<void> enrollInCourse() async{
               Padding(
                 padding: EdgeInsets.only(bottom: 30.h),
                 child: CustomButton(
-                  onTap: (){enrollInCourse();},
+                  onTap: (){enrollInCourse(CourseID);},
                   // onTap: () => Get.to(const ChoosePlane()),
 
                   buttonText: btnText.isNotEmpty ? btnText : 'Enroll Now',                ),
@@ -416,7 +457,6 @@ Future<void> enrollInCourse() async{
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

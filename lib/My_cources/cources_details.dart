@@ -1,6 +1,4 @@
 // ignore_for_file: non_constant_identifier_names
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -15,7 +13,8 @@ import 'ongoing_screen.dart';
 
 class CourceDetail extends StatefulWidget {
   const CourceDetail({Key? key, required this.corcedetail}) : super(key: key);
-  final OngoingCources corcedetail;
+  final Map<String, dynamic> corcedetail; // Accept a map
+  // final OngoingCources corcedetail;
 
   @override
   State<CourceDetail> createState() => _CourceDetailState();
@@ -27,13 +26,13 @@ class _CourceDetailState extends State<CourceDetail> {
       Get.put(CourceDetailController());
 
   @override
-  void initState() {
-    // cource_detail = Utils.getCourceDetail();
-    cource_detail = cource_detail
-        .where((element) => element.courceID == widget.corcedetail.id)
-        .toList();
-    super.initState();
-  }
+  // void initState() {
+  //   // cource_detail = Utils.getCourceDetail();
+  //   cource_detail = cource_detail
+  //       .where((element) => element.courceID == widget.corcedetail['courseID'])
+  //       .toList();
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -58,15 +57,20 @@ class _CourceDetailState extends State<CourceDetail> {
                           width: 24.w,
                         )),
                      SizedBox(width: 15.w),
-                    Text(
-                      "${widget.corcedetail.courceName}",
-                      style:  TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 24.sp),
-                    ),
+                       Expanded(
+                         child: Text(
+                          "${widget.corcedetail['courseName']}",
+                          style:  TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 24.sp),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                                               ),
+                       ),
+
                   ],
                 ),
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 10.h),
               Expanded(
                 child: ListView.builder(
                     itemCount: cource_detail.length,
