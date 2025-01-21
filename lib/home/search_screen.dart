@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../controller/controller.dart';
 import '../models/design_list.dart';
 import '../models/recently_added.dart';
@@ -20,25 +21,64 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   SearchScreenController searchScreenController =
       Get.put(SearchScreenController());
-  List<String> categoryList = [
-    "UI/UX",
-    "Design",
-    "3D Design",
-  ];
+  // List<String> categoryList = [
+  //   "UI/UX",
+  //   "Design",
+  //   "3D Design",
+  // ];
   List<String> selectedCategory = [];
   List<Design> design = Utils.getDesign();
   List<Trending> cource = Utils.getTrending();
   List<Recent> recentAdded = Utils.getRecentAdded();
+  Map< String,dynamic>? searchData; // Variable to store API data
+  List<Map<String, dynamic>> categorywithimages = []; // Dynamic category list
+  List<Map<String, dynamic>> courseResult = []; // Dynamic category list
+
+  @override
+  void initState() {
+    super.initState();
+    searchCourses();
+
+  }
+  Future<void> searchCourses() async {
+    const url = 'https://cefonlineacademy.com/api/frontend/course/search';
+    try {
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print(" Search API Response : ${response.statusCode}");
+        // print(" Fetched Search API data Successfully : $data");
+        setState(() {
+          searchData =data; //store API data
+
+        });
+        categorywithimages = List<Map<String, dynamic>>.from(searchData?['categories_with_images'] ?? []);
+        print('Check the category with images data: $categorywithimages');
+        // print(" Fetched Search API data in Search Data variable Successfully : $searchData");
+        courseResult = List<Map<String, dynamic>>.from(searchData?['course_results'] ?? []);
+        print('Check the course result: $courseResult');
+
+
+      } else {
+        print(" Search API Error: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Error occurred: $error");
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     initializeScreenSize(context);
 
-    return WillPopScope(
-      onWillPop: (){
-        return Future.value(false);
-      },
-      child: Scaffold(
+    // return WillPopScope(
+    //   onWillPop: (){
+    //     return Future.value(false);
+    //   },
+    //   child:);
+       return Scaffold(
         body: GetBuilder<SearchScreenController>(
             init: SearchScreenController(),
             builder: (controller) => SafeArea(
@@ -66,14 +106,16 @@ class _SearchScreenState extends State<SearchScreen> {
                           //padding: EdgeInsets.zero,
                           primary: true,
                           children: [
-                            search_text_field(),
+                             search_text_field(),
                             //SizedBox(height: 20),
                             Wrap(
                               alignment: WrapAlignment.start,
                               children: [
-                                for (final i in List.generate(
-                                    categoryList.length, (index) => index))
-                                  Padding(
+                                // Use the dynamic categoryList data
+                                if (searchData != null && searchData!['simple_categories'] != null)
+                                  for (final category in searchData!['simple_categories'])
+
+                                    Padding(
                                     padding: EdgeInsets.only(
                                         top: 12.h,
                                         bottom: 12.h,
@@ -85,12 +127,12 @@ class _SearchScreenState extends State<SearchScreen> {
                                           onTap: () {
                                             setState(() {
                                               if (!selectedCategory
-                                                  .contains(categoryList[i])) {
+                                                  .contains(category['name'])) {
                                                 selectedCategory
-                                                    .add(categoryList[i]);
+                                                    .add(category['name'] as String);
                                               } else {
                                                 selectedCategory
-                                                    .remove(categoryList[i]);
+                                                    .remove(category['name']);
                                               }
                                             });
                                           },
@@ -99,22 +141,22 @@ class _SearchScreenState extends State<SearchScreen> {
                                                 vertical: 6.h, horizontal: 13.w),
                                             decoration: BoxDecoration(
                                               color: selectedCategory
-                                                      .contains(categoryList[i])
+                                                      .contains(category['name'])
                                                   ? Color(0XFFEBF2C2)
                                                   : Colors.white,
                                               borderRadius:
                                                   BorderRadius.circular(6.h),
                                               border: Border.all(
                                                   color: selectedCategory
-                                                          .contains(categoryList[i])
+                                                          .contains(category['name'])
                                                       ? Color(0XFF)
                                                       : Color(0XFF6E758A),
                                                   width: 1.w),
                                             ),
                                             child: Text(
-                                              categoryList[i],
+                                              category['name'] as String,
                                               style: selectedCategory
-                                                      .contains(categoryList[i])
+                                                      .contains(category['name'])
                                                   ? TextStyle(
                                                       fontSize: 15.sp,
                                                       fontWeight: FontWeight.w700,
@@ -137,16 +179,16 @@ class _SearchScreenState extends State<SearchScreen> {
                             horizontal_disidn(),
                             SizedBox(height: 20.h),
                             trending_cource(),
-                            SizedBox(height: 20.h),
-                            recent_added_list(),
+                            // SizedBox(height: 20.h),
+                            // recent_added_list(),
                           ],
                         ),
                       )
                     ],
                   ),
             )),
-      ),
-    );
+      );
+
   }
 
   Widget search_text_field() {
@@ -199,53 +241,75 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget horizontal_disidn() {
     return Container(
-      //color: Colors.red,
-      height: 100.h,
+      height: 150.h, // Adjusted to fit both image and text
       width: double.infinity.w,
       child: ListView.builder(
-          shrinkWrap: true,
-          primary: false,
-          physics: const BouncingScrollPhysics(),
-          scrollDirection: Axis.horizontal,
-          itemCount: design.length,
-          itemBuilder: (BuildContext context, index) {
-            return Stack(
-              alignment: Alignment.center,
+        shrinkWrap: true,
+        primary: false,
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        itemCount: categorywithimages.length,
+        itemBuilder: (BuildContext context, index) {
+          final category = categorywithimages[index]; // Access each category
+
+          return Padding(
+            padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
+            child: Column( // Using Column to stack image and text vertically
               children: [
-                Padding(
-                  padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
+                // Image container
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10.h),
                   child: Image(
-                    image: AssetImage(design[index].image!),
-                    height: 110.h,
-                    width: 110.w,
+                    image: NetworkImage(category['image'] ?? 'No image'),
+                    height: 100.h,
+                    width: 100.w,
+                    fit: BoxFit.cover,
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 60.h),
+
+                // Text container below the image
+                Container(
+                  width: 120.w, // Ensure text container is the same width as the image
+                  padding: EdgeInsets.symmetric(horizontal: 5.w , vertical: 8.h),
                   child: Text(
-                    design[index].name!,
+                    category['name'] ?? 'No Name',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center, // Center the text below the image
                     style: TextStyle(
-                        color: Color(0XFF000000),
-                        fontSize: 14.sp,
-                        fontFamily: 'Gilroy',
-                        fontWeight: FontWeight.w700),
+                      color: Color(0XFF000000),
+                      fontSize: 14.sp,
+                      fontFamily: 'Gilroy',
+                      fontWeight: FontWeight.w700,
+                      height: 1.1, // Adjust line height for better text display
+                    ),
                   ),
-                )
+                ),
               ],
-            );
-          }),
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget trending_cource() {
+    if (courseResult == null || courseResult.isEmpty) {
+      return Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)));
+    }
     return SizedBox(
       height: 302.h,
-      width: 178.w,
+      // width: 178.w,
+      width: double.infinity,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 1,
-        itemBuilder: (BuildContext context, int index) {
-          return Container(
+        itemCount:courseResult.length,
+        itemBuilder: (BuildContext context,  index) {
+          final courses = courseResult[index];
+          return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6.w),
+
+          child:  Container(
             //height: 302,
             width: 177.w,
             decoration: BoxDecoration(
@@ -257,6 +321,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       blurRadius: 16.h),
                 ],
                 color: const Color(0XFFFFFFFF)),
+
             child: Column(
               children: [
                 Container(
@@ -264,7 +329,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   width: 190.w,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: AssetImage(cource[index].image!),
+                        image: NetworkImage(courses['course_image'].toString()),
                         fit: BoxFit.cover),
                     borderRadius: BorderRadius.circular(12.h),
                     boxShadow: [
@@ -297,21 +362,23 @@ class _SearchScreenState extends State<SearchScreen> {
                     children: [
                       SizedBox(height: 6.h),
                       Text(
-                        cource[index].title!,
+                        courses['course_title'].toString(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'Gilroy',
                             color: const Color(0XFF000000)),
                       ),
-                      Text(
-                        cource[index].subtitle!,
-                        style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Gilroy',
-                            color: Color(0XFF000000)),
-                      ),
+                      // Text(
+                      //   cource[index].subtitle!,
+                      //   style: TextStyle(
+                      //       fontSize: 14.sp,
+                      //       fontWeight: FontWeight.w700,
+                      //       fontFamily: 'Gilroy',
+                      //       color: Color(0XFF000000)),
+                      // ),
                       Padding(
                         padding: EdgeInsets.only(top: 12.h),
                         child: Row(
@@ -334,7 +401,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     width: 15.w,
                                   ),
                                   Text(
-                                    cource[index].review!,
+                                    courses['star_rating'].toString(),
                                     style: TextStyle(
                                         color: const Color(0XFFFFC403),
                                         fontFamily: 'Gilroy',
@@ -359,7 +426,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     ),
                                     SizedBox(width: 4.w),
                                     Text(
-                                      cource[index].time!,
+                                      '${courses['duration'].toString()} Days',
                                       style: TextStyle(
                                           fontSize: 13.sp,
                                           color: const Color(0XFF000000),
@@ -377,13 +444,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       Row(
                         children: [
                           Image(
-                            image: AssetImage(cource[index].circleimage!),
+                            image: NetworkImage(courses['user_pic'].toString()),
                             height: 30.h,
                             width: 30.w,
                           ),
                           SizedBox(width: 6.w),
                           Text(
-                            cource[index].personname!,
+                            courses['user_name'].toString(),
                             style: TextStyle(
                                 color: const Color(0XFF5E8421),
                                 fontSize: 14.sp,
@@ -396,184 +463,185 @@ class _SearchScreenState extends State<SearchScreen> {
                 )
               ],
             ),
+          )
           );
         },
       ),
     );
   }
 
-  Widget recent_added_list() {
-    return SizedBox(
-      height: 323.h,
-      width: double.infinity.w,
-      child: ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          primary: false,
-          shrinkWrap: true,
-          itemCount: 1,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (BuildContext context, index) {
-            return Container(
-              //height: 323,
-              width: 276.w,
-
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.h),
-                  boxShadow: [
-                    BoxShadow(
-                        color: const Color(0XFF23408F).withOpacity(0.14),
-                        offset: const Offset(-4, 5),
-                        blurRadius: 16.h),
-                  ],
-                  color: Colors.white),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 158.h,
-                    width: 276.w,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(
-                          image: AssetImage(
-                            recentAdded[index].image!,
-                          ),
-                          fit: BoxFit.cover),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          right: 230.w, bottom: 120.h, top: 10.h),
-                      child: Container(
-                          height: 20.h,
-                          width: 20.w,
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.circle, color: Colors.white),
-                          child: IconButton(
-                              splashRadius: 10,
-                              onPressed: () {},
-                              icon: Center(
-                                  child: Image(
-                                image: const AssetImage("assets/saveicon.png"),
-                                height: 13.h,
-                                width: 13.w,
-                              )))),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 10.w, top: 10.h),
-                        child: Container(
-                          height: 25.h,
-                          width: 58.w,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.h),
-                            color: const Color(0XFFFAF4E1),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Image(
-                                image: const AssetImage("assets/staricon.png"),
-                                height: 17.h,
-                                width: 17.w,
-                              ),
-                              Text(
-                                recentAdded[index].review!,
-                                style: TextStyle(
-                                    fontFamily: 'Gilroy',
-                                    color: const Color(0XFFFFC403),
-                                    fontSize: 15.sp),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 5.w),
-                        child: Row(
-                          children: [
-                            Image(
-                              image: const AssetImage("assets/clock.png"),
-                              height: 17.h,
-                              width: 17.w,
-                              color: Color(0XFF8CC13F),
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              recentAdded[index].time!,
-                              style: TextStyle(
-                                  fontSize: 15.sp,
-                                  color: Color(0XFF000000),
-                                  fontFamily: 'Gilroy'),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 11.h),
-                  Padding(
-                    padding: EdgeInsets.only(left: 10.w, right: 10.w),
-                    child: Text(
-                      recentAdded[index].title!,
-                      style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15.sp,
-                          color: const Color(0XFF000000),
-                          fontFamily: 'Gilroy'),
-                    ),
-                  ),
-                  SizedBox(height: 11.h),
-                  Padding(
-                    padding: EdgeInsets.only(left: 10.w, right: 10.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Image(
-                              image:
-                                  AssetImage(recentAdded[index].circleimage!),
-                              height: 40.h,
-                              width: 40.w,
-                            ),
-                            SizedBox(width: 10.w),
-                            Text(
-                              recentAdded[index].personname!,
-                              style: TextStyle(
-                                  fontFamily: 'Gilroy',
-                                  fontWeight: FontWeight.w400,
-                                  color: const Color(0XFF5E8421),
-                                  fontSize: 15.sp),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          height: 33.h,
-                          width: 76.w,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.h),
-                            color: const Color(0XFFEBF2C2),
-                          ),
-                          child: Center(
-                              child: Text(
-                            recentAdded[index].price!,
-                            style: TextStyle(
-                                color: Color(0XFF78A03F),
-                                fontFamily: 'Gilroy',
-                                fontSize: 19.sp,
-                                fontWeight: FontWeight.w400),
-                          )),
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            );
-          }),
-    );
-  }
+  // Widget recent_added_list() {
+  //   return SizedBox(
+  //     height: 323.h,
+  //     width: double.infinity.w,
+  //     child: ListView.builder(
+  //         physics: const BouncingScrollPhysics(),
+  //         primary: false,
+  //         shrinkWrap: true,
+  //         itemCount: 1,
+  //         scrollDirection: Axis.horizontal,
+  //         itemBuilder: (BuildContext context, index) {
+  //           return Container(
+  //             //height: 323,
+  //             width: 276.w,
+  //
+  //             decoration: BoxDecoration(
+  //                 borderRadius: BorderRadius.circular(12.h),
+  //                 boxShadow: [
+  //                   BoxShadow(
+  //                       color: const Color(0XFF23408F).withOpacity(0.14),
+  //                       offset: const Offset(-4, 5),
+  //                       blurRadius: 16.h),
+  //                 ],
+  //                 color: Colors.white),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Container(
+  //                   height: 158.h,
+  //                   width: 276.w,
+  //                   decoration: BoxDecoration(
+  //                     borderRadius: BorderRadius.circular(12),
+  //                     image: DecorationImage(
+  //                         image: AssetImage(
+  //                           recentAdded[index].image!,
+  //                         ),
+  //                         fit: BoxFit.cover),
+  //                   ),
+  //                   child: Padding(
+  //                     padding: EdgeInsets.only(
+  //                         right: 230.w, bottom: 120.h, top: 10.h),
+  //                     child: Container(
+  //                         height: 20.h,
+  //                         width: 20.w,
+  //                         decoration: const BoxDecoration(
+  //                             shape: BoxShape.circle, color: Colors.white),
+  //                         child: IconButton(
+  //                             splashRadius: 10,
+  //                             onPressed: () {},
+  //                             icon: Center(
+  //                                 child: Image(
+  //                               image: const AssetImage("assets/saveicon.png"),
+  //                               height: 13.h,
+  //                               width: 13.w,
+  //                             )))),
+  //                   ),
+  //                 ),
+  //                 Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     Padding(
+  //                       padding: EdgeInsets.only(left: 10.w, top: 10.h),
+  //                       child: Container(
+  //                         height: 25.h,
+  //                         width: 58.w,
+  //                         decoration: BoxDecoration(
+  //                           borderRadius: BorderRadius.circular(20.h),
+  //                           color: const Color(0XFFFAF4E1),
+  //                         ),
+  //                         child: Row(
+  //                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                           children: [
+  //                             Image(
+  //                               image: const AssetImage("assets/staricon.png"),
+  //                               height: 17.h,
+  //                               width: 17.w,
+  //                             ),
+  //                             Text(
+  //                               recentAdded[index].review!,
+  //                               style: TextStyle(
+  //                                   fontFamily: 'Gilroy',
+  //                                   color: const Color(0XFFFFC403),
+  //                                   fontSize: 15.sp),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     Padding(
+  //                       padding: EdgeInsets.only(right: 5.w),
+  //                       child: Row(
+  //                         children: [
+  //                           Image(
+  //                             image: const AssetImage("assets/clock.png"),
+  //                             height: 17.h,
+  //                             width: 17.w,
+  //                             color: Color(0XFF8CC13F),
+  //                           ),
+  //                           SizedBox(width: 4.w),
+  //                           Text(
+  //                             recentAdded[index].time!,
+  //                             style: TextStyle(
+  //                                 fontSize: 15.sp,
+  //                                 color: Color(0XFF000000),
+  //                                 fontFamily: 'Gilroy'),
+  //                           )
+  //                         ],
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 SizedBox(height: 11.h),
+  //                 Padding(
+  //                   padding: EdgeInsets.only(left: 10.w, right: 10.w),
+  //                   child: Text(
+  //                     recentAdded[index].title!,
+  //                     style: TextStyle(
+  //                         fontWeight: FontWeight.w700,
+  //                         fontSize: 15.sp,
+  //                         color: const Color(0XFF000000),
+  //                         fontFamily: 'Gilroy'),
+  //                   ),
+  //                 ),
+  //                 SizedBox(height: 11.h),
+  //                 Padding(
+  //                   padding: EdgeInsets.only(left: 10.w, right: 10.w),
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       Row(
+  //                         children: [
+  //                           Image(
+  //                             image:
+  //                                 AssetImage(recentAdded[index].circleimage!),
+  //                             height: 40.h,
+  //                             width: 40.w,
+  //                           ),
+  //                           SizedBox(width: 10.w),
+  //                           Text(
+  //                             recentAdded[index].personname!,
+  //                             style: TextStyle(
+  //                                 fontFamily: 'Gilroy',
+  //                                 fontWeight: FontWeight.w400,
+  //                                 color: const Color(0XFF5E8421),
+  //                                 fontSize: 15.sp),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                       Container(
+  //                         height: 33.h,
+  //                         width: 76.w,
+  //                         decoration: BoxDecoration(
+  //                           borderRadius: BorderRadius.circular(12.h),
+  //                           color: const Color(0XFFEBF2C2),
+  //                         ),
+  //                         child: Center(
+  //                             child: Text(
+  //                           recentAdded[index].price!,
+  //                           style: TextStyle(
+  //                               color: Color(0XFF78A03F),
+  //                               fontFamily: 'Gilroy',
+  //                               fontSize: 19.sp,
+  //                               fontWeight: FontWeight.w400),
+  //                         )),
+  //                       )
+  //                     ],
+  //                   ),
+  //                 )
+  //               ],
+  //             ),
+  //           );
+  //         }),
+  //   );
+  // }
 }

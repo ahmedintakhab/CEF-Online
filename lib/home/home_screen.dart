@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 
+
   // int currentpage = 0;
   PageController controller = PageController();
   bool buttonvalue= false;
@@ -57,6 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     fetchApiData();
     _loadUserData();
+    // searchCourses();
 
   }
   Future<void> _loadUserData() async {
@@ -120,9 +122,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
-
-
-
   @override
   Widget build(BuildContext context) {
     initializeScreenSize(context);
@@ -170,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding:  EdgeInsets.symmetric(horizontal: 20.w),
                               child: TextFormField(
                                   onTap: () {
-                                    Get.to(SearchScreen());
+                                    Get.to(()=>SearchScreen());
                                   },
                                   decoration: InputDecoration(
                                       focusedBorder: OutlineInputBorder(
@@ -302,7 +301,6 @@ class _HomeScreenState extends State<HomeScreen> {
         final banners = apiData?['banners'];
 
         if (banners == null) {
-          print("Banners are null!");
           return Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)));
         }
 
@@ -377,9 +375,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
-
   Widget indicator() {
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -411,7 +406,8 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: design.length,
           itemBuilder: (BuildContext context, index) {
             return Stack(
-              children: [Image(image: AssetImage(design[index].image!),height: 110.h,width: 110.h,)],
+              children: [Image(image: AssetImage(design[index].image!),
+                height: 110.h,width: 110.h,)],
             );
           }),
     );
