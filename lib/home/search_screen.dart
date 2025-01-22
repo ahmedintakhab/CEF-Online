@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../controller/controller.dart';
+import '../login/login_empty_state.dart';
 import '../models/design_list.dart';
 import '../models/recently_added.dart';
 import '../models/trending_cource.dart';
@@ -20,52 +23,124 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   SearchScreenController searchScreenController =
-      Get.put(SearchScreenController());
+  Get.put(SearchScreenController());
+
   // List<String> categoryList = [
   //   "UI/UX",
   //   "Design",
   //   "3D Design",
   // ];
+  TextEditingController searchController = TextEditingController();
+  Timer? debounce;
+  List<Map<String, dynamic>> courseSuggestions = []; // Suggestions for courses
   List<String> selectedCategory = [];
   List<Design> design = Utils.getDesign();
   List<Trending> cource = Utils.getTrending();
   List<Recent> recentAdded = Utils.getRecentAdded();
-  Map< String,dynamic>? searchData; // Variable to store API data
+  Map<String, dynamic>? searchData; // Variable to store API data
   List<Map<String, dynamic>> categorywithimages = []; // Dynamic category list
   List<Map<String, dynamic>> courseResult = []; // Dynamic category list
+  String lastQuery = ""; // To track the last query
+  bool noResultsFound = false; // Flag for no results
+  bool isLoading = false;
+
+
+
 
   @override
   void initState() {
     super.initState();
     searchCourses();
-
-  }
-  Future<void> searchCourses() async {
-    const url = 'https://cefonlineacademy.com/api/frontend/course/search';
-    try {
-      final response = await http.post(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print(" Search API Response : ${response.statusCode}");
-        // print(" Fetched Search API data Successfully : $data");
-        setState(() {
-          searchData =data; //store API data
-
-        });
-        categorywithimages = List<Map<String, dynamic>>.from(searchData?['categories_with_images'] ?? []);
-        print('Check the category with images data: $categorywithimages');
-        // print(" Fetched Search API data in Search Data variable Successfully : $searchData");
-        courseResult = List<Map<String, dynamic>>.from(searchData?['course_results'] ?? []);
-        print('Check the course result: $courseResult');
-
-
-      } else {
-        print(" Search API Error: ${response.statusCode}");
+    // Listener for text changes
+    searchController.addListener(() {
+      final query = searchController.text.trim();
+      if (query != lastQuery) {
+        onSearchTextChanged(query);
       }
-    } catch (error) {
-      print("Error occurred: $error");
-    }
+    });
   }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    debounce?.cancel();
+    super.dispose();
+  }
+
+
+
+
+ Future<void> searchCourses({String query = ""}) async {
+   setState(() {
+     isLoading = true; // Start loading
+     noResultsFound = false; // Reset no results flag
+   });
+  const url = 'https://cefonlineacademy.com/api/frontend/course/search';
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      body: query.isNotEmpty ? json.encode({'keyword': query}) : null,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final results = List<Map<String, dynamic>>.from(
+        data['course_results'] ?? [],
+      );
+      setState(() {
+        courseSuggestions = results;
+        if (results.isEmpty && query.isNotEmpty) {
+          // If no results are found and a query is entered, display "No results found"
+          noResultsFound = true;
+        } else {
+          noResultsFound = false; // If results are found, reset noResultsFound
+        }
+        searchData = data;
+        categorywithimages = List<Map<String, dynamic>>.from(data['categories_with_images'] ?? []);
+        courseResult = List<Map<String, dynamic>>.from(data['course_results'] ?? []);
+      });
+      print("Fetched data: $courseResult");
+    } else {
+      print("Error: ${response.statusCode}");
+    }
+  } catch (error) {
+    print("API Error: $error");
+  }
+  finally {
+    setState(() {
+      isLoading = false; // Stop loading
+    });
+    // If no results found, after a short delay, display "No results found"
+    if (courseSuggestions.isEmpty && query.isNotEmpty) {
+      Future.delayed(const Duration(seconds: 3), () {
+        setState(() {
+          noResultsFound = true;
+        });
+      });
+    }
+
+  }
+}
+
+void onSearchTextChanged(String query) {
+  if (debounce?.isActive ?? false) debounce!.cancel();
+  debounce = Timer(const Duration(milliseconds: 500), () {
+    lastQuery = query; // Update the last query
+    if (query.isNotEmpty) {
+      searchCourses(query: query); // Fetch suggestions
+    }
+    else {
+      setState(() {
+        isLoading = false;
+        courseSuggestions.clear();
+        noResultsFound = false; // No "no results" message
+          searchCourses();
+      });
+    }
+  });
+}
+
 
 
 
@@ -178,7 +253,17 @@ class _SearchScreenState extends State<SearchScreen> {
                             SizedBox(height: 20.h),
                             horizontal_disidn(),
                             SizedBox(height: 20.h),
-                            trending_cource(),
+                            Column(
+                              children: [
+                                trending_cource(),
+                                if (noResultsFound && !isLoading)
+
+                                  const Text(
+                                    'No courses found',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                              ],
+                            ),
                             // SizedBox(height: 20.h),
                             // recent_added_list(),
                           ],
@@ -195,6 +280,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return Container(
       height: 50.h,
       child: TextFormField(
+        controller: searchController,
           decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Color(0XFF78A03F), width: 1.w),
@@ -296,6 +382,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget trending_cource() {
     if (courseResult == null || courseResult.isEmpty) {
       return Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)));
+
     }
     return SizedBox(
       height: 302.h,
