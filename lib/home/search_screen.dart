@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -81,12 +80,14 @@ class _SearchScreenState extends State<SearchScreen> {
       Uri.parse(url),
       body: query.isNotEmpty ? json.encode({'keyword': query}) : null,
       headers: {'Content-Type': 'application/json'},
+
     );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final results = List<Map<String, dynamic>>.from(
         data['course_results'] ?? [],
+
       );
       setState(() {
         courseSuggestions = results;
@@ -297,13 +298,15 @@ void onSearchTextChanged(String query) {
                 width: 24.w,
               ),
               suffixIcon: GestureDetector(
+
                 onTap: () {
+                  final query = searchController.text.trim(); // Get the query
                   showModalBottomSheet(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(22.h),
                       ),
                       context: context,
-                      builder: (context) => const FilterSheet());
+                      builder: (context) =>  FilterSheet(query: query));
                 },
                 child: Container(
                   height: 5.h,

@@ -1,31 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class FilterSheet extends StatefulWidget {
-  const FilterSheet({Key? key}) : super(key: key);
+  final String query;
+  const FilterSheet({Key? key, required this.query}) : super(key: key);
 
   @override
   State<FilterSheet> createState() => _FilterSheetState();
 }
 
 class _FilterSheetState extends State<FilterSheet> {
-  RangeValues _currentRangeValues = const RangeValues(0, 100);
+  RangeValues _currentRangeValues = const RangeValues(0, 20000);
   bool activevalue = false;
-  List<String> categoryList = [
-    "UI/UX",
-    "Coding",
-    "Gamne",
-    "3D Design",
-    "Illustrater",
-    "Marketing",
-    "Business"
-  ];
-  List<String> selectedCategory = [];
+  List <String> categoryList = [];
+  List <String> selectedCategory = [];
   double slidervalue = 0;
   double rate = 0;
+  bool isLoading = true;
+  String errorMessage = '';
+
+  @override
+  void initState (){
+    super.initState();
+    fetchCategories (); //Fetch categories on page load
+  }
+  Future<void> fetchCategories() async {
+    final url = Uri.parse('https://cefonlineacademy.com/api/frontend/all-categories-with-names');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200){
+        final data = json.decode(response.body);
+        print('API Status Code: ${response.statusCode}');
+        print('API Successfully Fetched data: $data');
+        setState(() {
+          categoryList = data.map<String>((category) => category['category_name'].toString()).toList();
+        isLoading = false;
+
+        });
+      }
+      else{
+        setState(() {
+errorMessage = 'Failed to load categories. Please try again.';
+isLoading = false;
+        });
+      }
+    } catch(e){
+      setState(() {
+        errorMessage = 'An error occured: $e';
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('check the query after passing: ${widget.query}');
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15),
       child: Column(
@@ -45,17 +76,17 @@ class _FilterSheetState extends State<FilterSheet> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
-                  "\$${_currentRangeValues.start.round().toString()}-\$${_currentRangeValues.end.round().toString()}",
+                  "\Rs.${_currentRangeValues.start.round().toString()}-\Rs.${_currentRangeValues.end.round().toString()}",
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold))
             ],
           ),
           RangeSlider(
-            activeColor: Color(0XFF23408F),
+            activeColor: Color(0XFF8CC13F),
             values: _currentRangeValues,
             min: 0,
-            max: 100,
-            divisions: 10,
+            max: 20000,
+            divisions: 20,
             labels: RangeLabels(
               _currentRangeValues.start.round().toString(),
               _currentRangeValues.end.round().toString(),
@@ -121,7 +152,7 @@ class _FilterSheetState extends State<FilterSheet> {
                               vertical: 6, horizontal: 13),
                           decoration: BoxDecoration(
                             color: selectedCategory.contains(categoryList[i])
-                                ? Color(0XFFE5ECFF)
+                                ? Color(0XFFEBF2C2)
                                 : Colors.white,
                             borderRadius: BorderRadius.circular(26),
                             border: Border.all(
@@ -158,10 +189,10 @@ class _FilterSheetState extends State<FilterSheet> {
               GestureDetector(
                 child: Container(
                   height: 56,
-                  width: 177,
+                  width: 157,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(22),
-                    color: Color(0XFF23408F),
+                    color: Color(0XFF78A03F),
                   ),
                   child: const Center(
                       child: Text(
@@ -178,19 +209,20 @@ class _FilterSheetState extends State<FilterSheet> {
                 onTap: () {},
                 child: Container(
                   height: 56,
-                  width: 177,
+                  width: 157,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Color(0XFF23408F),
+                      color: Colors.grey,
                     ),
                     borderRadius: BorderRadius.circular(22),
+                    color: Color(0XFFB7B7B7)
                   ),
                   child: const Center(
                       child: Text(
                     "Clear All",
                     style: TextStyle(
                         fontSize: 18,
-                        color: Color(0XFF23408F),
+                        color: Colors.black,
                         fontFamily: 'Gilroy',
                         fontWeight: FontWeight.bold),
                   )),
