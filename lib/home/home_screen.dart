@@ -432,10 +432,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Container(
-      height: 120.h, // Adjust height to fit image and name together
+      height: 150.h, // Adjust height to fit image and name together
       width: double.infinity,
       child: ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        padding: EdgeInsets.symmetric(horizontal: 15.w),
         shrinkWrap: true,
         physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
@@ -448,26 +448,31 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  height: 80.h,
-                  width: 80.w,
-                  decoration: BoxDecoration(
+                ClipRRect(
                     borderRadius: BorderRadius.circular(8.r),
-                    image: DecorationImage(
-                      image: NetworkImage(category['image']), // Fetch image
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                      child: Image(image: NetworkImage(category['image']), // Fetch image
+                        height: 100.h,
+                        width: 100.w,
+                     fit: BoxFit.cover,),
+
+
                 ),
-                SizedBox(height: 8.h), // Space between image and text
-                Text(
-                  category['name'] ?? '', // Fetch name
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0XFF000000),
-                    fontSize: 12.sp,
-                    fontFamily: 'Gilroy',
-                    fontWeight: FontWeight.bold,
+                SizedBox(height: 6.h), // Space between image and text
+                Container(
+                  width: 120,
+                  padding: EdgeInsets.symmetric(horizontal: 5.w , vertical: 8.h),
+
+                  child: Text(
+                    category['name'] ?? '',
+                    maxLines: 2, // Fetch name
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0XFF000000),
+                      fontSize: 12.sp,
+                      fontFamily: 'Gilroy',
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],

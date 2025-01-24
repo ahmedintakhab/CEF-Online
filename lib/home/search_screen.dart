@@ -306,7 +306,17 @@ void onSearchTextChanged(String query) {
                         borderRadius: BorderRadius.circular(22.h),
                       ),
                       context: context,
-                      builder: (context) =>  FilterSheet(query: query));
+                      builder: (context) =>  FilterSheet(query: query,
+                          onFilterApplied: (filteredCourses) {
+                            setState(() {
+                               // Explicitly convert dynamic list to List<Map<String, dynamic>>
+                              courseSuggestions = List<Map<String, dynamic>>.from(filteredCourses);
+                              courseResult = courseSuggestions;
+
+                            });
+                            searchController.clear();
+                          }
+                      ));
                 },
                 child: Container(
                   height: 5.h,
@@ -345,7 +355,6 @@ void onSearchTextChanged(String query) {
             padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
             child: Column( // Using Column to stack image and text vertically
               children: [
-                // Image container
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10.h),
                   child: Image(
@@ -384,8 +393,29 @@ void onSearchTextChanged(String query) {
 
   Widget trending_cource() {
     if (courseResult == null || courseResult.isEmpty) {
-      return Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)));
-
+      return FutureBuilder(
+        future: Future.delayed(Duration(seconds: 5)),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(
+                color: Color(0XFF8CC13F),
+              ),
+            );
+          } else {
+            return Center(
+              child: Text(
+                'No Result found',
+                style: TextStyle(
+                    fontSize: 16.sp,
+                    color: Colors.grey,
+                  fontWeight: FontWeight.w800
+                ),
+              ),
+            );
+          }
+        },
+      );
     }
     return SizedBox(
       height: 302.h,
@@ -531,23 +561,50 @@ void onSearchTextChanged(String query) {
                         ),
                       ),
                       SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          Image(
-                            image: NetworkImage(courses['user_pic'].toString()),
-                            height: 30.h,
-                            width: 30.w,
-                          ),
-                          SizedBox(width: 6.w),
-                          Text(
-                            courses['user_name'].toString(),
-                            style: TextStyle(
-                                color: const Color(0XFF5E8421),
-                                fontSize: 14.sp,
-                                fontFamily: 'Gilroy'),
-                          )
-                        ],
+                      Padding(
+                        padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Image(
+                                  image: NetworkImage(courses['user_pic'].toString()),
+                                  height: 30.h,
+                                  width: 30.w,
+                                ),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  courses['user_name'].toString(),
+                                  style: TextStyle(
+                                      color: const Color(0XFF5E8421),
+                                      fontSize: 14.sp,
+                                      fontFamily: 'Gilroy'),
+                                )
+                              ],
+
+                            ),
+                            Container(
+                              height: 23.h,
+                              width: 56.w,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12.h),
+                                color: const Color(0XFFEBF2C2),
+                              ),
+                              child: Center(
+                                  child: Text(
+                                    courses['course_price']?? 'Null',
+                                    style: TextStyle(
+                                        color: Color(0XFF78A03F),
+                                        fontFamily: 'Gilroy',
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w400),
+                                  )),
+                            )
+                          ],
+                        ),
                       )
+
                     ],
                   ),
                 )
