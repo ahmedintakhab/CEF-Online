@@ -59,7 +59,6 @@ class _OngoingScreenState extends State<OngoingScreen> {
         print('Complete courses data strore in completeCourses: $completeCourses');
         completedController.setCompletedCourses(completeCourses ?? []);
 
-
         setState(() {
           isLoading = false;
 
