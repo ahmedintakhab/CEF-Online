@@ -94,6 +94,8 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> {
                         color: const Color(0XFFEBF2C2),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(22.h))),
+                    indicatorPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 3), // Adjust the width and height
+                    indicatorSize: TabBarIndicatorSize.tab, // Match the width of the entire tab
                     controller: ongoingCompletedController.tabController,
                     tabs: const [
                       Tab(

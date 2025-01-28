@@ -315,7 +315,7 @@ class _MyCourcesState extends State<MyCources> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.w),
                   child: Container(
-                    height: 54.h,
+                    height: 74.h,
                     width: double.infinity,
                     decoration: BoxDecoration(
                         boxShadow: [
@@ -328,15 +328,17 @@ class _MyCourcesState extends State<MyCources> {
                         borderRadius: BorderRadius.circular(22)),
                     child: TabBar(
                       controller: courceController.tabController,
-                      isScrollable: true,
+                      // isScrollable: true,
                       unselectedLabelColor: const Color(0XFF6E758A),
                       labelColor: const Color(0XFF78A03F),
                       indicator: ShapeDecoration(
-                        color: const Color(0XFFEBE2C2),
+                        color: const Color(0XFFEBF2C2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(22.h),
                         ),
                       ),
+                      indicatorPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10), // Adjust the width and height
+                      indicatorSize: TabBarIndicatorSize.tab, // Match the width of the entire tab
                       tabs: List.generate(
                         pageclass.length,
                             (index) {

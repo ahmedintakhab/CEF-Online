@@ -318,15 +318,19 @@ void onSearchTextChanged(String query) {
                           }
                       ));
                 },
-                child: Container(
-                  height: 5.h,
-                  width: 5.w,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage("assets/filico.png"),
-                      colorFilter: ColorFilter.mode(
-                        Color(0xFF8CC13F), // Use your desired color here
-                        BlendMode.srcIn,  // Applies the color filter to the image
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 5.h,
+                    width: 5.w,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage("assets/filtericon.png"),
+                        // fit: BoxFit.contain, // Ensures proper scaling
+                        colorFilter: ColorFilter.mode(
+                          Color(0xFF8CC13F), // Use your desired color here
+                          BlendMode.srcIn,  // Applies the color filter to the image
+                        ),
                       ),
                     ),
                   ),
@@ -536,7 +540,8 @@ void onSearchTextChanged(String query) {
                                 height: 21.h,
                                 width: 76.w,
                                 //color: Colors.red,
-                                child: Row(
+                                  child: courses['duration'] != null && courses['duration'] != 0
+                                  ?Row(
                                   children: [
                                     Image(
                                       image: AssetImage("assets/clock.png"),
@@ -554,8 +559,9 @@ void onSearchTextChanged(String query) {
                                           fontFamily: 'Gilroy'),
                                     )
                                   ],
-                                ),
-                              ),
+                                ): SizedBox.shrink(), // If the condition is false, render an empty widget
+
+                            ),
                             )
                           ],
                         ),
@@ -574,19 +580,20 @@ void onSearchTextChanged(String query) {
                                   width: 30.w,
                                 ),
                                 SizedBox(width: 6.w),
-                                Text(
-                                  courses['user_name'].toString(),
-                                  style: TextStyle(
-                                      color: const Color(0XFF5E8421),
-                                      fontSize: 14.sp,
-                                      fontFamily: 'Gilroy'),
-                                )
+                                // Text(
+                                //   courses['user_name'].toString(),
+                                //   style: TextStyle(
+                                //       color: const Color(0XFF5E8421),
+                                //       fontSize: 14.sp,
+                                //       fontFamily: 'Gilroy'),
+                                // )
                               ],
 
                             ),
-                            Container(
-                              height: 23.h,
-                              width: 56.w,
+                            if (courses['course_price'] != null && courses['course_price'].toString() != "Rs 0.00")                              Container(
+
+                            height: 35.h,
+                              width: 100.w,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12.h),
                                 color: const Color(0XFFEBF2C2),

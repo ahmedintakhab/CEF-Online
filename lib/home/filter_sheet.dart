@@ -248,53 +248,56 @@ class _FilterSheetState extends State<FilterSheet> {
           const SizedBox(
             height: 30,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: applyFilter,
-                child: Container(
-                  height: 56,
-                  width: 157,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(22),
-                    color: Color(0XFF78A03F),
-                  ),
-                  child: const Center(
-                      child: Text(
-                    "Apply",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Color(0XFFFFFFFF),
-                        fontFamily: 'Gilroy',
-                        fontWeight: FontWeight.bold),
-                  )),
-                ),
-              ),
-              GestureDetector(
-                onTap: clearAllFilters,
-                child: Container(
-                  height: 56,
-                  width: 157,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: applyFilter,
+                  child: Container(
+                    height: 56,
+                    width: 157,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(22),
+                      color: Color(0XFF78A03F),
                     ),
-                    borderRadius: BorderRadius.circular(22),
-                    color: Color(0XFFB7B7B7)
+                    child: const Center(
+                        child: Text(
+                      "Apply",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0XFFFFFFFF),
+                          fontFamily: 'Gilroy',
+                          fontWeight: FontWeight.bold),
+                    )),
                   ),
-                  child: const Center(
-                      child: Text(
-                    "Clear All",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        fontFamily: 'Gilroy',
-                        fontWeight: FontWeight.bold),
-                  )),
                 ),
-              )
-            ],
+                GestureDetector(
+                  onTap: clearAllFilters,
+                  child: Container(
+                    height: 56,
+                    width: 157,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.grey,
+                      ),
+                      borderRadius: BorderRadius.circular(22),
+                      color: Color(0XFFB7B7B7)
+                    ),
+                    child: const Center(
+                        child: Text(
+                      "Clear All",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontFamily: 'Gilroy',
+                          fontWeight: FontWeight.bold),
+                    )),
+                  ),
+                )
+              ],
+            ),
           )
         ],
       ),

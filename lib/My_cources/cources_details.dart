@@ -288,8 +288,10 @@ class _CourceDetailState extends State<CourceDetail> {
 
   Widget _buildNonLiveCourseContent() {
     return ListView.builder(
-        itemCount: cource_detail.length,
+        itemCount: nonLiveCourses.length,
         itemBuilder: (context, index) {
+          var lessonCategory = nonLiveCourses[index];
+          // var lessonLectures = lessonCategory['lesson_lectures'];
           return Padding(
             padding:  EdgeInsets.only(
                 left: 20.w, right: 20.w, top: index==0?0.h:8.h, bottom: 8.h),
@@ -305,35 +307,14 @@ class _CourceDetailState extends State<CourceDetail> {
                     mainAxisAlignment:
                     MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Lesson 1 - Introducation",style: TextStyle(
+                      Text(lessonCategory['lesson_name'],style: TextStyle(
                           fontFamily:
                           'Gilroy',
                           color:
                           Color(0XFF6E758A),
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w700),),
-                      Container(
-                          height: 23.h,
-                          width: 53.w,
-                          decoration: BoxDecoration(
-                            borderRadius:
-                            BorderRadius.circular(
-                                22.h),
-                            color: const Color(0XFFEBF2C2),
-                          ),
-                          child:  Center(
-                            child: Text(
-                              "30 Min",
-                              style: TextStyle(
-                                  fontFamily:
-                                  'Gilroy',
-                                  color:
-                                  Color(0XFF78A02A),
-                                  fontSize: 12.sp,
-
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ))
+                      //
                     ],
                   ),
                 )
@@ -354,27 +335,7 @@ class _CourceDetailState extends State<CourceDetail> {
                           fontSize: 15.sp,
 
                           fontWeight: FontWeight.w700),),
-                      Container(
-                          height: 23.h,
-                          width: 53.w,
-                          decoration: BoxDecoration(
-                            borderRadius:
-                            BorderRadius.circular(
-                                22.h),
-                            color: const Color(0XFFEBF2C2),
-                          ),
-                          child:  Center(
-                            child: Text(
-                              "60 Min",
-                              style: TextStyle(
-                                  fontFamily:
-                                  'Gilroy',
-                                  color:
-                                  Color(0XFF78A02A),
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ))
+
                     ],
                   ),
                 ):const SizedBox(),
@@ -413,29 +374,48 @@ class _CourceDetailState extends State<CourceDetail> {
                                   FontWeight.w700),
                             ),
                           )),
-                      Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 18.h),
-                          Text(
-                              cource_detail[index]
-                                  .lessonName!,
-                              style:  TextStyle(
-                                  color: Color(0XFF000000),
-                                  fontSize: 14.sp,
-                                  fontFamily: 'Gilroy',
-                                  fontWeight:
-                                  FontWeight.w700)),
-                          SizedBox(height: 10.h),
-                          Text(cource_detail[index].time!,
-                              style:  TextStyle(
-                                color: Color(0XFF6E758A),
+
+                      Padding(
+                          padding: EdgeInsets.symmetric(vertical: 18.h,horizontal: 10),
+                          child: Center(
+                            child: Text(cource_detail[index].lessonName!,
+                              style: TextStyle(
+                                color: Color(0XFF000000),
                                 fontSize: 14.sp,
                                 fontFamily: 'Gilroy',
-                              ))
-                        ],
-                      ),
+                                fontWeight: FontWeight.w700,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+
+
+
+                      // Column(
+                      //   crossAxisAlignment:
+                      //   CrossAxisAlignment.start,
+                      //   children: [
+                      //     SizedBox(height: 18.h),
+                      //     Text(
+                      //         cource_detail[index]
+                      //             .lessonName!,
+                      //         style:  TextStyle(
+                      //             color: Color(0XFF000000),
+                      //             fontSize: 14.sp,
+                      //             fontFamily: 'Gilroy',
+                      //             fontWeight:
+                      //             FontWeight.w700)),
+                      //     SizedBox(height: 10.h),
+                      //     // Text(cource_detail[index].time!,
+                      //     //     style:  TextStyle(
+                      //     //       color: Color(0XFF6E758A),
+                      //     //       fontSize: 14.sp,
+                      //     //       fontFamily: 'Gilroy',
+                      //     //     ))
+                      //   ],
+                      // ),
                       Column(
                         mainAxisAlignment:
                         MainAxisAlignment.center,

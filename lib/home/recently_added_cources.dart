@@ -137,7 +137,7 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                 Get.to(RecentCourceDetail(corcedetail: course,));
               },
               child: Padding(
-                padding:  EdgeInsets.only(left: 20.w,right: 20.w,top:index==0?0.h: 10.h,bottom: 10.h),
+                padding:  EdgeInsets.only(left: 30.w,right: 30.w,top:index==0?0.h: 10.h,bottom: 10.h),
                 child: Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12.h),
@@ -148,211 +148,223 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                             blurRadius: 16.h),
                       ],
                       color: Colors.white),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        children: [
-                          Padding(
-                            padding:  EdgeInsets.all(0.h),
-                            child: Container(
-                              //color: Colors.red,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12.h),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: const Color(0XFF23408F)
-                                            .withOpacity(0.14),
-                                        offset: const Offset(-4, 5),
-                                        blurRadius: 16.h),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          children: [
+                            Padding(
+                              padding:  EdgeInsets.all(0.h),
+                              child: Container(
+                                //color: Colors.red,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12.h),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: const Color(0XFF23408F)
+                                              .withOpacity(0.14),
+                                          offset: const Offset(-4, 5),
+                                          blurRadius: 16.h),
+                                    ],
+                                    color: Colors.white),
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      height: 210.h,
+                                      width: double.infinity.w,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(20.h),
+                                          color: Colors.white),
+                                      child: Image.network(
+                                        course['course_image'].toString(), // Update with your API's image key
+                                        fit: BoxFit.fill,
+                                      ),
+
+                                    ),
+                                    Padding(
+                                      padding:
+                                           EdgeInsets.only(left: 10.w, top: 10.h),
+                                      child: Container(
+                                          height: 33.h,
+                                          width: 32.w,
+                                          decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.white),
+
+                                          child: IconButton(splashRadius: 10.h,
+                                              onPressed: () {
+
+                                              },
+                                              icon:  const Center(
+                                                child:  Image(image: AssetImage("assets/saveicon.png"))
+                                              ))),
+                                    ),
+                                    Padding(
+                                      padding:
+                                           EdgeInsets.only(left: 55.w, top: 10.h),
+                                      child: Container(
+                                          height: 33.h,
+                                          width: 32.w,
+                                          decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.white),
+                                          child: Center(
+                                            child: IconButton(
+                                                onPressed: () {
+                                                  share();
+                                                },
+                                                icon: Image(image: AssetImage("assets/shareicon.png")),
+                                            ),
+                                          )),
+                                    ),
                                   ],
-                                  color: Colors.white),
-                              child: Stack(
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                         SizedBox(height: 10.h),
+                        Padding(
+                          padding:  EdgeInsets.only(left: 10.42.w,bottom: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              Column(
                                 children: [
                                   Container(
-                                    height: 210.h,
-                                    width: double.infinity.w,
+                                    height: 40.h,
+                                    width: 59.w,
                                     decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20.h),
-                                        color: Colors.white),
-                                    child: Image.network(
-                                      course['course_image'].toString(), // Update with your API's image key
-                                      fit: BoxFit.fill,
+                                      borderRadius: BorderRadius.circular(20.h),
+                                      color: const Color(0XFFFAF4E1),
                                     ),
-
-                                  ),
-                                  Padding(
-                                    padding:
-                                         EdgeInsets.only(left: 10.w, top: 10.h),
-                                    child: Container(
-                                        height: 33.h,
-                                        width: 32.w,
-                                        decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.white),
-                                        child: IconButton(splashRadius: 10.h,
-                                            onPressed: () {
-
-                                            },
-                                            icon:  const Center(
-                                              child:  Image(image: AssetImage("assets/saveicon.png"))
-                                            ))),
-                                  ),
-                                  Padding(
-                                    padding:
-                                         EdgeInsets.only(left: 55.w, top: 10.h),
-                                    child: Container(
-                                        height: 33.h,
-                                        width: 32.w,
-                                        decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.white),
-                                        child: Center(
-                                          child: IconButton(
-                                              onPressed: () {
-                                                share();
-                                              },
-                                              icon: Image(image: AssetImage("assets/shareicon.png")),
-                                          ),
-                                        )),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                         Image(image:const AssetImage("assets/staricon.png"),height: 17.h,width: 17.w),
+                                        Text(
+                                          course['course_total_reviews'].toString() ,
+                                          style:  TextStyle(
+                                              color: Color(0XFFFFC403),
+                                              fontFamily: 'Gilroy',
+                                              fontSize: 15.sp),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
-                       SizedBox(height: 10.h),
-                      Padding(
-                        padding:  EdgeInsets.only(left: 10.42.w),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-
-                            Column(
-                              children: [
-                                Container(
-                                  height: 27.h,
-                                  width: 59.w,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20.h),
-                                    color: const Color(0XFFFAF4E1),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                       Image(image:const AssetImage("assets/staricon.png"),height: 17.h,width: 17.w),
-                                      Text(
-                                        course['course_total_reviews'].toString() ,
-                                        style:  TextStyle(
-                                            color: Color(0XFFFFC403),
-                                            fontFamily: 'Gilroy',
-                                            fontSize: 15.sp),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                SizedBox(
-                                  height: 23.h,
-                                  width: 120.w,
-                                  //color: Colors.red,
-                                  child: Row(
-                                    children: [
-                                      Image(image: const AssetImage("assets/clock.png")
-                                          ,height: 17.h,width: 17.w,color: Color(0XFF8CC13F),),
-                                       SizedBox(width: 4.w),
-                                      Expanded(
-                                        child: Text(
-                                         "${ course['course_duration']} Day's",
-                                          style:  TextStyle(
+                              Column(
+                                children: [
+                                  SizedBox(
+                                    height: 23.h,
+                                    width: 120.w,
+                                    // Conditional Row for Course Duration
+                                    child: course['course_duration'] != null && course['course_duration'] != 0
+                                        ? Row(
+                                      children: [
+                                        Image(
+                                          image: const AssetImage("assets/clock.png"),
+                                          height: 17.h,
+                                          width: 17.w,
+                                          color: Color(0XFF8CC13F),
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        Expanded(
+                                          child: Text(
+                                            "${course['course_duration']} Day's",
+                                            style: TextStyle(
                                               fontSize: 12.sp,
                                               color: const Color(0XFF000000),
-                                              fontFamily: 'Gilroy'),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
+                                              fontFamily: 'Gilroy',
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
+                                      ],
+                                    )
+                                        : SizedBox.shrink(), // If condition is false, render an empty widget
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                         SizedBox(height: 11.h),
+                        Padding(
+                          padding:  EdgeInsets.symmetric(horizontal: 10.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding:  EdgeInsets.only(right: 68.w),
+                                child: Text(
+                                  course['course_title'].toString(),
+                                  style:  TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15.sp,
+                                      fontFamily: 'Gilroy',
+                                      color: Color(0XFF000000)),
+                                ),
+                              ),
+                               SizedBox(height: 11.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Image(
+                                        image: NetworkImage(
+                                            course['course_user_pic'].toString()),
+                                        height: 40.h,
+                                        width: 40.w,
                                       ),
+                                       SizedBox(width: 10.w),
+                                      Text(
+                                        course['course_user_name'].toString(),
+                                        style:  TextStyle(
+                                            color: Color(0XFF5E8421),
+                                            fontSize: 15.sp,
+                                            fontWeight: FontWeight.w400,
+                                            fontFamily: 'Gilroy'),
+                                      )
                                     ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  if(course['course_price']!=null)
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 35.h,
+                                        width: 90.w,
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12.h),
+                                            color:const  Color(0XFFEBF2C2)),
+                                        child: Center(
+                                            child: Text(
+                                          course['course_price'].toString(),
+                                          style:  TextStyle(
+                                              color: const Color(0XFF78A03F),
+                                              fontFamily: 'Gilroy',
+                                              fontSize: 15.sp,
+                                              fontWeight: FontWeight.w700),
+                                        )),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                       SizedBox(height: 11.h),
-                      Padding(
-                        padding:  EdgeInsets.symmetric(horizontal: 10.w),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding:  EdgeInsets.only(right: 68.w),
-                              child: Text(
-                                course['course_title'].toString(),
-                                style:  TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 15.sp,
-                                    fontFamily: 'Gilroy',
-                                    color: Color(0XFF000000)),
-                              ),
-                            ),
-                             SizedBox(height: 11.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Image(
-                                      image: NetworkImage(
-                                          course['course_user_pic'].toString()),
-                                      height: 40.h,
-                                      width: 40.w,
-                                    ),
-                                     SizedBox(width: 10.w),
-                                    Text(
-                                      course['course_user_name'].toString(),
-                                      style:  TextStyle(
-                                          color: Color(0XFF5E8421),
-                                          fontSize: 15.sp,
-                                          fontWeight: FontWeight.w400,
-                                          fontFamily: 'Gilroy'),
-                                    )
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      height: 30.h,
-                                      width: 74.w,
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12.h),
-                                          color:const  Color(0XFFEBF2C2)),
-                                      child: Center(
-                                          child: Text(
-                                        course['course_price'].toString(),
-                                        style:  TextStyle(
-                                            color: const Color(0XFF78A03F),
-                                            fontFamily: 'Gilroy',
-                                            fontSize: 15.sp,
-                                            fontWeight: FontWeight.w700),
-                                      )),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                       SizedBox(height: 10.h),
-                    ],
+                         SizedBox(height: 10.h),
+                      ],
+                    ),
                   ),
                 ),
               ),

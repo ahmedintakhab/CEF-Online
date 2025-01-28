@@ -22,7 +22,7 @@ class CustomButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 56,
-        width: 374,
+        width: 330,
         //color: Color(0XFF23408F),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius??20),

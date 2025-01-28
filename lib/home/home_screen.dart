@@ -199,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Color(0xFF8CC13F), // Desired color
                                               BlendMode.srcIn,   // Applies the color to the image
                                             ),
-                                            child: Image.asset("assets/filico.png"),
+                                            // child: Image.asset("assets/filico.png"),
                                           ),
                                         ),
 
@@ -654,168 +654,174 @@ class _HomeScreenState extends State<HomeScreen> {
                             blurRadius: 16),
                       ],
                       color: Colors.white),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 158.h,
-                        width: 276.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                            image: NetworkImage(latest['image'].toString()),
-                            fit: BoxFit.cover,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 158.h,
+                          width: 276.w,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            image: DecorationImage(
+                              image: NetworkImage(latest['image'].toString()),
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        ),
-                        child: Padding(
-                          padding:  EdgeInsets.only(
-                              right: 230.w, bottom: 120.h, top: 10.h),
-                          child: Container(
-                              height: 20.h,
-                              width: 20.w,
-                              decoration: const BoxDecoration(
-                                  shape: BoxShape.circle, color: Colors.white),
-                              child: IconButton(
-                                  splashRadius: 10,
-                                  onPressed: () {
-                                    setState(() {
-                                      // Toggle buttonStatus
-                                      recentAdded[index]['buttonStatus'] =
-                                      !recentAdded[index]['buttonStatus'];
-                                    });
-                                  },
+                          child: Padding(
+                            padding:  EdgeInsets.only(
+                                right: 230.w, bottom: 120.h, top: 10.h),
+                            child: Container(
+                                height: 20.h,
+                                width: 20.w,
+                                decoration: const BoxDecoration(
+                                    shape: BoxShape.circle, color: Colors.white),
+                                child: IconButton(
+                                    splashRadius: 10,
+                                    onPressed: () {
+                                      setState(() {
+                                        // Toggle buttonStatus
+                                        recentAdded[index]['buttonStatus'] =
+                                        !recentAdded[index]['buttonStatus'];
+                                      });
+                                    },
 
-                                  icon:  Center(
-                                    child: recentAdded[index]['buttonStatus']
-                                        ? Image.asset(
-                                      "assets/saveboldblue.png",
-                                      height: 10.h,
-                                      width: 9.w,
-                                    )
-                                      :Image(
-                                        image: AssetImage("assets/savebold.png"),
+                                    icon:  Center(
+                                      child: recentAdded[index]['buttonStatus']
+                                          ? Image.asset(
+                                        "assets/saveboldblue.png",
                                         height: 10.h,
                                         width: 9.w,
-                                      ),
-                                  )
-                              )
+                                      )
+                                        :Image(
+                                          image: AssetImage("assets/savebold.png"),
+                                          height: 10.h,
+                                          width: 9.w,
+                                        ),
+                                    )
+                                )
+                            ),
                           ),
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Padding(
-                            padding:  EdgeInsets.only(left: 10.w, top: 10.h),
-                            child: Container(
-                              height: 25.h,
-                              width: 58.w,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: const Color(0XFFFAF4E1),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding:  EdgeInsets.only(left: 10.w, top: 10.h),
+                              child: Container(
+                                height: 25.h,
+                                width: 58.w,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: const Color(0XFFFAF4E1),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                     Image(
+                                      image: const AssetImage("assets/staricon.png"),
+                                      height: 17.h,
+                                      width: 17.w,
+                                    ),
+                                    Text(
+                                      latest['star_rating'].toString(),
+                                      style:  TextStyle(
+                                          fontFamily: 'Gilroy',
+                                          color: const Color(0XFFFFC403),
+                                          fontSize: 15.sp),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(right: 5.w),
+                              child: latest['duration'] != null && latest['duration'] != 0
+                                  ? Row(
                                 children: [
-                                   Image(
-                                    image: const AssetImage("assets/staricon.png"),
+                                  Image(
+                                    image: const AssetImage("assets/clock.png"),
                                     height: 17.h,
                                     width: 17.w,
+                                    color: Color(0XFF8CC13F),
                                   ),
+                                  SizedBox(width: 4.w),
                                   Text(
-                                    latest['star_rating'].toString(),
+                                    "${latest['duration']} Day's",
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      color: Color(0XFF000000),
+                                      fontFamily: 'Gilroy',
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              )
+                                  : SizedBox.shrink(), // If the condition is false, render an empty widget
+                            ),
+                          ],
+                        ),
+                         SizedBox(height: 11.h),
+                        Padding(
+                          padding:  EdgeInsets.only(left: 10.w, right: 10.w),
+                          child: Text(
+                            latest['title'].toString(),
+                            style:  TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15.sp,
+                                color: Color(0XFF000000),
+                                fontFamily: 'Gilroy'),
+                          ),
+                        ),
+                         SizedBox(height: 11.h),
+                        Padding(
+                          padding:  EdgeInsets.only(left: 10.w, right: 10.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Image(
+                                    image: NetworkImage(latest['user_pic'].toString()),
+                                    height: 40.h,
+                                    width: 40.w,
+                                  ),
+
+                                  SizedBox(width: 10.w),
+                                  Text(
+                                    latest['user_name'].toString(),
                                     style:  TextStyle(
                                         fontFamily: 'Gilroy',
-                                        color: const Color(0XFFFFC403),
+                                        fontWeight: FontWeight.w400,
+                                        color: Color(0XFF5E8421),
                                         fontSize: 15.sp),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                          Padding(
-                            padding:  EdgeInsets.only(right: 5.w),
-                            child: Row(
-                              children: [
-                                 Image(
-                                  image:const  AssetImage("assets/clock.png"),
-                                  height: 17.h,
-                                  width: 17.w,
-                                   color: Color(0XFF8CC13F),
+                              if (latest['price'] != null && latest['price'].toString() != "Rs 0.00")                              Container(
+                                height: 35.h,
+                                width: 100.w,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: const Color(0XFFEBF2C2),
                                 ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  "${latest['duration']} Day's",
+                                child: Center(
+                                    child: Text(
+                                  latest['price'].toString(),
                                   style:  TextStyle(
-                                      fontSize: 15.sp,
-                                      color: Color(0XFF000000),
-                                      fontFamily: 'Gilroy'),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                       SizedBox(height: 11.h),
-                      Padding(
-                        padding:  EdgeInsets.only(left: 10.w, right: 10.w),
-                        child: Text(
-                          latest['title'].toString(),
-                          style:  TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15.sp,
-                              color: Color(0XFF000000),
-                              fontFamily: 'Gilroy'),
-                        ),
-                      ),
-                       SizedBox(height: 11.h),
-                      Padding(
-                        padding:  EdgeInsets.only(left: 10.w, right: 10.w),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Image(
-                                  image: NetworkImage(latest['user_pic'].toString()),
-                                  height: 40.h,
-                                  width: 40.w,
-                                ),
-
-                                SizedBox(width: 10.w),
-                                Text(
-                                  latest['user_name'].toString(),
-                                  style:  TextStyle(
+                                      color: const Color(0XFF78A03F),
                                       fontFamily: 'Gilroy',
-                                      fontWeight: FontWeight.w400,
-                                      color: Color(0XFF5E8421),
-                                      fontSize: 15.sp),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              height: 33.h,
-                              width: 76.w,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                color: const Color(0XFFEBF2C2),
-                              ),
-                              child: Center(
-                                  child: Text(
-                                latest['price'].toString(),
-                                style:  TextStyle(
-                                    color: const Color(0XFF78A03F),
-                                    fontFamily: 'Gilroy',
-                                    fontSize: 19.sp,
-                                    fontWeight: FontWeight.bold),
-                              )),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),

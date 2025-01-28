@@ -189,25 +189,26 @@ class _TrendingCourceState extends State<TrendingCource> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(6.w),
-                  child: Column(
+                Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 4.h),
-                      Text(
-                        course['course_title'] ?? 'No Title',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Gilroy',
-                          color: const Color(0XFF000000),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          course['course_title'] ?? 'No Title',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Gilroy',
+                            color: const Color(0XFF000000),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                       Padding(
-                        padding: EdgeInsets.only(top: 12.h),
+                        padding: EdgeInsets.only(bottom: 8.0,left: 8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -274,32 +275,59 @@ class _TrendingCourceState extends State<TrendingCource> {
                         ),
                       ),
                       SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                course['course_user_pic'] ?? ''),
-                            radius: 14.h,
-                          ),
-                          SizedBox(width: 6.w),
-                          Expanded(
-                            child: Text(
-                              course['course_user_name'] ?? 'Unknown',
-                              style: TextStyle(
-                                color: const Color(0XFF23408F),
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Gilroy',
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0,bottom: 8.0),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  course['course_user_pic'] ?? ''),
+                              radius: 14.h,
                             ),
-                          )
-                        ],
+                            SizedBox(width: 6.w),
+                            if(course['course_price']!=null)
+                              Row(
+                                children: [
+                                  Container(
+                                    height: 28.h,
+                                    width: 100.w,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12.h),
+                                        color:const  Color(0XFFEBF2C2)),
+                                    child: Center(
+                                        child: Text(
+                                          course['course_price'].toString(),
+                                          style:  TextStyle(
+                                              color: const Color(0XFF78A03F),
+                                              fontFamily: 'Gilroy',
+                                              fontSize: 15.sp,
+                                              fontWeight: FontWeight.w500),
+                                        )),
+                                  )
+                                ],
+                              ),
+                            // Expanded(
+                            //   child: Text(
+                            //     course['course_user_name'] ?? 'Unknown',
+                            //     style: TextStyle(
+                            //       color: const Color(0XFF23408F),
+                            //       fontSize: 14.sp,
+                            //       fontWeight: FontWeight.w500,
+                            //       fontFamily: 'Gilroy',
+                            //     ),
+                            //     maxLines: 1,
+                            //     overflow: TextOverflow.ellipsis,
+                            //   ),
+                            // )
+                          ],
+
+
+
+                        ),
                       ),
                     ],
                   ),
-                ),
+
               ],
             ),
           );
