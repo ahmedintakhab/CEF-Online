@@ -15,6 +15,7 @@ class FilterSheet extends StatefulWidget {
 class _FilterSheetState extends State<FilterSheet> {
   RangeValues _currentRangeValues = const RangeValues(0, 20000);
   List<Map<String, dynamic>> categoryData = [];
+  Map<String, List<dynamic>> subcategoriesData = {};
   bool activevalue = false;
   List <String> categoryList = [];
   List <String> selectedCategory = [];
@@ -22,40 +23,95 @@ class _FilterSheetState extends State<FilterSheet> {
   double rate = 0;
   bool isLoading = true;
   String errorMessage = '';
+  String? expandedCategoryId;
+
 
   @override
   void initState (){
     super.initState();
-    fetchCategories (); //Fetch categories on page load
-  }
-  Future<void> fetchCategories() async {
-    final url = Uri.parse('https://cefonlineacademy.com/api/frontend/all-categories-with-names');
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200){
-        final data = json.decode(response.body);
-        print('API Status Code: ${response.statusCode}');
-        setState(() {
-          categoryList = data.map<String>((category) => category['category_name'].toString()).toList();
-          categoryData = List<Map<String, dynamic>>.from(data);
-          print('API Successfully Fetched data: $categoryData');
-          isLoading = false;
+    // fetchCategories (); //Fetch categories on page load
+    fetchCategoriesAndSubcategories();
 
-        });
-      }
-      else{
+  }
+  Future<void> fetchCategoriesAndSubcategories() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://cefonlineacademy.com/api/frontend/all-categories-with-subcategories'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        print('Raw API Response: $data');
+
         setState(() {
-              errorMessage = 'Failed to load categories. Please try again.';
-               isLoading = false;
+          categoryData = data
+              .where((category) => category['category_name'] != null) // Filter out null categories
+              .map((category) {
+            final Map<String, dynamic> categoryMap = {
+              'category_id': category['category_id'],
+              'category_name': category['category_name'],
+              'has_subcategories': false,
+            };
+
+            if (category['category_subcategories'] != null &&
+                (category['category_subcategories'] as List).isNotEmpty) {
+              categoryMap['has_subcategories'] = true;
+              subcategoriesData[category['category_id'].toString()] =
+              List<dynamic>.from(category['category_subcategories']);
+            }
+
+            return categoryMap;
+          }).toList();
+
+          isLoading = false;
+        });
+
+        print('Processed Categories: $categoryData');
+        print('Stored Subcategories: $subcategoriesData');
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load categories';
+          isLoading = false;
         });
       }
-    } catch(e){
+    } catch (e, stackTrace) {
+      print('Error fetching data: $e');
+      print('Stack trace: $stackTrace');
       setState(() {
-        errorMessage = 'An error occured: $e';
+        errorMessage = 'Error: $e';
         isLoading = false;
       });
     }
   }
+  Widget buildSubcategories(String categoryId) {
+    final subCats = subcategoriesData[categoryId];
+    if (subCats == null || subCats.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: subCats.map((subcategory) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 20, top: 8),
+          child: Text(
+            subcategory['subcategory_name'].toString(),
+            style: const TextStyle(
+              fontFamily: 'Gilroy',
+              color: Color(0XFF6E758A),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+
   //Filter API Calling function
   Future<void> applyFilter() async {
     final url = Uri.parse('https://cefonlineacademy.com/api/frontend/course/search');
@@ -119,187 +175,227 @@ class _FilterSheetState extends State<FilterSheet> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    print('check the query after passing: ${widget.query}');
-    return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20),
-          const Text(
-            "Filter",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Price range",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                  "\Rs.${_currentRangeValues.start.round().toString()}-\Rs.${_currentRangeValues.end.round().toString()}",
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold))
-            ],
-          ),
-          RangeSlider(
-            activeColor: Color(0XFF8CC13F),
-            values: _currentRangeValues,
-            min: 0,
-            max: 20000,
-            divisions: 20,
-            labels: RangeLabels(
-              _currentRangeValues.start.round().toString(),
-              _currentRangeValues.end.round().toString(),
+    // print('check the query after passing: ${widget.query}');
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 15, right: 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            const Text(
+              "Filter",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
             ),
-            onChanged: (RangeValues values) {
-              setState(() {
-                _currentRangeValues = values;
-              });
-            },
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            "Ratings",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Row(
-            children: [
-              RatingBar.builder(
-                minRating: 1,
-                direction: Axis.horizontal,
-                allowHalfRating: true,
-                itemCount: 5,
-                itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                itemBuilder: (context, _) => const Icon(
-                  Icons.star_rounded,
-                  color: Colors.amber,
-                ),
-                onRatingUpdate: (rating) {
-                  setState(() {
-                    rate = rating;
-                  });
-                },
-              ),
-              const SizedBox(width: 20),
-              Text(
-                "${rate}",
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          Wrap(
-            alignment: WrapAlignment.start,
-            children: [
-              for (final category in categoryData)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Wrap(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (!selectedCategory.contains(category['category_name'])) {
-                              selectedCategory.add(category['category_name']);
-                            } else {
-                              selectedCategory.remove(category['category_name']);
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 13),
-                          decoration: BoxDecoration(
-                            color: selectedCategory.contains(category['category_name'])
-                                ? Color(0XFFEBF2C2)
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(26),
-                            border: Border.all(
-                                color:
-                                    selectedCategory.contains(category['category_name'])
-                                        ? Color(0XFF23408F)
-                                        : Color(0XFF6E758A),
-                                width: 1),
-                          ),
-                          child: Text(
-                            category['category_name'],
-                            style: selectedCategory.contains(category['category_name'])
-                                ? const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0XFF23408F),
-                                    fontFamily: 'Gilroy')
-                                : const TextStyle(
-                                    color: Color(0XFF6E758A),
-                                    fontFamily: 'Gilroy'),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-            ],
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 15),
-            child: Row(
+            const SizedBox(height: 10),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: applyFilter,
-                  child: Container(
-                    height: 56,
-                    width: 157,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      color: Color(0XFF78A03F),
-                    ),
-                    child: const Center(
-                        child: Text(
-                      "Apply",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0XFFFFFFFF),
-                          fontFamily: 'Gilroy',
-                          fontWeight: FontWeight.bold),
-                    )),
-                  ),
+                const Text(
+                  "Price range",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                GestureDetector(
-                  onTap: clearAllFilters,
-                  child: Container(
-                    height: 56,
-                    width: 157,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
-                      ),
-                      borderRadius: BorderRadius.circular(22),
-                      color: Color(0XFFB7B7B7)
-                    ),
-                    child: const Center(
-                        child: Text(
-                      "Clear All",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                          fontFamily: 'Gilroy',
-                          fontWeight: FontWeight.bold),
-                    )),
-                  ),
-                )
+                Text(
+                    "\Rs.${_currentRangeValues.start.round().toString()}-\Rs.${_currentRangeValues.end.round().toString()}",
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold))
               ],
             ),
-          )
-        ],
+            RangeSlider(
+              activeColor: Color(0XFF8CC13F),
+              values: _currentRangeValues,
+              min: 0,
+              max: 20000,
+              divisions: 20,
+              labels: RangeLabels(
+                _currentRangeValues.start.round().toString(),
+                _currentRangeValues.end.round().toString(),
+              ),
+              onChanged: (RangeValues values) {
+                setState(() {
+                  _currentRangeValues = values;
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Ratings",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Row(
+              children: [
+                RatingBar.builder(
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => const Icon(
+                    Icons.star_rounded,
+                    color: Colors.amber,
+                  ),
+                  onRatingUpdate: (rating) {
+                    setState(() {
+                      rate = rating;
+                    });
+                  },
+                ),
+                const SizedBox(width: 20),
+                Text(
+                  "${rate}",
+                  style:
+                      const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(width: 20, height: 10,),
+            Text(
+              "Categories",
+              style:
+              const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            if (isLoading)
+              const Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)))
+            else if (errorMessage.isNotEmpty)
+              Center(child: Text(errorMessage))
+            else
+              Wrap(
+                alignment: WrapAlignment.start,
+                children: categoryData.map((category) {
+                  final isSelected = selectedCategory.contains(category['category_name']);
+                  final hasSubcategories = category['has_subcategories'] == true;
+      
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 13),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0XFFEBF2C2) : Colors.white,
+                            borderRadius: BorderRadius.circular(26),
+                            border: Border.all(
+                              color: isSelected ? const Color(0XFF23408F) : const Color(0XFF6E758A),
+                              width: 1,
+                            ),
+                          ),
+                          child: IntrinsicWidth(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      final categoryName = category['category_name'].toString();
+                                      if (isSelected) {
+                                        selectedCategory.remove(categoryName);
+                                      } else {
+                                        selectedCategory.add(categoryName);
+                                      }
+                                    });
+                                  },
+                                  child: Text(
+                                    category['category_name'].toString(),
+                                    style: TextStyle(
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected ? const Color(0XFF23408F) : const Color(0XFF6E758A),
+                                      fontFamily: 'Gilroy',
+                                    ),
+                                  ),
+                                ),
+                                if (hasSubcategories)
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        if (expandedCategoryId == category['category_id'].toString()) {
+                                          expandedCategoryId = null;
+                                        } else {
+                                          expandedCategoryId = category['category_id'].toString();
+                                        }
+                                      });
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 8.0),
+                                      child: Icon(
+                                        expandedCategoryId == category['category_id'].toString()
+                                            ? Icons.arrow_drop_up
+                                            : Icons.arrow_drop_down,
+                                        color: isSelected ? const Color(0XFF23408F) : const Color(0XFF6E758A),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (expandedCategoryId == category['category_id'].toString())
+                          buildSubcategories(category['category_id'].toString()),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+      
+      
+            const SizedBox(
+              height: 30,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: applyFilter,
+                    child: Container(
+                      height: 56,
+                      width: 157,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        color: Color(0XFF78A03F),
+                      ),
+                      child: const Center(
+                          child: Text(
+                        "Apply",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Color(0XFFFFFFFF),
+                            fontFamily: 'Gilroy',
+                            fontWeight: FontWeight.bold),
+                      )),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: clearAllFilters,
+                    child: Container(
+                      height: 56,
+                      width: 157,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                        ),
+                        borderRadius: BorderRadius.circular(22),
+                        color: Color(0XFFB7B7B7)
+                      ),
+                      child: const Center(
+                          child: Text(
+                        "Clear All",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontFamily: 'Gilroy',
+                            fontWeight: FontWeight.bold),
+                      )),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
