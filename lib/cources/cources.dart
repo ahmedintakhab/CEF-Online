@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:learn_megnagmet/cources/choose_plane_screen.dart';
+import 'package:learn_megnagmet/cources/instructors.dart';
 import 'package:learn_megnagmet/cources/lessons_screen.dart';
 import 'package:learn_megnagmet/cources/review_dialog_box.dart';
 import 'package:learn_megnagmet/cources/review_screen.dart';
@@ -118,6 +119,7 @@ class _MyCourcesState extends State<MyCources> {
         final reviewData = data['reviews'];
         final courseID = data['course_id'].toString();
         final lessonsData = data['lessons'];
+        final instructorsData = data['instructors'];
         // Fetch button text and API route
         btnText = data['btn_text'];
         btnApiRoute = data['btn_api_route'];
@@ -131,6 +133,7 @@ class _MyCourcesState extends State<MyCources> {
         print('Check the course id: $CourseID');
         print('Check the button Data: $btnText');
         print('Check the button API route Data: $btnApiRoute');
+        print('Check the Instrucrors Data: $instructorsData');
 
 
         setState(() {
@@ -180,11 +183,13 @@ class _MyCourcesState extends State<MyCources> {
           pageclass = (courseType == "Live")
               ? [
             Overview(overviewData: overviewData,fetchedCourseType:fetchedCourseType),
+            Instructors(instructors: instructorsData), // Add Instructors tab for Live courses
             Review(reviewData: reviewData, courseId: courseID),
           ]
               : [
             Overview(overviewData: overviewData,fetchedCourseType:fetchedCourseType),
             Lesson(lessonsData: lessonsData),
+            Instructors(instructors: instructorsData), // Add Instructors tab for General courses
             Review(reviewData: reviewData, courseId: courseID),
           ];
 
@@ -337,21 +342,21 @@ class _MyCourcesState extends State<MyCources> {
                           borderRadius: BorderRadius.circular(22.h),
                         ),
                       ),
-                      indicatorPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10), // Adjust the width and height
+                      indicatorPadding: EdgeInsets.symmetric(horizontal: 7, vertical: 15), // Adjust the width and height
                       indicatorSize: TabBarIndicatorSize.tab, // Match the width of the entire tab
                       tabs: List.generate(
                         pageclass.length,
                             (index) {
                           // Adjust tab titles based on courseType
                               if (courseType == "Live") {
-                                // Only show "Overview" and "Review"
+                                // Only show "Overview" "Instructors" and "Review"
                                 if (index == 0) {
                                   return Tab(
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.center, // Center the text
                                       children: [
                                         SizedBox(
-                                          width: 100, // Set equal spacing width
+                                          width: 75, // Set equal spacing width
                                           child: Text(
                                             "Overview",
                                             textAlign: TextAlign.center,
@@ -361,13 +366,30 @@ class _MyCourcesState extends State<MyCources> {
                                       ],
                                     ),
                                   );
-                                } else if (index == 1) {
+                                }  else if (index == 1) {
                                   return Tab(
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         SizedBox(
-                                          width: 100, // Set equal spacing width
+                                          width: 75,
+                                          child: Text(
+                                            "Instructors",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                                else if (index == 2) {
+                                  return Tab(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 75, // Set equal spacing width
                                           child: Text(
                                             "Review",
                                             textAlign: TextAlign.center,
@@ -379,11 +401,11 @@ class _MyCourcesState extends State<MyCources> {
                                   );
                                 }
                               } else {
-                                // For "General", show "Overview", "Lesson", and "Review"
+                                // For "General", show "Overview", "Lesson", "Instructors" and "Review"
                                 if (index == 0) {
                                   return Tab(
                                     child: SizedBox(
-                                      width: 70, // Fixed width for all tabs
+                                      width: 75, // Fixed width for all tabs
                                       child: Center(
                                         child: Text(
                                           "Overview",
@@ -396,7 +418,7 @@ class _MyCourcesState extends State<MyCources> {
                                 } else if (index == 1) {
                                   return Tab(
                                     child: SizedBox(
-                                      width: 70,
+                                      width: 75,
                                       child: Center(
                                         child: Text(
                                           "Lessons",
@@ -406,10 +428,24 @@ class _MyCourcesState extends State<MyCources> {
                                       ),
                                     ),
                                   );
-                                } else if (index == 2) {
+                                }else if (index == 2) {
                                   return Tab(
                                     child: SizedBox(
-                                      width: 70,
+                                      width: 75,
+                                      child: Center(
+                                        child: Text(
+                                          "Instructors",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 13),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                                else if (index == 3) {
+                                  return Tab(
+                                    child: SizedBox(
+                                      width: 75,
                                       child: Center(
                                         child: Text(
                                           "Review",

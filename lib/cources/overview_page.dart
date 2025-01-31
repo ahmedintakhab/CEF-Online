@@ -24,20 +24,20 @@ class _OverviewState extends State<Overview> {
   late final dynamic overviewData;
   HomeController homecontroller = Get.put(HomeController());
   List<OverViewGrid> grid = [];
-  List<Instructor> instuctor = [];
+  // List<Instructor> instuctor = [];
   bool activevalue = false;
-  List<String> categoryList = [
-    "Creative",
-    "Visual Communication",
-    "Design",
-    "Color Theory",
-    "Typography"
-  ];
+  // List<String> categoryList = [
+  //   "Creative",
+  //   "Visual Communication",
+  //   "Design",
+  //   "Color Theory",
+  //   "Typography"
+  // ];
   List<String> selectedCategory = [];
   @override
   void initState() {
     grid = Utils.getOverView();
-    instuctor = Utils.getInstruter();
+    // instuctor = Utils.getInstruter();
     super.initState();
     overviewData = widget.overviewData;  // Assign passed data
     print('check tha overview data on overview page: $overviewData');
@@ -138,81 +138,81 @@ class _OverviewState extends State<Overview> {
                     //         .toList(),
                     //   ),
                     // ),
-                    SizedBox(height: 21.sp),
-                    Text(
-                      "Instructor",
-                      style: TextStyle(
-                          fontFamily: 'Gilroy',
-                          fontSize: 18.sp,
-                          color: const Color(0XFF000000),
-                          fontWeight: FontWeight.w700),
-                    ),
-                    ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: overviewData['instructors']?.length ?? 0, // Safely handle null or empty
-                        itemBuilder: (BuildContext,int index) {
-                          // Get instructor data dynamically
-                          final instructor = overviewData['instructors'][index];
-                          return Padding(
-                            padding: EdgeInsets.only(
-                                top: index == 0 ? 0.h : 8.h,
-                              bottom: index == overviewData['instructors'].length - 1 ? 0.h : 8.h,),
-                            child: Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(22.h),
-                                    color: const Color(0XFFFFFFFF),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0XFF23408F)
-                                            .withOpacity(0.14),
-                                        blurRadius: 20.0.h,
-                                      ),
-                                    ]),
-                                height: 95.h,
-                                width: 374.w,
-                                child: Padding(
-                                  padding:
-                                      EdgeInsets.only(left: 10.w, right: 10.w),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Image(
-                                          image: NetworkImage(
-                                              instructor['image'] ?? ''),
-                                          height: 71.h,
-                                          width: 71.w),
-                                      SizedBox(width: 10.w),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Text(
-                                            instructor['name'] ?? 'No Name',
-                                            style: TextStyle(
-                                                fontSize: 16.sp,
-                                                color: const Color(0XFF000000),
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: 'Gilroy'),
-                                          ), //SizedBox(height: 5),
-                                          Text(
-                                            instructor['professional_title'] ?? '',
-                                            style: TextStyle(
-                                                fontSize: 16.sp,
-                                                color: const Color(0XFF000000),
-                                                fontFamily: 'Gilroy'),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                )),
-                          );
-                        }),
+                    // SizedBox(height: 21.sp),
+                    // Text(
+                    //   "Instructor",
+                    //   style: TextStyle(
+                    //       fontFamily: 'Gilroy',
+                    //       fontSize: 18.sp,
+                    //       color: const Color(0XFF000000),
+                    //       fontWeight: FontWeight.w700),
+                    // ),
+                    // ListView.builder(
+                    //     scrollDirection: Axis.vertical,
+                    //     shrinkWrap: true,
+                    //     physics: const NeverScrollableScrollPhysics(),
+                    //     itemCount: overviewData['instructors']?.length ?? 0, // Safely handle null or empty
+                    //     itemBuilder: (BuildContext,int index) {
+                    //       // Get instructor data dynamically
+                    //       final instructor = overviewData['instructors'][index];
+                    //       return Padding(
+                    //         padding: EdgeInsets.only(
+                    //             top: index == 0 ? 0.h : 8.h,
+                    //           bottom: index == overviewData['instructors'].length - 1 ? 0.h : 8.h,),
+                    //         child: Container(
+                    //             decoration: BoxDecoration(
+                    //                 borderRadius: BorderRadius.circular(22.h),
+                    //                 color: const Color(0XFFFFFFFF),
+                    //                 boxShadow: [
+                    //                   BoxShadow(
+                    //                     color: const Color(0XFF23408F)
+                    //                         .withOpacity(0.14),
+                    //                     blurRadius: 20.0.h,
+                    //                   ),
+                    //                 ]),
+                    //             height: 95.h,
+                    //             width: 374.w,
+                    //             child: Padding(
+                    //               padding:
+                    //                   EdgeInsets.only(left: 10.w, right: 10.w),
+                    //               child: Row(
+                    //                 crossAxisAlignment:
+                    //                     CrossAxisAlignment.center,
+                    //                 children: [
+                    //                   Image(
+                    //                       image: NetworkImage(
+                    //                           instructor['image'] ?? ''),
+                    //                       height: 71.h,
+                    //                       width: 71.w),
+                    //                   SizedBox(width: 10.w),
+                    //                   Column(
+                    //                     crossAxisAlignment:
+                    //                         CrossAxisAlignment.start,
+                    //                     mainAxisAlignment:
+                    //                         MainAxisAlignment.spaceEvenly,
+                    //                     children: [
+                    //                       Text(
+                    //                         instructor['name'] ?? 'No Name',
+                    //                         style: TextStyle(
+                    //                             fontSize: 16.sp,
+                    //                             color: const Color(0XFF000000),
+                    //                             fontWeight: FontWeight.bold,
+                    //                             fontFamily: 'Gilroy'),
+                    //                       ), //SizedBox(height: 5),
+                    //                       Text(
+                    //                         instructor['professional_title'] ?? '',
+                    //                         style: TextStyle(
+                    //                             fontSize: 16.sp,
+                    //                             color: const Color(0XFF000000),
+                    //                             fontFamily: 'Gilroy'),
+                    //                       )
+                    //                     ],
+                    //                   )
+                    //                 ],
+                    //               ),
+                    //             )),
+                    //       );
+                    //     }),
                     SizedBox(height: 20.h),
 
                     Text(
