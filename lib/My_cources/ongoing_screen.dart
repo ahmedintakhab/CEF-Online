@@ -44,7 +44,6 @@ class _OngoingScreenState extends State<OngoingScreen> {
         url,
         headers: {
           'Content-Type': 'application/json', // Set content type
-          // Add Authorization token if required
            'Authorization': 'Bearer $token',
         },
       );

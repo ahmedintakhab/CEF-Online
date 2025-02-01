@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:learn_megnagmet/My_cources/ongoing_screen.dart';
 import 'package:learn_megnagmet/cources/choose_plane_screen.dart';
 import 'package:learn_megnagmet/cources/instructors.dart';
 import 'package:learn_megnagmet/cources/lessons_screen.dart';
@@ -14,6 +15,7 @@ import 'package:learn_megnagmet/home/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import '../My_cources/cources_details.dart';
 import '../utils/screen_size.dart';
 import '../widget/button.dart';
 import 'overview_page.dart';
@@ -55,12 +57,15 @@ class _MyCourcesState extends State<MyCources> {
   bool isLoading = true;
   late CourceController courceController;
   late String CourseID;
+  List< dynamic>? ongoingCourses;
+
 
   @override
   void initState() {
     super.initState();
     // Use Get.put to let Get manage the controller lifecycle
     courceController = Get.put(CourceController());
+    fetchOngoingCourses();
 
     // Initialize the controller right after it's created
     courceController.initializeController(3);  // Pass the length of the pageclass if needed (3 for "Overview", "Lessons", "Reviews")
@@ -203,8 +208,43 @@ class _MyCourcesState extends State<MyCources> {
       print('Error fetching course details: $e');
     }
   }
+  Future<void> fetchOngoingCourses() async {
+    final url = Uri.parse("https://cefonlineacademy.com/api/student/my-learning");
+    try {
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
 
-  Future<void> enrollInCourse(String courseId) async {
+      // Make the API request
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json', // Set content type
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("API fetched data successfully!");
+        final data = json.decode(response.body);
+        ongoingCourses = data['on_going']; // Adjust key based on API response
+        print('Ongoing Courses: $ongoingCourses');
+        setState(() {
+          isLoading = false;
+
+        });
+      } else {
+        // Debug errors
+        print("Error: Failed to fetch data. Status Code: ${response.statusCode}");
+        print("Response Body: ${response.body}");
+      }
+    } catch (e) {
+      // Catch and debug exceptions
+      print("Exception occurred: $e");
+    }
+  }
+
+  Future<void> enrollInCourse(String courseId, String slug) async {
     try {
       // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -214,40 +254,72 @@ class _MyCourcesState extends State<MyCources> {
       print('Token for Enroll courses: $token');
       print('Course ID for Enroll courses: $courseId');
 
-      // Send the API request with the token in the headers and course_id in the body
-      final response = await http.post(
-        Uri.parse(btnApiRoute),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json', // Ensure JSON content type
-        },
-        body:jsonEncode({
-          'course_id': courseId, // Pass the course_id
-        },)
-      );
+      if (btnText == "Enroll Now") {
+        // POST API for enrollment
 
-      if (response.statusCode == 200) {
-        print("Successfully enrolled in the course: ${response.statusCode}");
-        Get.to(() => HomeMainScreen());
-
-        // Show success snackbar
-        Get.snackbar(
-          'Success',
-          'Successfully enrolled in the course',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.black.withOpacity(0.2),
-          colorText: Colors.black,
-          borderRadius: 10,
-          margin: EdgeInsets.all(15),
-          duration: Duration(seconds: 3),
+        final response = await http.post(
+          Uri.parse(btnApiRoute),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'course_id': courseId, // Pass the course_id
+          }),
         );
-      } else {
-        print('Failed to enroll in the course. Response body: ${response.body}');
+
+        if (response.statusCode == 200) {
+          print("Successfully enrolled in the course: ${response.statusCode}");
+          Get.to(() => HomeMainScreen());
+
+          // Show success snackbar
+          Get.snackbar(
+            'Success',
+            'Successfully enrolled in the course',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.black.withOpacity(0.2),
+            colorText: Colors.black,
+            borderRadius: 10,
+            margin: EdgeInsets.all(15),
+            duration: Duration(seconds: 3),
+          );
+        } else {
+          print('Failed to enroll in the course. Response body: ${response.body}');
+        }
+      } else if (btnText == "Go to Course") {
+        // GET API to fetch course details using slug
+        final response = await http.get(
+          Uri.parse(btnApiRoute), // Use the btnApiRoute for GET request
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          // Decode the response
+          // final courseDetails = json.decode(response.body);
+
+          // Find the course in ongoingCourses that matches the slug or courseId
+          final selectedCourse = ongoingCourses?.firstWhere(
+                (course) => course['courseID'].toString() == courseId || course['courseSlug'] == slug,
+            orElse: () => null,
+          );
+
+          if (selectedCourse != null) {
+            // Navigate to CourseDetail page with the selected course details
+            Get.to(() => CourceDetail(corcedetail: selectedCourse));
+          } else {
+            print('Course not found in ongoingCourses');
+          }
+        } else {
+          print('Failed to fetch course details. Response body: ${response.body}');
+        }
       }
     } catch (e) {
-      print('Error during enrollment: $e');
+      print('Error during API call: $e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     initializeScreenSize(context);
@@ -487,7 +559,7 @@ class _MyCourcesState extends State<MyCources> {
               Padding(
                 padding: EdgeInsets.only(bottom: 30.h),
                 child: CustomButton(
-                  onTap: (){enrollInCourse(CourseID);},
+                  onTap: (){enrollInCourse(CourseID, widget.slug);},
                   // onTap: () => Get.to(const ChoosePlane()),
 
                   buttonText: btnText.isNotEmpty ? btnText : 'Enroll Now',                ),
