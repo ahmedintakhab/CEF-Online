@@ -91,7 +91,7 @@ class _MyCourcesState extends State<MyCources> {
     initializeScreenSize(context);
     return Scaffold(
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F),))
           : SafeArea(
         child: Column(
           children: [
@@ -217,7 +217,7 @@ class _MyCourcesState extends State<MyCources> {
             child: Text(
               tabText,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13),
+              style: TextStyle(fontSize: 13,fontWeight: FontWeight.bold),
             ),
           ),
         );

@@ -43,6 +43,10 @@ class _HomeScreenState extends State<HomeScreen> {
   HomeController homecontroller = Get.put(HomeController());
   Map<String, dynamic>? apiData;
   bool isLoading = true; // Add loading state
+   String? courseSlug;
+  List<dynamic> fetchtrendingCourses = [];
+
+
 
 
 
@@ -108,8 +112,11 @@ class _HomeScreenState extends State<HomeScreen> {
         print("API Data: $data"); // Print the full API data
         setState(() {
           apiData = data;
+          fetchtrendingCourses = data['trendingCourses']; // Extract trendingCourses
+          if (fetchtrendingCourses.isNotEmpty) {
+            courseSlug = fetchtrendingCourses[0]['slug']; // Fetch the first course's slug
           isLoading = false; // Set loading to false after data is fetched
-        });
+        }});
       } else {
         print("Error: Failed to fetch data. Status Code: ${response.statusCode}");
         print("Response Body: ${response.body}");
@@ -169,7 +176,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding:  EdgeInsets.symmetric(horizontal: 20.w),
                               child: TextFormField(
                                   onTap: () {
-                                    Get.to(()=>SearchScreen());
+                                    if (courseSlug != null) {
+                                      Get.to(() => SearchScreen(slug: courseSlug!));
+                                    } else {
+                                      print("No slug available");
+                                    }
                                   },
                                   decoration: InputDecoration(
                                       focusedBorder: OutlineInputBorder(
