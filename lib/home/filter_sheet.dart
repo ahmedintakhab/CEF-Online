@@ -5,8 +5,11 @@ import 'dart:convert';
 
 class FilterSheet extends StatefulWidget {
   final String query;
+  final List<Map<String, dynamic>> categoryData; // Added
+  final Map<String, List<dynamic>> subcategoriesData; // Added
   final Function(List<dynamic>) onFilterApplied;
-  const FilterSheet({Key? key, required this.query, required this.onFilterApplied}) : super(key: key);
+  const FilterSheet({Key? key, required this.query, required this.categoryData,
+  required this.subcategoriesData,  required this.onFilterApplied}) : super(key: key);
 
   @override
   State<FilterSheet> createState() => _FilterSheetState();
@@ -14,8 +17,8 @@ class FilterSheet extends StatefulWidget {
 
 class _FilterSheetState extends State<FilterSheet> {
   RangeValues _currentRangeValues = const RangeValues(0, 20000);
-  List<Map<String, dynamic>> categoryData = [];
-  Map<String, List<dynamic>> subcategoriesData = {};
+  Set<int> selectedSubcategoryIds = {}; // Track selected subcategory IDs
+  Map<int, bool> subcategorySelectionState = {}; // Track selection state for color toggling
   bool activevalue = false;
   List <String> categoryList = [];
   List <String> selectedCategory = [];
@@ -30,66 +33,12 @@ class _FilterSheetState extends State<FilterSheet> {
   void initState (){
     super.initState();
     // fetchCategories (); //Fetch categories on page load
-    fetchCategoriesAndSubcategories();
+    // fetchCategoriesAndSubcategories();
 
   }
-  Future<void> fetchCategoriesAndSubcategories() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = '';
-    });
 
-    try {
-      final response = await http.get(
-        Uri.parse('https://cefonlineacademy.com/api/frontend/all-categories-with-subcategories'),
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        print('Raw API Response: $data');
-
-        setState(() {
-          categoryData = data
-              .where((category) => category['category_name'] != null) // Filter out null categories
-              .map((category) {
-            final Map<String, dynamic> categoryMap = {
-              'category_id': category['category_id'],
-              'category_name': category['category_name'],
-              'has_subcategories': false,
-            };
-
-            if (category['category_subcategories'] != null &&
-                (category['category_subcategories'] as List).isNotEmpty) {
-              categoryMap['has_subcategories'] = true;
-              subcategoriesData[category['category_id'].toString()] =
-              List<dynamic>.from(category['category_subcategories']);
-            }
-
-            return categoryMap;
-          }).toList();
-
-          isLoading = false;
-        });
-
-        print('Processed Categories: $categoryData');
-        print('Stored Subcategories: $subcategoriesData');
-      } else {
-        setState(() {
-          errorMessage = 'Failed to load categories';
-          isLoading = false;
-        });
-      }
-    } catch (e, stackTrace) {
-      print('Error fetching data: $e');
-      print('Stack trace: $stackTrace');
-      setState(() {
-        errorMessage = 'Error: $e';
-        isLoading = false;
-      });
-    }
-  }
   Widget buildSubcategories(String categoryId) {
-    final subCats = subcategoriesData[categoryId];
+    final subCats = widget.subcategoriesData[categoryId];
     if (subCats == null || subCats.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -97,13 +46,28 @@ class _FilterSheetState extends State<FilterSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: subCats.map((subcategory) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 20, top: 8),
-          child: Text(
-            subcategory['subcategory_name'].toString(),
-            style: const TextStyle(
-              fontFamily: 'Gilroy',
-              color: Color(0XFF6E758A),
+        final subcategoryId = subcategory['subcategory_id'];
+        final isSelected = selectedSubcategoryIds.contains(subcategoryId);
+
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              if (isSelected) {
+                selectedSubcategoryIds.remove(subcategoryId); // Deselect
+              } else {
+                selectedSubcategoryIds.add(subcategoryId); // Select
+              }
+              subcategorySelectionState[subcategoryId] = !isSelected; // Toggle selection state
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20, top: 8),
+            child: Text(
+              subcategory['subcategory_name'].toString(),
+              style: TextStyle(
+                fontFamily: 'Gilroy',
+                color: isSelected ? const Color(0xff8cc13f) : const Color(0XFF6E758A),
+              ),
             ),
           ),
         );
@@ -118,10 +82,13 @@ class _FilterSheetState extends State<FilterSheet> {
 
     try {
       // Map selected category names to IDs
-      final selectedCategoryIds = categoryData
+      final selectedCategoryIds = widget.categoryData
           .where((category) => selectedCategory.contains(category['category_name']))
           .map((category) => category['category_id'])
           .toList();
+
+      // Convert selected subcategory IDs to a list
+      final selectedSubcategoryIdsList = selectedSubcategoryIds.toList();
 
       // Print the values being sent in the API call
       print('Query: ${widget.query}');
@@ -129,6 +96,7 @@ class _FilterSheetState extends State<FilterSheet> {
       print('Max Price: ${_currentRangeValues.end}');
       print('Rating: $rate');
       print('Selected Categories: $selectedCategoryIds');
+      print('Selected Subcategories: $selectedSubcategoryIdsList');
 
       final response = await http.post(
         url,
@@ -138,6 +106,7 @@ class _FilterSheetState extends State<FilterSheet> {
           'max_price': _currentRangeValues.end,
           'rating': rate,
           'categories': selectedCategoryIds,
+          'subcategories': selectedSubcategoryIdsList, // Pass selected subcategories
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -171,9 +140,12 @@ class _FilterSheetState extends State<FilterSheet> {
     setState(() {
       _currentRangeValues = const RangeValues(0, 20000);
       selectedCategory.clear();
-      rate = 0;
+      selectedSubcategoryIds.clear(); // Clear selected subcategories
+      subcategorySelectionState.clear(); // Reset selection state
+      rate = 0; // Reset the rating
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +199,7 @@ class _FilterSheetState extends State<FilterSheet> {
             Row(
               children: [
                 RatingBar.builder(
+                  initialRating: rate, // Reflects the current rating
                   minRating: 1,
                   direction: Axis.horizontal,
                   allowHalfRating: true,
@@ -256,14 +229,14 @@ class _FilterSheetState extends State<FilterSheet> {
               style:
               const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            if (isLoading)
-              const Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)))
-            else if (errorMessage.isNotEmpty)
-              Center(child: Text(errorMessage))
-            else
+            // if (isLoading)
+            //   const Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)))
+            // else if (errorMessage.isNotEmpty)
+            //   Center(child: Text(errorMessage))
+            // else
               Wrap(
                 alignment: WrapAlignment.start,
-                children: categoryData.map((category) {
+                children: widget.categoryData.map((category) {
                   final isSelected = selectedCategory.contains(category['category_name']);
                   final hasSubcategories = category['has_subcategories'] == true;
       

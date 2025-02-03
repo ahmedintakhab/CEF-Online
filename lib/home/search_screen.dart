@@ -35,10 +35,14 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Recent> recentAdded = Utils.getRecentAdded();
   Map<String, dynamic>? searchData; // Variable to store API data
   List<Map<String, dynamic>> categorywithimages = []; // Dynamic category list
+  List<Map<String, dynamic>> categoryData = []; // Store categories
+  Map<String, List<dynamic>> subcategoriesData = {}; // Store subcategories
   List<Map<String, dynamic>> courseResult = []; // Dynamic category list
   String lastQuery = ""; // To track the last query
   bool noResultsFound = false; // Flag for no results
   bool isLoading = false;
+  String errorMessage = ''; // Track errors
+
 
 
 
@@ -47,6 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     searchCourses();
+    fetchCategoriesAndSubcategories(); // Fetch data when Search Screen loads
     // Listener for text changes
     searchController.addListener(() {
       final query = searchController.text.trim();
@@ -62,6 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
     debounce?.cancel();
     super.dispose();
   }
+
 
 
 
@@ -138,7 +144,61 @@ void onSearchTextChanged(String query) {
     }
   });
 }
+  Future<void> fetchCategoriesAndSubcategories() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
 
+    try {
+      final response = await http.get(
+        Uri.parse('https://cefonlineacademy.com/api/frontend/all-categories-with-subcategories'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        print('Raw API Response: $data');
+
+        setState(() {
+          categoryData = data
+              .where((category) => category['category_name'] != null) // Filter out null categories
+              .map((category) {
+            final Map<String, dynamic> categoryMap = {
+              'category_id': category['category_id'],
+              'category_name': category['category_name'],
+              'has_subcategories': false,
+            };
+
+            if (category['category_subcategories'] != null &&
+                (category['category_subcategories'] as List).isNotEmpty) {
+              categoryMap['has_subcategories'] = true;
+              subcategoriesData[category['category_id'].toString()] =
+              List<dynamic>.from(category['category_subcategories']);
+            }
+
+            return categoryMap;
+          }).toList();
+
+          isLoading = false;
+        });
+
+        print('Processed Categories: $categoryData');
+        print('Stored Subcategories: $subcategoriesData');
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load categories';
+          isLoading = false;
+        });
+      }
+    } catch (e, stackTrace) {
+      print('Error fetching data: $e');
+      print('Stack trace: $stackTrace');
+      setState(() {
+        errorMessage = 'Error: $e';
+        isLoading = false;
+      });
+    }
+  }
 
 
 
@@ -181,77 +241,25 @@ void onSearchTextChanged(String query) {
                           primary: true,
                           children: [
                              search_text_field(),
-                            //SizedBox(height: 20),
-                            Wrap(
-                              alignment: WrapAlignment.start,
-                              children: [
-                                // Use the dynamic categoryList data
-                                if (searchData != null && searchData!['simple_categories'] != null)
-                                  for (final category in searchData!['simple_categories'])
-
-                                    Padding(
-                                    padding: EdgeInsets.only(
-                                        top: 12.h,
-                                        bottom: 12.h,
-                                        right: 3.w,
-                                        left: 3.w),
-                                    child: Wrap(
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              if (!selectedCategory
-                                                  .contains(category['name'])) {
-                                                selectedCategory
-                                                    .add(category['name'] as String);
-                                              } else {
-                                                selectedCategory
-                                                    .remove(category['name']);
-                                              }
-                                            });
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 6.h, horizontal: 13.w),
-                                            decoration: BoxDecoration(
-                                              color: selectedCategory
-                                                      .contains(category['name'])
-                                                  ? Color(0XFFEBF2C2)
-                                                  : Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(6.h),
-                                              border: Border.all(
-                                                  color: selectedCategory
-                                                          .contains(category['name'])
-                                                      ? Color(0XFF)
-                                                      : Color(0XFF6E758A),
-                                                  width: 1.w),
-                                            ),
-                                            child: Text(
-                                              category['name'] as String,
-                                              style: selectedCategory
-                                                      .contains(category['name'])
-                                                  ? TextStyle(
-                                                      fontSize: 15.sp,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Color(0XFF78A03F),
-                                                      fontFamily: 'Gilroy')
-                                                  : TextStyle(
-                                                      fontSize: 15.sp,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Color(0XFF6E758A),
-                                                      fontFamily: 'Gilroy'),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                              ],
+                            SizedBox(height: 20),
+                            const SizedBox(width: 20, height: 10,),
+                            Text(
+                              "Categories",
+                              style:
+                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                             ),
+
                             SizedBox(height: 20.h),
                             horizontal_disidn(),
                             SizedBox(height: 20.h),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Text(
+                                "Courses",
+                                style:
+                                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                            ),
                             Column(
                               children: [
                                 trending_cource(),
@@ -304,16 +312,17 @@ void onSearchTextChanged(String query) {
                         borderRadius: BorderRadius.circular(22.h),
                       ),
                       context: context,
-                      builder: (context) =>  FilterSheet(query: query,
-                          onFilterApplied: (filteredCourses) {
-                            setState(() {
-                               // Explicitly convert dynamic list to List<Map<String, dynamic>>
-                              courseSuggestions = List<Map<String, dynamic>>.from(filteredCourses);
-                              courseResult = courseSuggestions;
-
-                            });
-                            searchController.clear();
-                          }
+                      builder: (context) =>  FilterSheet(
+                        query: query,
+                        categoryData: categoryData, // Pass categories
+                        subcategoriesData: subcategoriesData, // Pass subcategories
+                        onFilterApplied: (filteredCourses) {
+                          setState(() {
+                            courseSuggestions = List<Map<String, dynamic>>.from(filteredCourses);
+                            courseResult = courseSuggestions;
+                          });
+                          searchController.clear();
+                        },
                       ));
                 },
                 child: Padding(
@@ -578,21 +587,23 @@ void onSearchTextChanged(String query) {
                           ),
                           SizedBox(height: 10.h),
                           Padding(
-                            padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                            padding: EdgeInsets.only(left: 10.w, right: 10.w),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: [
-                                    Image(
-                                      image: NetworkImage(courses['user_pic'].toString()),
-                                      height: 30.h,
-                                      width: 30.w,
-                                    ),
-                                    SizedBox(width: 6.w),
-                                  ],
-                                ),
                                 if (courses['course_price'] != null && courses['course_price'].toString() != "Rs 0.00")
+                                  ...[
+                                  Text('Price:',style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),
+                                // Row(
+                                //   children: [
+                                //     Image(
+                                //       image: NetworkImage(courses['user_pic'].toString()),
+                                //       height: 30.h,
+                                //       width: 30.w,
+                                //     ),
+                                //     SizedBox(width: 6.w),
+                                //   ],
+                                // ),
                                   Container(
                                     height: 35.h,
                                     width: 100.w,
@@ -613,6 +624,7 @@ void onSearchTextChanged(String query) {
                                     ),
                                   ),
                               ],
+                              ],
                             ),
                           ),
                         ],
@@ -627,178 +639,5 @@ void onSearchTextChanged(String query) {
       ),
     );
   }
-  // Widget recent_added_list() {
-  //   return SizedBox(
-  //     height: 323.h,
-  //     width: double.infinity.w,
-  //     child: ListView.builder(
-  //         physics: const BouncingScrollPhysics(),
-  //         primary: false,
-  //         shrinkWrap: true,
-  //         itemCount: 1,
-  //         scrollDirection: Axis.horizontal,
-  //         itemBuilder: (BuildContext context, index) {
-  //           return Container(
-  //             //height: 323,
-  //             width: 276.w,
-  //
-  //             decoration: BoxDecoration(
-  //                 borderRadius: BorderRadius.circular(12.h),
-  //                 boxShadow: [
-  //                   BoxShadow(
-  //                       color: const Color(0XFF23408F).withOpacity(0.14),
-  //                       offset: const Offset(-4, 5),
-  //                       blurRadius: 16.h),
-  //                 ],
-  //                 color: Colors.white),
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 Container(
-  //                   height: 158.h,
-  //                   width: 276.w,
-  //                   decoration: BoxDecoration(
-  //                     borderRadius: BorderRadius.circular(12),
-  //                     image: DecorationImage(
-  //                         image: AssetImage(
-  //                           recentAdded[index].image!,
-  //                         ),
-  //                         fit: BoxFit.cover),
-  //                   ),
-  //                   child: Padding(
-  //                     padding: EdgeInsets.only(
-  //                         right: 230.w, bottom: 120.h, top: 10.h),
-  //                     child: Container(
-  //                         height: 20.h,
-  //                         width: 20.w,
-  //                         decoration: const BoxDecoration(
-  //                             shape: BoxShape.circle, color: Colors.white),
-  //                         child: IconButton(
-  //                             splashRadius: 10,
-  //                             onPressed: () {},
-  //                             icon: Center(
-  //                                 child: Image(
-  //                               image: const AssetImage("assets/saveicon.png"),
-  //                               height: 13.h,
-  //                               width: 13.w,
-  //                             )))),
-  //                   ),
-  //                 ),
-  //                 Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: [
-  //                     Padding(
-  //                       padding: EdgeInsets.only(left: 10.w, top: 10.h),
-  //                       child: Container(
-  //                         height: 25.h,
-  //                         width: 58.w,
-  //                         decoration: BoxDecoration(
-  //                           borderRadius: BorderRadius.circular(20.h),
-  //                           color: const Color(0XFFFAF4E1),
-  //                         ),
-  //                         child: Row(
-  //                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //                           children: [
-  //                             Image(
-  //                               image: const AssetImage("assets/staricon.png"),
-  //                               height: 17.h,
-  //                               width: 17.w,
-  //                             ),
-  //                             Text(
-  //                               recentAdded[index].review!,
-  //                               style: TextStyle(
-  //                                   fontFamily: 'Gilroy',
-  //                                   color: const Color(0XFFFFC403),
-  //                                   fontSize: 15.sp),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     Padding(
-  //                       padding: EdgeInsets.only(right: 5.w),
-  //                       child: Row(
-  //                         children: [
-  //                           Image(
-  //                             image: const AssetImage("assets/clock.png"),
-  //                             height: 17.h,
-  //                             width: 17.w,
-  //                             color: Color(0XFF8CC13F),
-  //                           ),
-  //                           SizedBox(width: 4.w),
-  //                           Text(
-  //                             recentAdded[index].time!,
-  //                             style: TextStyle(
-  //                                 fontSize: 15.sp,
-  //                                 color: Color(0XFF000000),
-  //                                 fontFamily: 'Gilroy'),
-  //                           )
-  //                         ],
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 SizedBox(height: 11.h),
-  //                 Padding(
-  //                   padding: EdgeInsets.only(left: 10.w, right: 10.w),
-  //                   child: Text(
-  //                     recentAdded[index].title!,
-  //                     style: TextStyle(
-  //                         fontWeight: FontWeight.w700,
-  //                         fontSize: 15.sp,
-  //                         color: const Color(0XFF000000),
-  //                         fontFamily: 'Gilroy'),
-  //                   ),
-  //                 ),
-  //                 SizedBox(height: 11.h),
-  //                 Padding(
-  //                   padding: EdgeInsets.only(left: 10.w, right: 10.w),
-  //                   child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       Row(
-  //                         children: [
-  //                           Image(
-  //                             image:
-  //                                 AssetImage(recentAdded[index].circleimage!),
-  //                             height: 40.h,
-  //                             width: 40.w,
-  //                           ),
-  //                           SizedBox(width: 10.w),
-  //                           Text(
-  //                             recentAdded[index].personname!,
-  //                             style: TextStyle(
-  //                                 fontFamily: 'Gilroy',
-  //                                 fontWeight: FontWeight.w400,
-  //                                 color: const Color(0XFF5E8421),
-  //                                 fontSize: 15.sp),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                       Container(
-  //                         height: 33.h,
-  //                         width: 76.w,
-  //                         decoration: BoxDecoration(
-  //                           borderRadius: BorderRadius.circular(12.h),
-  //                           color: const Color(0XFFEBF2C2),
-  //                         ),
-  //                         child: Center(
-  //                             child: Text(
-  //                           recentAdded[index].price!,
-  //                           style: TextStyle(
-  //                               color: Color(0XFF78A03F),
-  //                               fontFamily: 'Gilroy',
-  //                               fontSize: 19.sp,
-  //                               fontWeight: FontWeight.w400),
-  //                         )),
-  //                       )
-  //                     ],
-  //                   ),
-  //                 )
-  //               ],
-  //             ),
-  //           );
-  //         }),
-  //   );
-  // }
+
 }

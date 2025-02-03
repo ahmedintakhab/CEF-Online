@@ -158,8 +158,43 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontFamily: 'Gilroy',
                                 color: const Color(0XFF000000),
                                 fontSize: 22.sp,
-                                fontWeight: FontWeight.w700))
-                      ]),
+                                fontWeight: FontWeight.w700)),
+                        SizedBox(width: 40.w,),
+
+                        Container(
+                            height: 40.h, // Set the height
+                            width: 70.h,  // Set the width (same as height for a square container)
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF8CC13F), // Set the background color
+                              borderRadius: BorderRadius.circular(22), // Rounded corners
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                if (courseSlug != null) {
+                                  Get.to(() => SearchScreen(slug: courseSlug!)); // Navigate to SearchScreen
+                                } else {
+                                  print("No slug available");
+                                }
+                              },
+                              child: Center(
+                                child: ColorFiltered(
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.white, // Make the image white
+                                    BlendMode.srcIn, // Apply the color to the image
+                                  ),
+                                  child: Image(
+                                    image: const AssetImage('assets/search.png'), // Use the search image
+                                    height: 24.h, // Set the image height
+                                    width: 24.w,  // Set the image width
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                      ],
+
+                      ),
                     ),
                      SizedBox(height: 30.h),
                     Expanded(
@@ -169,56 +204,39 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: EdgeInsets.zero,
                         primary: true,
                         children: [
-                          Container(
-
-                            height: 50.h,
-                            child: Padding(
-                              padding:  EdgeInsets.symmetric(horizontal: 20.w),
-                              child: TextFormField(
-                                  onTap: () {
-                                    if (courseSlug != null) {
-                                      Get.to(() => SearchScreen(slug: courseSlug!));
-                                    } else {
-                                      print("No slug available");
-                                    }
-                                  },
-                                  decoration: InputDecoration(
-                                      focusedBorder: OutlineInputBorder(
-                                          borderSide:  BorderSide(
-                                              color: const Color(0XFF23408F), width: 1.w),
-                                          borderRadius: BorderRadius.circular(22)),
-                                      hintText: 'Search',
-                                      hintStyle:  TextStyle(
-                                          color: Color(0XFF9B9B9B),
-                                          fontSize: 15.sp,
-                                          fontFamily: 'Gilroy',
-                                          fontWeight: FontWeight.w400),
-                                      prefixIcon:  Image(
-                                        image: AssetImage('assets/search.png'),
-                                        height: 24.h,
-                                        width: 24.w,
-                                      ),
-                                      suffixIcon: GestureDetector(
-                                        onTap: () {
-
-                                        },
-                                        child: Container(
-                                          height: 5.h,
-                                          width: 5.w,
-                                          child: ColorFiltered(
-                                            colorFilter: const ColorFilter.mode(
-                                              Color(0xFF8CC13F), // Desired color
-                                              BlendMode.srcIn,   // Applies the color to the image
-                                            ),
-                                            // child: Image.asset("assets/filico.png"),
-                                          ),
-                                        ),
-
-                                      ),
-                                      border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(22)))),
-                            ),
-                          ),
+                          // Padding(
+                          //   padding: const EdgeInsets.only(right: 20,left: 270),
+                          //   child: Container(
+                          //     height: 50.h, // Set the height
+                          //     width: 10.h,  // Set the width (same as height for a square container)
+                          //     decoration: BoxDecoration(
+                          //       color: const Color(0xFF8CC13F), // Set the background color
+                          //       borderRadius: BorderRadius.circular(22), // Rounded corners
+                          //     ),
+                          //     child: GestureDetector(
+                          //       onTap: () {
+                          //         if (courseSlug != null) {
+                          //           Get.to(() => SearchScreen(slug: courseSlug!)); // Navigate to SearchScreen
+                          //         } else {
+                          //           print("No slug available");
+                          //         }
+                          //       },
+                          //       child: Center(
+                          //         child: ColorFiltered(
+                          //           colorFilter: const ColorFilter.mode(
+                          //             Colors.white, // Make the image white
+                          //             BlendMode.srcIn, // Apply the color to the image
+                          //           ),
+                          //           child: Image(
+                          //             image: const AssetImage('assets/search.png'), // Use the search image
+                          //             height: 24.h, // Set the image height
+                          //             width: 24.w,  // Set the image width
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                            SizedBox(height: 20.h),
                           generatePage(),
                            SizedBox(height: 20.h),
@@ -579,19 +597,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     SizedBox(height: 6.h),
-                    SizedBox(
-                      width: 177.w, // Same width as the image
-                      child: Text(
-                        course['title'] ?? '', // Fetch title from API
-                        style: TextStyle(
-                          fontFamily: 'Gilroy',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15.sp,
-                          color: const Color(0XFF000000),
+                    Expanded(
+                      child: SizedBox(
+                        width: 177.w, // Same width as the image
+                        child: Text(
+                          course['title'] ?? '', // Fetch title from API
+                          style: TextStyle(
+                            fontFamily: 'Gilroy',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 17.sp,
+                            color: const Color(0XFF000000),
+                          ),
+                          maxLines: 2, // Allow at most 2 lines
+                          overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                          softWrap: true, // Ensure wrapping
                         ),
-                        maxLines: 2, // Allow at most 2 lines
-                        overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
-                        softWrap: true, // Ensure wrapping
                       ),
                     ),
                     SizedBox(height: 5.h),
@@ -781,7 +801,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             latest['title'].toString(),
                             style:  TextStyle(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 15.sp,
+                                fontSize: 18.sp,
                                 color: Color(0XFF000000),
                                 fontFamily: 'Gilroy'),
                           ),
