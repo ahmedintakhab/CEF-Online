@@ -19,6 +19,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -108,8 +109,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         print("API successfully fetched data!");
+        print("Home Page API Status Code: ${response.statusCode}");
         final data = json.decode(response.body);
-        print("API Data: $data"); // Print the full API data
+        // print("API Data: $data"); // Print the full API data
         setState(() {
           apiData = data;
           fetchtrendingCourses = data['trendingCourses']; // Extract trendingCourses
@@ -307,6 +309,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget generatePage() {
+    // Assuming you have a boolean flag to track if data is loaded
+    bool isDataLoaded = apiData != null && apiData!['banners'] != null;
+
     return CarouselSlider.builder(
       options: CarouselOptions(
         autoPlay: false,
@@ -320,83 +325,84 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
       itemBuilder: (BuildContext context, int index, int realIndex) {
-        // Check if apiData is null
-        // if (apiData == null) {
-        //   print("API data is null!");
-        //   return Center(child: CircularProgressIndicator());
-        // }
-
         // Check if banners field is null
         final banners = apiData?['banners'];
 
-        if (banners == null) {
-          return Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)));
-        }
-
         // Check if image URL is valid
-        final imageUrl = banners['image'] ?? '';
+        final imageUrl = banners?['image'] ?? '';
         bool isValidImageUrl = Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false;
-
-        // if (isValidImageUrl) {
-        //   print("Valid Image URL: $imageUrl");
-        // } else {
-        //   print("Invalid Image URL, fallback to default image");
-        // }
 
         return Padding(
           padding: EdgeInsets.only(
               left: index == 0 ? 0.w : 12.w, right: index == 2 ? 12.w : 0.w),
-          child: Container(
-            height: 150.h,
-            width: 322.w,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: isValidImageUrl
-                    ? NetworkImage(imageUrl) // Use image from API
-                    : AssetImage('assets/person.png') as ImageProvider, // Fallback image
-                fit: BoxFit.cover, // Ensure the image covers the area
-              ),
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 20.h, left: 25.w, right: 110.w),
-                  child: Text(
-                    banners['title'] ?? '', // Use title from API
-                    style: TextStyle(
-                      fontFamily: 'Gilroy',
-                      color: Color(0XFF000000),
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
+          child: Stack(
+            children: [
+              Container(
+                height: 150.h,
+                width: 322.w,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: isValidImageUrl
+                        ? NetworkImage(imageUrl) // Use image from API
+                        : AssetImage('assets/person.png') as ImageProvider, // Fallback image
+                    fit: BoxFit.cover, // Ensure the image covers the area
                   ),
+                  borderRadius: BorderRadius.circular(22),
                 ),
-                SizedBox(height: 29.sp),
-                Padding(
-                  padding: EdgeInsets.only(left: 25.w),
-                  child: GestureDetector(
-                    onTap: () {
-                      // Open the link when "Get Start" is clicked
-                      final link = banners['link'];
-                      if (link != null && link != "#" && Uri.tryParse(link) != null) {
-                        launchUrl(Uri.parse(link));
-                      }
-                    },
-                    child: Text(
-                      "Get Start",
-                      style: TextStyle(
-                        color: const Color(0XFF78A03F),
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Gilroy',
-                        fontSize: 18.sp,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 20.h, left: 25.w, right: 110.w),
+                      child: Text(
+                        banners?['title'] ?? '', // Use title from API
+                        style: TextStyle(
+                          fontFamily: 'Gilroy',
+                          color: Color(0XFF000000),
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
+                    SizedBox(height: 29.sp),
+                    Padding(
+                      padding: EdgeInsets.only(left: 25.w),
+                      child: GestureDetector(
+                        onTap: () {
+                          // Open the link when "Get Start" is clicked
+                          final link = banners?['link'];
+                          if (link != null && link != "#" && Uri.tryParse(link) != null) {
+                            launchUrl(Uri.parse(link));
+                          }
+                        },
+                        child: Text(
+                          "Get Start",
+                          style: TextStyle(
+                            color: const Color(0XFF78A03F),
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Gilroy',
+                            fontSize: 18.sp,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (!isDataLoaded)
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!, // Light grey
+                  highlightColor: Colors.grey[100]!, // Lighter grey
+                  child: Container(
+                    height: 150.h,
+                    width: 322.w,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300], // Base grey color
+                      borderRadius: BorderRadius.circular(22),
+                    ),
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
         );
       },
@@ -451,15 +457,67 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget horizontal_disidn() {
     final categories = apiData?['categories']; // Fetch categories from apiData
 
+    // If categories are null or empty, show shimmer effect
     if (categories == null || categories.isEmpty) {
-      return Center(
-        child: Text(
-          'No categories available',
-          style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+      return Container(
+        height: 150.h, // Adjust height to fit image and name together
+        width: double.infinity,
+        child: ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 15.w),
+          shrinkWrap: true,
+          physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          itemCount: 5, // Show 5 shimmer placeholders
+          itemBuilder: (BuildContext context, index) {
+            return Padding(
+              padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!, // Light grey
+                highlightColor: Colors.grey[100]!, // Lighter grey
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Shimmer effect for image
+                    Container(
+                      height: 100.h,
+                      width: 100.w,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300], // Base grey color
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    SizedBox(height: 6.h), // Space between image and text
+                    // Shimmer effect for text
+                    Container(
+                      width: 120.w,
+                      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300], // Base grey color
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text(
+                        '', // Empty text
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.transparent, // Hide text
+                          fontSize: 12.sp,
+                          fontFamily: 'Gilroy',
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       );
     }
 
+    // If categories are available, show the actual data
     return Container(
       height: 150.h, // Adjust height to fit image and name together
       width: double.infinity,
@@ -478,22 +536,21 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),
-                      child: Image(image: NetworkImage(category['image']), // Fetch image
-                        height: 100.h,
-                        width: 100.w,
-                     fit: BoxFit.cover,),
-
-
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: Image(
+                    image: NetworkImage(category['image']), // Fetch image
+                    height: 100.h,
+                    width: 100.w,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 SizedBox(height: 6.h), // Space between image and text
                 Container(
-                  width: 120,
-                  padding: EdgeInsets.symmetric(horizontal: 5.w , vertical: 8.h),
-
+                  width: 120.w,
+                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 8.h),
                   child: Text(
-                    category['name'] ?? '',
-                    maxLines: 2, // Fetch name
+                    category['name'] ?? '', // Fetch name
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -515,119 +572,159 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget trending_cource_list(Map<String, dynamic> apiData) {
     final trendingCourses = apiData['trendingCourses']; // Fetch trendingCourses from apiData
-// print('Details of TrendingCourses : $trendingCourses');
-    if (trendingCourses == null || trendingCourses.isEmpty) {
-      return Center(
-        child: Text(
-          'No trending courses available',
-          style: TextStyle(fontSize: 16.sp, color: Colors.grey),
-        ),
-      );
-    }
 
     return SizedBox(
       height: 234.h,
       width: double.infinity,
-      child: ListView.builder(
+      child: trendingCourses == null || trendingCourses.isEmpty
+          ? ListView.builder(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         physics: const BouncingScrollPhysics(),
         primary: false,
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
-        itemCount:trendingCourses.length,
+        itemCount: 5, // Number of shimmer placeholders
         itemBuilder: (BuildContext context, index) {
-          final course = trendingCourses[index]; // Access each course from the list
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 172.h,
+                    width: 177.w,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 177.w,
+                    height: 20.h,
+                    color: Colors.grey[300],
+                  ),
+                ),
+                SizedBox(height: 5.h),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 100.w,
+                    height: 15.h,
+                    color: Colors.grey[300],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      )
+          : ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        physics: const BouncingScrollPhysics(),
+        primary: false,
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        itemCount: trendingCourses.length,
+        itemBuilder: (BuildContext context, index) {
+          final course = trendingCourses[index];
 
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 6.w),
             child: GestureDetector(
               onTap: () {
-                final slug = course['slug']; // Fetch the slug from the course data
+                final slug = course['slug'];
                 if (slug != null) {
                   Get.to(MyCources(slug: slug));
                 }
               },
-
               child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: 172.h,
-                      width: 177.w,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.r),
-                        image: DecorationImage(
-                          image: NetworkImage(course['image'] ?? ''), // Fetch image from API
-                          fit: BoxFit.cover,
-                        ),
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 172.h,
+                    width: 177.w,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.r),
+                      image: DecorationImage(
+                        image: NetworkImage(course['image'] ?? ''),
+                        fit: BoxFit.cover,
                       ),
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: 10.w,
-                          right: 147.w,
-                          bottom: 142.h,
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        left: 10.w,
+                        right: 147.w,
+                        bottom: 142.h,
+                      ),
+                      child: Container(
+                        height: 20.h,
+                        width: 20.w,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
                         ),
-                        child: Container(
-                          height: 20.h,
-                          width: 20.w,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                          ),
-                          child: Center(
-                            child: GestureDetector(
-                              onTap: () {
-                                toggle(index);
-                              },
-                              child: course['buttonStatus'] == true
-                                  ? Image(
-                                image: AssetImage("assets/saveboldblue.png"),
-                                height: 10.h,
-                                width: 9.w,
-                              )
-                                  : Image(
-                                image: AssetImage("assets/savebold.png"),
-                                height: 10.h,
-                                width: 9.w,
-                              ),
+                        child: Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              toggle(index);
+                            },
+                            child: course['buttonStatus'] == true
+                                ? Image(
+                              image: AssetImage("assets/saveboldblue.png"),
+                              height: 10.h,
+                              width: 9.w,
+                            )
+                                : Image(
+                              image: AssetImage("assets/savebold.png"),
+                              height: 10.h,
+                              width: 9.w,
                             ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 6.h),
-                    Expanded(
-                      child: SizedBox(
-                        width: 177.w, // Same width as the image
-                        child: Text(
-                          course['title'] ?? '', // Fetch title from API
-                          style: TextStyle(
-                            fontFamily: 'Gilroy',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 17.sp,
-                            color: const Color(0XFF000000),
-                          ),
-                          maxLines: 2, // Allow at most 2 lines
-                          overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
-                          softWrap: true, // Ensure wrapping
+                  ),
+                  SizedBox(height: 6.h),
+                  Expanded(
+                    child: SizedBox(
+                      width: 177.w,
+                      child: Text(
+                        course['title'] ?? '',
+                        style: TextStyle(
+                          fontFamily: 'Gilroy',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 17.sp,
+                          color: const Color(0XFF000000),
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
                       ),
                     ),
-                    SizedBox(height: 5.h),
-                    Text(
-                      course['subtitle'] ?? '', // Optional subtitle (check if it exists in the API)
-                      style: TextStyle(
-                        fontFamily: 'Gilroy',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15.sp,
-                        color: const Color(0XFF000000),
-                      ),
+                  ),
+                  SizedBox(height: 5.h),
+                  Text(
+                    course['subtitle'] ?? '',
+                    style: TextStyle(
+                      fontFamily: 'Gilroy',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15.sp,
+                      color: const Color(0XFF000000),
                     ),
-                  ],
-                ),
-
-
+                  ),
+                ],
+              ),
             ),
           );
         },

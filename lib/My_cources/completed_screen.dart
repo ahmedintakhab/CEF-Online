@@ -85,21 +85,22 @@ class _CompletedScreenState extends State<CompletedScreen> {
                                 Text(
                                   course['courseName'] ?? 'No Name',
                                   style: TextStyle(
-                                    fontSize: 18.sp,
+                                    fontSize: 19.sp,
                                     fontFamily: 'Gilroy',
+                                    fontWeight: FontWeight.w500,
                                     fontStyle: FontStyle.normal,
                                   ),
                                 ),
-                                SizedBox(height: 10.h),
-                                Text(
-                                  "${course['lecturesRemaining'] ?? '0'} Lessons",
-                                  style: TextStyle(
-                                    color: Color(0XFF292929),
-                                    fontSize: 14.sp,
-                                    fontFamily: 'Gilroy',
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
+                                // SizedBox(height: 10.h),
+                                // Text(
+                                //   "${course['lecturesRemaining'] ?? '0'} Lessons",
+                                //   style: TextStyle(
+                                //     color: Color(0XFF292929),
+                                //     fontSize: 14.sp,
+                                //     fontFamily: 'Gilroy',
+                                //     fontWeight: FontWeight.w400,
+                                //   ),
+                                // ),
                                 SizedBox(height: 15.h),
                                 Row(
                                   children: [

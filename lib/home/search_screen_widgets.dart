@@ -92,7 +92,13 @@ class HorizontalDesign extends StatelessWidget {
         itemCount: controller.categorywithimages.length,
         itemBuilder: (BuildContext context, index) {
           final category = controller.categorywithimages[index];
-          return Padding(
+          // print('check the ,,,,,,,,,,,,data: $category');
+          return GestureDetector(
+              onTap: () {
+                // Fetch category-wise courses on click
+                controller.fetchCategoryWiseCourses(category['id']);
+              },
+          child: Padding(
             padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
             child: Column(
               children: [
@@ -124,6 +130,7 @@ class HorizontalDesign extends StatelessWidget {
                 ),
               ],
             ),
+          )
           );
         },
       ),

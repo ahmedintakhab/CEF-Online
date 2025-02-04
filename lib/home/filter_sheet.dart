@@ -105,8 +105,8 @@ class _FilterSheetState extends State<FilterSheet> {
           'min_price': _currentRangeValues.start,
           'max_price': _currentRangeValues.end,
           'rating': rate,
-          'categories': selectedCategoryIds,
-          'subcategories': selectedSubcategoryIdsList, // Pass selected subcategories
+          'category_ids': selectedCategoryIds,
+          'subcategory_ids': selectedSubcategoryIdsList, // Pass selected subcategories
         }),
         headers: {
           'Content-Type': 'application/json',

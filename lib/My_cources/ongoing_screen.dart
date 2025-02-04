@@ -146,8 +146,9 @@ class _OngoingScreenState extends State<OngoingScreen> {
                                 Text(
                                   ongoing['courseName'] ?? '',
                                   style: const TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 17,
                                       fontFamily: 'Gilroy',
+                                      fontWeight: FontWeight.w500,
                                       fontStyle: FontStyle.normal),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,

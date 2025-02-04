@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchScreenController extends GetxController {
   TextEditingController searchController = TextEditingController();
@@ -97,6 +98,7 @@ class SearchScreenController extends GetxController {
     update();
 
     try {
+
       final response = await http.get(
         Uri.parse('https://cefonlineacademy.com/api/frontend/all-categories-with-subcategories'),
       );
@@ -133,4 +135,45 @@ class SearchScreenController extends GetxController {
       update();
     }
   }
+  // New method to fetch category-wise courses
+  Future<void> fetchCategoryWiseCourses(int categoryId) async {
+    isLoading = true;
+    errorMessage = '';
+    update();
+
+    const url = 'https://cefonlineacademy.com/api/frontend/all-categorywise-courses';
+    try {
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final response = await http.post(
+        Uri.parse(url),
+        body: json.encode({'category_id': categoryId}),
+        headers: {
+          'Authorization': 'Bearer $token', // Pass the token as a Bearer token
+          'Content-Type': 'application/json', // Optional: Set content type
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('API Response: $data'); // Debug print
+        courseResult = List<Map<String, dynamic>>.from(data['category_courses_section_data'] ?? []);
+        print('Course Result: $courseResult'); // Debug print
+        update();
+      } else {
+        errorMessage = 'Failed to load category-wise courses';
+        print("Error: ${response.statusCode}");
+      }
+    } catch (e, stackTrace) {
+      print('Error fetching category-wise courses: $e');
+      print('Stack trace: $stackTrace');
+      errorMessage = 'Error: $e';
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
+
 }
