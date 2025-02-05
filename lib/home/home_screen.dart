@@ -206,39 +206,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: EdgeInsets.zero,
                         primary: true,
                         children: [
-                          // Padding(
-                          //   padding: const EdgeInsets.only(right: 20,left: 270),
-                          //   child: Container(
-                          //     height: 50.h, // Set the height
-                          //     width: 10.h,  // Set the width (same as height for a square container)
-                          //     decoration: BoxDecoration(
-                          //       color: const Color(0xFF8CC13F), // Set the background color
-                          //       borderRadius: BorderRadius.circular(22), // Rounded corners
-                          //     ),
-                          //     child: GestureDetector(
-                          //       onTap: () {
-                          //         if (courseSlug != null) {
-                          //           Get.to(() => SearchScreen(slug: courseSlug!)); // Navigate to SearchScreen
-                          //         } else {
-                          //           print("No slug available");
-                          //         }
-                          //       },
-                          //       child: Center(
-                          //         child: ColorFiltered(
-                          //           colorFilter: const ColorFilter.mode(
-                          //             Colors.white, // Make the image white
-                          //             BlendMode.srcIn, // Apply the color to the image
-                          //           ),
-                          //           child: Image(
-                          //             image: const AssetImage('assets/search.png'), // Use the search image
-                          //             height: 24.h, // Set the image height
-                          //             width: 24.w,  // Set the image width
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
                            SizedBox(height: 20.h),
                           generatePage(),
                            SizedBox(height: 20.h),
