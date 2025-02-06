@@ -244,7 +244,12 @@ class _MyCourcesState extends State<MyCources> {
     return Padding(
       padding: EdgeInsets.only(bottom: 30.h),
       child: CustomButton(
-        onTap: () => courseController.enrollInCourse(courseId, widget.slug, btnText, btnApiRoute),
+        onTap: () {
+          print("Enroll Button Clicked!");
+          print("Button Text: $btnText");
+          print("API Route: $btnApiRoute");
+          courseController.enrollInCourse(courseId, widget.slug, btnText, btnApiRoute);
+        },
         buttonText: btnText.isNotEmpty ? btnText : 'Enroll Now',
       ),
     );

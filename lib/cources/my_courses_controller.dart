@@ -81,6 +81,9 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
       String token = prefs.getString('auth_token') ?? '';
 
       if (btnText == "Enroll Now") {
+        print("API URL: $btnApiRoute");
+        print("Course ID: $courseId");
+        print("Auth Token: $token");
         final response = await http.post(
           Uri.parse(btnApiRoute),
           headers: {
@@ -91,8 +94,12 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
             'course_id': courseId,
           }),
         );
+        print("Enroll API Response Code: ${response.statusCode}");
+        print("Enroll API Response Body: ${response.body}");
 
         if (response.statusCode == 200) {
+          print("Enroll API response status code: ${response.statusCode}");
+          print("API Successfully Enroll Course.");
           Get.to(() => HomeMainScreen());
           Get.snackbar(
             'Success',
@@ -105,7 +112,9 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
             duration: Duration(seconds: 3),
           );
         }
-      } else if (btnText == "Go to Course") {
+      }
+
+      else if (btnText == "Go to Course") {
         final response = await http.get(
           Uri.parse(btnApiRoute),
           headers: {
@@ -114,6 +123,8 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
         );
 
         if (response.statusCode == 200) {
+          print("Go to Course API response status code: ${response.statusCode}");
+          print("API Successfully move on Course details.");
           final selectedCourse = ongoingCourses?.firstWhere(
                 (course) => course['courseID'].toString() == courseId || course['courseSlug'] == slug,
             orElse: () => null,
