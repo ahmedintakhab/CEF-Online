@@ -32,6 +32,13 @@ class _OngoingScreenState extends State<OngoingScreen> {
     super.initState();
     fetchOngoingCourses();
   }
+  // Refresh function to update course progress
+  void refreshOngoingCourses() {
+    setState(() {
+      isLoading = true;
+    });
+    fetchOngoingCourses();
+  }
   Future<void> fetchOngoingCourses() async {
     final url = Uri.parse("https://cefonlineacademy.com/api/student/my-learning");
     try {
@@ -49,13 +56,14 @@ class _OngoingScreenState extends State<OngoingScreen> {
       );
 
       if (response.statusCode == 200) {
+        print("Ongoing Page API status code: ${response.statusCode}");
         print("API fetched data successfully!");
         final data = json.decode(response.body);
-        print("API Data on Ongoing Page: $data"); // Debug: Print the full API data
+        // print("API Data on Ongoing Page: $data"); // Debug: Print the full API data
         ongoingCourses = data['on_going']; // Adjust key based on API response
-        print("API fetched ongoing course data!: $ongoingCource");
+        // print("API fetched ongoing course data!: $ongoingCource");
         completeCourses = data['completed'];
-        print('Complete courses data strore in completeCourses: $completeCourses');
+        // print('Complete courses data strore in completeCourses: $completeCourses');
         completedController.setCompletedCourses(completeCourses ?? []);
 
         setState(() {
@@ -91,6 +99,19 @@ class _OngoingScreenState extends State<OngoingScreen> {
         child: CircularProgressIndicator(color: Color(0XFF8CC13F),),
       );
     }
+    if (ongoingCourses == null || ongoingCourses!.isEmpty) {
+      return const Center(
+        child: Text(
+          "No Enroll in Course",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            color: Colors.black54,
+          ),
+        ),
+      );
+    }
+
     return GetBuilder(
         init: OngoingController(),
         builder: (OngoingController) => ListView.builder(
@@ -109,7 +130,10 @@ class _OngoingScreenState extends State<OngoingScreen> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => CourceDetail(
-                                corcedetail:ongoing)));
+                                corcedetail:ongoing,
+                              onLectureOpen: refreshOngoingCourses, // Pass the refresh callback
+
+                            )));
                   },
                   child: Container(
                     height: 124,

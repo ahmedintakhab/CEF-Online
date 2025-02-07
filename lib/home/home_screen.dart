@@ -151,15 +151,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                      SizedBox(height: 16.h),
                     Padding(
-                      padding:  EdgeInsets.symmetric(horizontal: 20.w),
-                      child: Row(children: [
+                      padding:  EdgeInsets.symmetric(horizontal: 15.w),
+                      child: Row(
+                        children: [
                         Image(image: AssetImage(userDetail[0].image),height: 50.h,width: 49.93.w,),
                          SizedBox(width: 10.w),
                         Text("Welcome, $userName",
                             style:  TextStyle(
                                 fontFamily: 'Gilroy',
                                 color: const Color(0XFF000000),
-                                fontSize: 22.sp,
+                                fontSize: 20.sp,
                                 fontWeight: FontWeight.w700)),
                         SizedBox(width: 40.w,),
 

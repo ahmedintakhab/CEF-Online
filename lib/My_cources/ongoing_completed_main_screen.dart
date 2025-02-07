@@ -15,14 +15,31 @@ class OngoingCompletedScreen extends StatefulWidget {
   State<OngoingCompletedScreen> createState() => _OngoingCompletedScreenState();
 }
 
-class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> {
+class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> with SingleTickerProviderStateMixin {
   final OngoingCompletedController ongoingCompletedController =
-  Get.put(OngoingCompletedController()); // GetX Controller
+  Get.put(OngoingCompletedController());
 
-  final List<Widget> courcesClass = [
+  final List<Widget> coursesClass = [
     OngoingScreen(),
     CompletedScreen(),
   ];
+
+  late TabController _tabController;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +60,7 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        SystemChannels.platform.invokeMethod(
-                            'SystemNavigator.pop');
+                        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
                       },
                       child: Image(
                         image: const AssetImage("assets/back_arrow.png"),
@@ -80,7 +96,7 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> {
                   child: Padding(
                     padding: EdgeInsets.only(left: 8.w, right: 8.w),
                     child: TabBar(
-                      controller: controller.tabController,
+                      controller: _tabController,
                       unselectedLabelColor: const Color(0XFF6E758A),
                       padding:
                       EdgeInsets.symmetric(horizontal: 8.w, vertical: 7.h),
@@ -109,9 +125,11 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> {
                         Tab(text: "Completed"),
                       ],
                       onTap: (index) {
-                        controller.pController.animateToPage(index,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.ease);
+                        _pageController.animateToPage(
+                          index,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.ease,
+                        );
                       },
                     ),
                   ),
@@ -120,11 +138,11 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> {
               SizedBox(height: 20.h),
               Expanded(
                 child: PageView(
-                  controller: controller.pController,
+                  controller: _pageController,
                   onPageChanged: (index) {
-                    controller.tabController.animateTo(index);
+                    _tabController.animateTo(index);
                   },
-                  children: courcesClass,
+                  children: coursesClass,
                 ),
               ),
             ],
