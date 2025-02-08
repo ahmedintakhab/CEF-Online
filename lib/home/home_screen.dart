@@ -1,13 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/cources/cources.dart';
 import 'package:learn_megnagmet/home/recent_added_cource_detail.dart';
-
 import 'package:learn_megnagmet/home/recently_added_cources.dart';
 import 'package:learn_megnagmet/home/search_screen.dart';
 import 'package:learn_megnagmet/home/trending_cource.dart';
@@ -21,8 +18,6 @@ import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-
 import '../utils/screen_size.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -46,10 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true; // Add loading state
    String? courseSlug;
   List<dynamic> fetchtrendingCourses = [];
-
-
-
-
 
 
   // int currentpage = 0;
@@ -111,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print("API successfully fetched data!");
         print("Home Page API Status Code: ${response.statusCode}");
         final data = json.decode(response.body);
-        // print("API Data: $data"); // Print the full API data
+        print("API Data: $data"); // Print the full API data
         setState(() {
           apiData = data;
           fetchtrendingCourses = data['trendingCourses']; // Extract trendingCourses
@@ -219,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                 Text("Latest Course",
+                                 Text("Latest Courses",
                                     style: TextStyle(
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.w700,
@@ -243,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                 Text("Recently Added Course",
+                                 Text("Recently Added Courses",
                                     style: TextStyle(
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.w700,
@@ -767,7 +758,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           child: Padding(
                             padding:  EdgeInsets.only(
-                                right: 230.w, bottom: 120.h, top: 10.h),
+                                right: 230.w, bottom: 120.h, top: 10.h,left: 3),
                             child: Container(
                                 height: 20.h,
                                 width: 20.w,
@@ -873,29 +864,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                          SizedBox(height: 11.h),
                         Padding(
-                          padding:  EdgeInsets.only(left: 10.w, right: 10.w),
+                          padding:  EdgeInsets.only(left: 20.w, right: 10.w),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Image(
-                                    image: NetworkImage(latest['user_pic'].toString()),
-                                    height: 40.h,
-                                    width: 40.w,
-                                  ),
-
-                                  SizedBox(width: 10.w),
-                                  Text(
-                                    latest['user_name'].toString(),
-                                    style:  TextStyle(
-                                        fontFamily: 'Gilroy',
-                                        fontWeight: FontWeight.w400,
-                                        color: Color(0XFF5E8421),
-                                        fontSize: 15.sp),
-                                  ),
-                                ],
-                              ),
+                              // Row(
+                              //   children: [
+                              //     Image(
+                              //       image: NetworkImage(latest['user_pic'].toString()),
+                              //       height: 40.h,
+                              //       width: 40.w,
+                              //     ),
+                              //
+                              //     SizedBox(width: 10.w),
+                              //     Text(
+                              //       latest['user_name'].toString(),
+                              //       style:  TextStyle(
+                              //           fontFamily: 'Gilroy',
+                              //           fontWeight: FontWeight.w400,
+                              //           color: Color(0XFF5E8421),
+                              //           fontSize: 15.sp),
+                              //     ),
+                              //   ],
+                              // ),
                               if (latest['price'] != null && latest['price'].toString() != "Rs 0.00")                              Container(
                                 height: 35.h,
                                 width: 100.w,

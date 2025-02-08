@@ -227,7 +227,7 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                         ),
                          SizedBox(height: 10.h),
                         Padding(
-                          padding:  EdgeInsets.only(left: 10.42.w,bottom: 15),
+                          padding:  EdgeInsets.only(left: 10.42.w,bottom: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -317,31 +317,31 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Image(
-                                        image: NetworkImage(
-                                            course['course_user_pic'].toString()),
-                                        height: 40.h,
-                                        width: 40.w,
-                                      ),
-                                       SizedBox(width: 10.w),
-                                      Text(
-                                        course['course_user_name'].toString(),
-                                        style:  TextStyle(
-                                            color: Color(0XFF5E8421),
-                                            fontSize: 15.sp,
-                                            fontWeight: FontWeight.w400,
-                                            fontFamily: 'Gilroy'),
-                                      )
-                                    ],
-                                  ),
+                                  // Row(
+                                  //   children: [
+                                  //     Image(
+                                  //       image: NetworkImage(
+                                  //           course['course_user_pic'].toString()),
+                                  //       height: 40.h,
+                                  //       width: 40.w,
+                                  //     ),
+                                  //      SizedBox(width: 10.w),
+                                  //     Text(
+                                  //       course['course_user_name'].toString(),
+                                  //       style:  TextStyle(
+                                  //           color: Color(0XFF5E8421),
+                                  //           fontSize: 15.sp,
+                                  //           fontWeight: FontWeight.w400,
+                                  //           fontFamily: 'Gilroy'),
+                                  //     )
+                                  //   ],
+                                  // ),
                                   if(course['course_price']!=null)
                                   Row(
                                     children: [
                                       Container(
                                         height: 35.h,
-                                        width: 90.w,
+                                        width: 100.w,
                                         decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(12.h),
                                             color:const  Color(0XFFEBF2C2)),

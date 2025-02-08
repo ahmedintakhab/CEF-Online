@@ -313,13 +313,12 @@ class TrendingCourses extends StatelessWidget {
                           ),
                           SizedBox(height: 10.h),
                           Padding(
-                            padding: EdgeInsets.only(left: 10.w, right: 10.w),
+                            padding: EdgeInsets.only(left: 30.w, right: 10.w),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 if (courses['course_price'] != null && courses['course_price'].toString() != "Rs 0.00")
                                   ...[
-                                    Text('Price:', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                                     Container(
                                       height: 35.h,
                                       width: 100.w,

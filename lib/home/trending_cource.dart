@@ -9,6 +9,7 @@ import 'package:learn_megnagmet/models/trending_cource.dart';
 // import 'package:learn_megnagmet/utils/slider_page_data_mode';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../cources/cources.dart';
 import '../login/login_empty_state.dart';
 import '../utils/screen_size.dart';
 import '../utils/slider_page_data_model.dart';
@@ -122,7 +123,6 @@ class _TrendingCourceState extends State<TrendingCource> {
       );
     }
     final courses = Allcourses?['courses_section_data'] ?? [];
-
     return Expanded(
       flex: 1,
       child: GridView.count(
@@ -133,7 +133,16 @@ class _TrendingCourceState extends State<TrendingCource> {
         mainAxisSpacing: 20,
         childAspectRatio: 0.650,
         children: courses.map<Widget>((course) {
-          return Container(
+          return GestureDetector(
+              onTap: () {
+                final slug = course['course_slug'];
+                if (slug != null) {
+                  Get.to(() => MyCources(slug: slug));
+                } else {
+                  print("Slug is null");
+                }
+              },
+          child:  Container(
             width: 177.w,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
@@ -171,18 +180,21 @@ class _TrendingCourceState extends State<TrendingCource> {
                       onTap: () {
                         toggle(course);
                       },
-                      child: Container(
-                        height: 30.h,
-                        width: 30.w,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: Center(
-                          child: Image(
-                            image: const AssetImage("assets/like.png"),
-                            height: 13.08.h,
-                            width: 13.08.w,
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Container(
+                          height: 30.h,
+                          width: 30.w,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Image(
+                              image: const AssetImage("assets/like.png"),
+                              height: 13.08.h,
+                              width: 13.08.w,
+                            ),
                           ),
                         ),
                       ),
@@ -276,14 +288,14 @@ class _TrendingCourceState extends State<TrendingCource> {
                       ),
                       SizedBox(height: 10.h),
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0,bottom: 8.0),
+                        padding: const EdgeInsets.only(left: 20.0,bottom: 8.0),
                         child: Row(
                           children: [
-                            CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  course['course_user_pic'] ?? ''),
-                              radius: 14.h,
-                            ),
+                            // CircleAvatar(
+                            //   backgroundImage: NetworkImage(
+                            //       course['course_user_pic'] ?? ''),
+                            //   radius: 14.h,
+                            // ),
                             SizedBox(width: 6.w),
                             if(course['course_price']!=null)
                               Row(
@@ -329,7 +341,8 @@ class _TrendingCourceState extends State<TrendingCource> {
                   ),
 
               ],
-            ),
+            )
+          ),
           );
         }).toList(),
       ),
