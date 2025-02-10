@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/screen_size.dart';
+import 'category_wise_courses.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -228,7 +229,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ),
+
                           trending_cource_list(apiData ??{}),
+                          SizedBox(height: 22.h),
+
                           Padding(
                             padding:  EdgeInsets.symmetric(horizontal: 20.w),
                             child: Row(
@@ -317,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         banners?['title'] ?? '', // Use title from API
                         style: TextStyle(
                           fontFamily: 'Gilroy',
-                          color: Color(0XFF000000),
+                          color: Colors.white,
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                         ),
@@ -488,8 +492,13 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: categories.length,
         itemBuilder: (BuildContext context, index) {
           final category = categories[index]; // Access each category from the list
+          return GestureDetector(
+              onTap: () {
+                // Navigate to CategoryWiseCourses with category ID
+                Get.to(() => CategoryWiseCourses(categoryId: category['id'],categoryName : category['name']));
+              },
 
-          return Padding(
+          child:  Padding(
             padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -522,6 +531,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+          )
           );
         },
       ),
@@ -663,7 +673,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontFamily: 'Gilroy',
                           fontWeight: FontWeight.w700,
-                          fontSize: 17.sp,
+                          fontSize: 16.sp,
                           color: const Color(0XFF000000),
                         ),
                         maxLines: 2,
@@ -672,16 +682,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 5.h),
-                  Text(
-                    course['subtitle'] ?? '',
-                    style: TextStyle(
-                      fontFamily: 'Gilroy',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15.sp,
-                      color: const Color(0XFF000000),
-                    ),
-                  ),
+                  // SizedBox(height: 5.h),
+                  // Text(
+                  //   course['subtitle'] ?? '',
+                  //   style: TextStyle(
+                  //     fontFamily: 'Gilroy',
+                  //     fontWeight: FontWeight.w700,
+                  //     fontSize: 15.sp,
+                  //     color: const Color(0XFF000000),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

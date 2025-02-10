@@ -5,10 +5,7 @@ import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:get/get_core/src/get_main.dart';
-import 'package:learn_megnagmet/models/trending_cource.dart';
-// import 'package:learn_megnagmet/utils/slider_page_data_mode';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../cources/cources.dart';
 import '../login/login_empty_state.dart';
 import '../utils/screen_size.dart';
