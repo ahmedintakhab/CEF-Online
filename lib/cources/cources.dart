@@ -27,6 +27,7 @@ class _MyCourcesState extends State<MyCources> {
   String btnText = '';
   String btnApiRoute = '';
   List<Widget> pageclass = [];
+  String previewSrcType = '';
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class _MyCourcesState extends State<MyCources> {
       btnText = courseDetails['btn_text'];
       btnApiRoute = courseDetails['btn_api_route'];
       courseId = courseDetails['course_id'].toString();
+      previewSrcType = courseDetails['course_preview_src_type'];
 
       // Setup pages based on course type
       setupPages(courseDetails);
@@ -155,7 +157,7 @@ class _MyCourcesState extends State<MyCources> {
           height: 195.h,
           child: CourseVideoPlayer(
             videoUrl: courseController.coursePreviewSrc,
-            courseType: courseType,
+            courseType: courseType, previewSrcType: previewSrcType,
           ),
         ),
       ),

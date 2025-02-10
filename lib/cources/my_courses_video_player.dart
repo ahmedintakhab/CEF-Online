@@ -6,11 +6,13 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 class CourseVideoPlayer extends StatefulWidget {
   final String videoUrl;
   final String courseType;
+  final String previewSrcType;
 
   const CourseVideoPlayer({
     Key? key,
     required this.videoUrl,
     required this.courseType,
+    required this.previewSrcType,
   }) : super(key: key);
 
   @override
@@ -21,7 +23,6 @@ class _CourseVideoPlayerState extends State<CourseVideoPlayer> {
   // Initialize with temporary URL
   late FlickManager flickManager = FlickManager(
     videoPlayerController: VideoPlayerController.network(""),  // Temporary URL until API response
-    //https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4
     autoPlay: false,
   );
   late YoutubePlayerController youtubeController;
@@ -34,7 +35,7 @@ class _CourseVideoPlayerState extends State<CourseVideoPlayer> {
   }
 
   void _initializeVideoPlayer() {
-    if (widget.videoUrl.isNotEmpty) {
+    if (widget.previewSrcType == 'course_intro_video' && widget.videoUrl.isNotEmpty) {
       if (widget.videoUrl.contains('youtube.com')) {
         String videoId = '';
         if (widget.videoUrl.contains('embed/')) {
@@ -76,9 +77,19 @@ class _CourseVideoPlayerState extends State<CourseVideoPlayer> {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
-      child: isYouTubeVideo
+      child: widget.previewSrcType == 'course_intro_video'
+          ? (isYouTubeVideo
           ? YoutubePlayer(controller: youtubeController)
-          : FlickVideoPlayer(flickManager: flickManager),
+          : FlickVideoPlayer(flickManager: flickManager))
+          : widget.previewSrcType == 'course_intro_image'
+          ? AspectRatio(
+        aspectRatio: 16 / 9,
+            child: Image.network(
+                    widget.videoUrl, // Assuming videoUrl is the image URL in this case
+                    fit: BoxFit.cover,
+                  ),
+          )
+          : Container(), // Fallback in case of unexpected previewSrcType
     );
   }
 }
