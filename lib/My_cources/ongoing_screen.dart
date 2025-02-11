@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:learn_megnagmet/Course_details_tabbar/tabbar_details.dart';
 import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -121,6 +122,7 @@ class _OngoingScreenState extends State<OngoingScreen> {
             itemBuilder: (context, index) {
               final ongoing = ongoingCourses?[index];
               String courseType = ongoing['courseType']; // Fetch courseType from API
+              String slug = ongoing['courseSlug'];
               // print('Check the ongoing data inside function: $ongoing');
               return Padding(
                 padding:  EdgeInsets.only(
@@ -130,11 +132,17 @@ class _OngoingScreenState extends State<OngoingScreen> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CourceDetail(
-                                corcedetail:ongoing,
-                              onLectureOpen: refreshOngoingCourses, // Pass the refresh callback
+                            builder: (context) => TabBarDetails(courseType: courseType, slug: slug,
 
-                            )));
+                              // onLectureOpen: refreshOngoingCourses, // Pass the refresh callback
+
+                            )
+                            // builder: (context) => CourceDetail(
+                            //     corcedetail:ongoing,
+                            //   onLectureOpen: refreshOngoingCourses, // Pass the refresh callback
+                            //
+                            // )
+                        ));
                   },
                   child: Container(
                     height: 124,

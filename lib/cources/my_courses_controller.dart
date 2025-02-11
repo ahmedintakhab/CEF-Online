@@ -136,7 +136,7 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
           );
 
           if (selectedCourse != null) {
-            Get.to(() => TabBarDetails(courseType: courseType));
+            Get.to(() => TabBarDetails(courseType: courseType,slug: slug));
             //Before Adding Tabbar
             // Get.to(() => CourceDetail(corcedetail: selectedCourse));
           }

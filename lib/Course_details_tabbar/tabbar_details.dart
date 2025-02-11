@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // Add this import
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert'; // For JSON parsing
+import '../utils/api_constants.dart';
 import 'overview_page.dart';
 import 'content_page.dart';
 import 'quiz_page.dart';
@@ -11,7 +15,8 @@ import 'review_page.dart';
 
 class TabBarDetails extends StatefulWidget {
   final String courseType;
-  TabBarDetails({Key? key, required this.courseType}) : super(key: key);
+  final String slug;
+  TabBarDetails({Key? key, required this.courseType, required this.slug}) : super(key: key);
 
   @override
   State<TabBarDetails> createState() => _TabBarDetailsState();
@@ -24,6 +29,10 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
   // Initialize tabs based on courseType
   late List<String> tabs;
   late List<Widget> pages;
+
+  // API Data
+  Map<String, dynamic>? apiData;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -40,15 +49,6 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
         'Certificate',
         'Review',
       ];
-      pages = [
-        OverviewPage(),
-        ContentPage(),
-        NoticePage(),
-        LiveClassPage(),
-        DiscussionPage(),
-        CertificatePage(),
-        ReviewPage(),
-      ];
     } else {
       tabs = [
         'Overview',
@@ -61,21 +61,69 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
         'Certificate',
         'Review',
       ];
-      pages = [
-        OverviewPage(),
-        ContentPage(),
-        QuizPage(),
-        AssignmentPage(),
-        NoticePage(),
-        LiveClassPage(),
-        DiscussionPage(),
-        CertificatePage(),
-        ReviewPage(),
-      ];
     }
 
     _tabController = TabController(length: tabs.length, vsync: this);
     _pageController = PageController();
+
+    // Fetch API data
+    StudentCourseDetails();
+  }
+
+  // Fetch data from API
+  Future<void> StudentCourseDetails() async {
+    final String apiUrl = '${ApiConstants.baseUrl}student/my-course/${widget.slug}';
+
+    try {
+      // Assuming the token is saved in shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+      final response = await http.get(Uri.parse(apiUrl),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token', // Include token in the header
+          }
+      );
+      if (response.statusCode == 200) {
+        print("Course details API status response: ${response.statusCode}");
+        setState(() {
+          apiData = json.decode(response.body);
+          isLoading = false;
+        });
+
+        // Print API data to console
+        print('Course Details API Data: $apiData');
+
+        // Update pages with fetched data
+        updatePages();
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // Update pages with fetched data
+  void updatePages() {
+    if (apiData != null) {
+      setState(() {
+        pages = [
+          OverviewPage(overviewData: apiData!['course_overview_tab']),
+          ContentPage(),
+          if (widget.courseType != 'Live') QuizPage(),
+          if (widget.courseType != 'Live') AssignmentPage(),
+          NoticePage(),
+          LiveClassPage(),
+          DiscussionPage(),
+          CertificatePage(),
+          ReviewPage(),
+        ];
+      });
+    }
   }
 
   @override
@@ -96,7 +144,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: Text(
-                "Course Details",
+                apiData?['pageTitle'] ?? '',
                 style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
               ),
             ),
@@ -104,7 +152,9 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
           const SizedBox(height: 20),
           _buildTabBar(),
           Expanded(
-            child: _buildTabBarPages(),
+            child: isLoading
+                ? Center(child: CircularProgressIndicator()) // Show loader while loading
+                : _buildTabBarPages(),
           ),
         ],
       ),
