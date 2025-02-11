@@ -3,6 +3,8 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../utils/api_constants.dart';
+
 class FilterSheet extends StatefulWidget {
   final String query;
   final List<Map<String, dynamic>> categoryData; // Added
@@ -78,7 +80,7 @@ class _FilterSheetState extends State<FilterSheet> {
 
   //Filter API Calling function
   Future<void> applyFilter() async {
-    final url = Uri.parse('https://cefonlineacademy.com/api/frontend/course/search');
+    final url = Uri.parse('${ApiConstants.baseUrl}frontend/course/search');
 
     try {
       // Map selected category names to IDs

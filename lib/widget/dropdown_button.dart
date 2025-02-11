@@ -3,6 +3,8 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../utils/api_constants.dart';
+
 class DropdownButtonWidget extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
@@ -33,7 +35,7 @@ class _DropdownButtonWidgetState extends State<DropdownButtonWidget> {
   Future<void> _fetchTimeZones() async {
     try {
       final response = await http.get(
-        Uri.parse('https://cefonlineacademy.com/api/frontend/get-all-timezones'),
+        Uri.parse('${ApiConstants.baseUrl}frontend/get-all-timezones'),
       );
 
       if (response.statusCode == 200) {

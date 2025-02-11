@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
+import '../utils/api_constants.dart';
+
 class NonLiveCourseContent extends StatelessWidget {
   final List<dynamic> nonLiveCourses;
   final Function? onLectureOpen; // Callback function to trigger refresh
@@ -14,7 +16,7 @@ class NonLiveCourseContent extends StatelessWidget {
   const NonLiveCourseContent({Key? key, required this.nonLiveCourses,this.onLectureOpen}) : super(key: key);
   // Function to make the POST API call
   Future<void> _callClickLectureApi(String lectureId) async {
-    final String apiUrl = 'https://cefonlineacademy.com/api/student/course/click-lecture';
+    final String apiUrl = '${ApiConstants.baseUrl}student/course/click-lecture';
     try {
       // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/widget/custom_text_form_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 
 class EmptyState extends StatefulWidget {
@@ -49,7 +50,7 @@ class _EmptyStateState extends State<EmptyState> {
 
   Future<void> login(String email, String password) async {
     // Define the API URL
-    final String apiUrl = "https://cefonlineacademy.com/api/login";
+    final String apiUrl = "${ApiConstants.baseUrl}login";
 
     // Prepare the request body
     Map<String, String> requestBody = {

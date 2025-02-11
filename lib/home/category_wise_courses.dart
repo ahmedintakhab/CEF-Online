@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import '../cources/cources.dart';
 import '../login/login_empty_state.dart';
+import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import '../utils/slider_page_data_model.dart';
 
@@ -100,7 +101,7 @@ class _CategoryWiseCoursesState extends State<CategoryWiseCourses> {
       String token = prefs.getString('auth_token') ?? '';
 
       final response = await http.post(
-        Uri.parse('https://cefonlineacademy.com/api/frontend/all-categorywise-courses'),
+        Uri.parse('${ApiConstants.baseUrl}frontend/all-categorywise-courses'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -137,7 +138,7 @@ class _CategoryWiseCoursesState extends State<CategoryWiseCourses> {
   }
 
   Future<void> fetchAllCourses() async {
-    const String apiUrl = "https://cefonlineacademy.com/api/frontend/all-courses?sortBy_id=2";
+     String apiUrl = "${ApiConstants.baseUrl}frontend/all-courses?sortBy_id=2";
 
     try {
       // Retrieve the token from SharedPreferences

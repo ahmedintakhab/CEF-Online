@@ -9,6 +9,7 @@ import 'package:learn_megnagmet/login/sign_up/term_and_condition.dart';
 import 'package:learn_megnagmet/widget/custom_text_form_field.dart'; // Update the import path if necessary
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../utils/api_constants.dart';
 import '../../utils/screen_size.dart';
 import '../../widget/dropdown_button.dart';
 
@@ -53,7 +54,7 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
     });
   }
   Future<void> registerUser() async {
-    final url = 'https://cefonlineacademy.com/api/register';
+    final url = '${ApiConstants.baseUrl}register';
 
     // Prepare the data for the API
     final data = {

@@ -1,16 +1,19 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_megnagmet/Course_details_tabbar/tabbar_details.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/home/home_main.dart';
 import '../My_cources/cources_details.dart';
+import '../utils/api_constants.dart';
 
 class CourseController extends GetxController with SingleGetTickerProviderMixin {
   late TabController tabController;
   late PageController pController;
   List<dynamic>? ongoingCourses;
   String coursePreviewSrc = '';
+  String courseType = '';
 
   void initializeController(int length) {
     tabController = TabController(length: length, vsync: this);
@@ -25,7 +28,7 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
   }
 
   Future<Map<String, dynamic>> fetchCourseDetails(String slug) async {
-    final url = 'https://cefonlineacademy.com/api/frontend/course/detail/$slug';
+    final url = '${ApiConstants.baseUrl}frontend/course/detail/$slug';
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
@@ -41,6 +44,8 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         coursePreviewSrc = data['course_preview_src'] ?? '';
+        courseType = data['course_type'];
+        print("check course type for tabs: $courseType");
         return data;
       }
       throw Exception('Failed to load course details');
@@ -51,7 +56,7 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
   }
 
   Future<void> fetchOngoingCourses() async {
-    final url = Uri.parse("https://cefonlineacademy.com/api/student/my-learning");
+    final url = Uri.parse("${ApiConstants.baseUrl}student/my-learning");
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
@@ -131,7 +136,9 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
           );
 
           if (selectedCourse != null) {
-            Get.to(() => CourceDetail(corcedetail: selectedCourse));
+            Get.to(() => TabBarDetails(courseType: courseType));
+            //Before Adding Tabbar
+            // Get.to(() => CourceDetail(corcedetail: selectedCourse));
           }
         }
       }

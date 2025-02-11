@@ -18,6 +18,7 @@ import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import 'category_wise_courses.dart';
 
@@ -86,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }});
   }
   Future<void> fetchApiData() async {
-    final url = Uri.parse("https://cefonlineacademy.com/api/frontend/home");
+    final url = Uri.parse("${ApiConstants.baseUrl}frontend/home");
     try {
       // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();

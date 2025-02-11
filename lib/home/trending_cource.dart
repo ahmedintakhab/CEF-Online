@@ -8,6 +8,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../cources/cources.dart';
 import '../login/login_empty_state.dart';
+import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import '../utils/slider_page_data_model.dart';
 
@@ -40,7 +41,7 @@ class _TrendingCourceState extends State<TrendingCource> {
     });
   }
   Future<void> fetchAllCourses() async {
-    const String apiUrl = "https://cefonlineacademy.com/api/frontend/all-courses?sortBy_id=2";
+     String apiUrl = "${ApiConstants.baseUrl}frontend/all-courses?sortBy_id=2";
 
     try {
       // Retrieve the token from SharedPreferences

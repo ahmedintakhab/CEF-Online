@@ -22,6 +22,7 @@ import '../controller/controller.dart';
 import '../login/login_empty_state.dart';
 import '../models/new_user_detail.dart';
 import '../models/profile_option.dart';
+import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import '../utils/shared_pref.dart';
 import 'certi_payment.dart';
@@ -51,7 +52,7 @@ class _MyProfileState extends State<MyProfile> {
     });
   }
   Future<void> logoutApiCall() async {
-    final String apiUrl = "https://cefonlineacademy.com/api/logoutApi";
+    final String apiUrl = "${ApiConstants.baseUrl}logoutApi";
 
     try {
       // Assuming the token is saved in shared preferences

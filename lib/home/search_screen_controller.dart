@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/api_constants.dart';
+
 class SearchScreenController extends GetxController {
   TextEditingController searchController = TextEditingController();
   Timer? debounce;
@@ -43,7 +45,7 @@ class SearchScreenController extends GetxController {
     noResultsFound = false;
     update();
 
-    const url = 'https://cefonlineacademy.com/api/frontend/course/search';
+    String url = '${ApiConstants.baseUrl}frontend/course/search';
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -100,7 +102,7 @@ class SearchScreenController extends GetxController {
     try {
 
       final response = await http.get(
-        Uri.parse('https://cefonlineacademy.com/api/frontend/all-categories-with-subcategories'),
+        Uri.parse('${ApiConstants.baseUrl}frontend/all-categories-with-subcategories'),
       );
 
       if (response.statusCode == 200) {
@@ -141,7 +143,7 @@ class SearchScreenController extends GetxController {
     errorMessage = '';
     update();
 
-    const url = 'https://cefonlineacademy.com/api/frontend/all-categorywise-courses';
+      String url = '${ApiConstants.baseUrl}frontend/all-categorywise-courses';
     try {
       // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();

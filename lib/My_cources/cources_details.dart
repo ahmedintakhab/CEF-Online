@@ -9,6 +9,7 @@ import '../controller/controller.dart';
 import '../models/my_cource.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import '../utils/slider_page_data_model.dart';
 import 'live_course_content.dart'; // Import the live course content widget
@@ -41,7 +42,7 @@ class _CourceDetailState extends State<CourceDetail> {
   }
 
   Future<void> fetchCourseDetails() async {
-    final String apiUrl = 'https://cefonlineacademy.com/api/student/my-course/$CourseSlug';
+    final String apiUrl = '${ApiConstants.baseUrl}student/my-course/$CourseSlug';
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';

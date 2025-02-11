@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../utils/api_constants.dart';
+
 class WriteReviewDialog extends StatefulWidget {
   final String courseId;
   const WriteReviewDialog({Key? key, required this.courseId}) : super(key: key);
@@ -37,7 +39,7 @@ class _WriteReviewDialogState extends State<WriteReviewDialog> {
       String token = prefs.getString('auth_token') ?? '';
 
       // API URL
-      const String url = "https://cefonlineacademy.com/api/student/course/review-create";
+       String url = "${ApiConstants.baseUrl}student/course/review-create";
 
       // API Request Body
       Map<String, dynamic> requestBody = {

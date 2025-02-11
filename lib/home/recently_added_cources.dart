@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../My_cources/cources_details.dart';
 import '../login/login_empty_state.dart';
+import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 
 
@@ -43,7 +44,7 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
 
   }
   Future<void> fetchCourses() async {
-    const String apiUrl = "https://cefonlineacademy.com/api/frontend/all-courses?sortBy_id=2";
+     String apiUrl = "${ApiConstants.baseUrl}frontend/all-courses?sortBy_id=2";
 
     try {
       // Retrieve the token from SharedPreferences

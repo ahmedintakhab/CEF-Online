@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import 'cources_details.dart';
 
@@ -40,7 +41,7 @@ class _OngoingScreenState extends State<OngoingScreen> {
     fetchOngoingCourses();
   }
   Future<void> fetchOngoingCourses() async {
-    final url = Uri.parse("https://cefonlineacademy.com/api/student/my-learning");
+    final url = Uri.parse("${ApiConstants.baseUrl}student/my-learning");
     try {
       // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
