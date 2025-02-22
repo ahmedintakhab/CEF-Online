@@ -62,9 +62,13 @@ class _CourceDetailState extends State<CourceDetail> {
         setState(() {
           courseType = data['course_type'] ?? '';
           if (courseType == 'Live') {
-            liveCourses = data['course_content_list_section'] ?? [];
+            liveCourses = data['course_content_tab']?['course_content_list_section'] ?? [];
+            print('Live Courses: $liveCourses');
+
           } else {
-            nonLiveCourses = data['course_content_list_section'] ?? [];
+            nonLiveCourses = data['course_content_tab']?['course_content_list_section'] ?? [];
+            print('Non Live Courses: $nonLiveCourses');
+
           }
           isLoading = false;
         });

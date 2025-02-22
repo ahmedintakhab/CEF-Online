@@ -125,7 +125,8 @@ class _SlidePageState extends State<SlidePage> {
             :  Center(
                 child: Text(
                   "Next",
-                  style: TextStyle(color: const Color(0XFFFFFFFF),fontSize: 18.sp,fontFamily: 'Gilroy',fontWeight: FontWeight.w700),
+                  style: TextStyle(color: const Color(0XFFFFFFFF),
+                      fontSize: 18.sp,fontFamily: 'Gilroy',fontWeight: FontWeight.w700),
                 ),
               ),
       ),

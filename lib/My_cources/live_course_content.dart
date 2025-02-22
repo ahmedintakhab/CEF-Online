@@ -25,13 +25,13 @@ class LiveCourseContent extends StatelessWidget {
             children: [
               if (!_isCategoryDisplayed(categoryName))
                 Padding(
-                  padding: EdgeInsets.only(bottom: 20.h),
+                  padding: EdgeInsets.only(bottom: 10.h),
                   child: Text(
                     courseCategory['category_name'],
                     style: TextStyle(
                       fontFamily: 'Gilroy',
                       color: Color(0XFF6E758A),
-                      fontSize: 15.sp,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

@@ -29,6 +29,8 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
   // Initialize tabs based on courseType
   late List<String> tabs;
   late List<Widget> pages;
+  List<dynamic> liveCourses = [];
+  List<dynamic> nonLiveCourses = [];
 
   // API Data
   Map<String, dynamic>? apiData;
@@ -38,6 +40,16 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
   void initState() {
     super.initState();
 
+    // Initialize tabs and pages
+    initializeTabsAndPages();
+
+    // Fetch data after the page is fully loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      StudentCourseDetails();
+    });
+  }
+
+  void initializeTabsAndPages() {
     // Set tabs and pages based on courseType
     if (widget.courseType == 'Live') {
       tabs = [
@@ -67,7 +79,6 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
     _pageController = PageController();
 
     // Fetch API data
-    StudentCourseDetails();
   }
 
   // Fetch data from API
@@ -75,26 +86,36 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
     final String apiUrl = '${ApiConstants.baseUrl}student/my-course/${widget.slug}';
 
     try {
-      // Assuming the token is saved in shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
-      final response = await http.get(Uri.parse(apiUrl),
+
+      final response = await http.get(
+          Uri.parse(apiUrl),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token', // Include token in the header
+            'Authorization': 'Bearer $token',
           }
       );
+
       if (response.statusCode == 200) {
-        print("Course details API status response: ${response.statusCode}");
+        print("Student course details Api response: ${response.statusCode}");
         setState(() {
           apiData = json.decode(response.body);
+
+
+          // Extract course content data
+          if (widget.courseType == 'Live') {
+            liveCourses = apiData?['course_content_tab']?['course_content_list_section'] ?? [];
+            print('Live Courses: $liveCourses');
+
+          } else {
+            nonLiveCourses = apiData?['course_content_tab']?['course_content_list_section'] ?? [];
+            print('Non Live Courses: $nonLiveCourses');
+
+          }
+
           isLoading = false;
         });
-
-        // Print API data to console
-        print('Course Details API Data: $apiData');
-
-        // Update pages with fetched data
         updatePages();
       } else {
         throw Exception('Failed to load data');
@@ -106,6 +127,10 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
       });
     }
   }
+  void handleLectureOpen() {
+    // Refresh the data when a lecture is opened
+    StudentCourseDetails();
+  }
 
   // Update pages with fetched data
   void updatePages() {
@@ -113,7 +138,11 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
       setState(() {
         pages = [
           OverviewPage(overviewData: apiData!['course_overview_tab']),
-          ContentPage(),
+          ContentPage(
+            courseType: widget.courseType,
+            courseContent: widget.courseType == 'Live' ? liveCourses : nonLiveCourses,
+            onLectureOpen: handleLectureOpen,
+          ),
           if (widget.courseType != 'Live') QuizPage(),
           if (widget.courseType != 'Live') AssignmentPage(),
           NoticePage(),
