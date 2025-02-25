@@ -58,7 +58,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
         'Notice',
         'Live Class',
         'Discussion',
-        'Certificate',
+        // 'Certificate',
         'Review',
       ];
     } else {
@@ -148,7 +148,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
           NoticePage(),
           LiveClassPage(),
           DiscussionPage(),
-          CertificatePage(),
+          // CertificatePage(),
           ReviewPage(),
         ];
       });
