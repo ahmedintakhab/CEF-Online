@@ -101,6 +101,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
         print("Student course details Api response: ${response.statusCode}");
         setState(() {
           apiData = json.decode(response.body);
+          print("Discussion Data: ${apiData!['course_discussion_tab']}");
 
 
           // Extract course content data
@@ -145,9 +146,9 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
           ),
           if (widget.courseType != 'Live') QuizPage(),
           if (widget.courseType != 'Live') AssignmentPage(),
-          NoticePage(),
+          NoticePage(noticeData: apiData!['course_notice_tab']),
           LiveClassPage(),
-          DiscussionPage(),
+          DiscussionPage(discussionData: apiData!['course_discussion_tab']), // Pass the list
           // CertificatePage(),
           ReviewPage(),
         ];

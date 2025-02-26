@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DiscussionPage extends StatefulWidget {
-  const DiscussionPage({Key? key}) : super(key: key);
+  final List<dynamic> discussionData;
+
+  const DiscussionPage({Key? key, required this.discussionData}) : super(key: key);
 
   @override
   State<DiscussionPage> createState() => _DiscussionPageState();
@@ -21,6 +23,8 @@ class _DiscussionPageState extends State<DiscussionPage> {
 
   @override
   Widget build(BuildContext context) {
+     print("Check the discussion data: ${widget.discussionData}");
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -1,6 +1,7 @@
 // overview_page.dart
 import 'package:flutter/material.dart';
 import 'package:expandable_text/expandable_text.dart';
+import 'package:learn_megnagmet/Course_details_tabbar/course_footer.dart';
 
 class OverviewPage extends StatelessWidget {
   final Map<String, dynamic> overviewData;
@@ -17,10 +18,6 @@ class OverviewPage extends StatelessWidget {
       'Key Point 2: This is the second key point.',
       'Key Point 3: This is the third key point.',
     ];
-    // final String description =
-    //     'This is a detailed description that will be expandable. '
-    //     'It can contain a lot of text and will be truncated initially '
-    //     'with an option to expand and show more.';
 
     return Scaffold(
       body: Padding(
@@ -68,8 +65,17 @@ class OverviewPage extends StatelessWidget {
                 color: Colors.grey[700],
               ),
             ),
-          ],
-        ),
+            // SizedBox(height: 50),
+            Spacer(),
+
+            // Using the footer with footerData
+            overviewData.containsKey('footer_section')
+                ? CourseFooter(footerData: overviewData['footer_section'])
+                : CourseFooter(), // Fallback to static data if API data not available
+             SizedBox(height: 20),
+
+          ]
+        )
       ),
     );
   }
