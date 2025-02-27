@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 class InstructorContainer extends StatelessWidget {
   final TextEditingController replyController;
  final int courseID;
+ final int? discussionId;
 
-  const InstructorContainer({Key? key, required this.replyController,required this.courseID}) : super(key: key);
+  const InstructorContainer({Key? key, required this.replyController,required this.courseID,
+  required this.discussionId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

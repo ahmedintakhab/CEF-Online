@@ -245,7 +245,9 @@ class _DiscussionPageState extends State<DiscussionPage> {
               InstructorContainer(
                 replyController: _replyController,
                 courseID: widget.courseID,
+                discussionId: _discussionList.isNotEmpty ? _discussionList.first['discussion_id'] : null,
               ),
+
             ],
           ),
         ),
