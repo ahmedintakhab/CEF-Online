@@ -21,6 +21,8 @@ class _DiscussionPageState extends State<DiscussionPage> {
   final TextEditingController _replyController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
   late Map<String, dynamic> _authUserImages;
+  // Track the selected discussion for reply
+  int? _selectedDiscussionId;
 
   @override
   void initState() {
@@ -37,6 +39,11 @@ class _DiscussionPageState extends State<DiscussionPage> {
         _discussionList.add(item);
       }
     }
+
+    // Set the initially selected discussion if any exists
+    if (_discussionList.isNotEmpty) {
+      _selectedDiscussionId = _discussionList.first['discussion_id'];
+    }
   }
 
   @override
@@ -51,6 +58,42 @@ class _DiscussionPageState extends State<DiscussionPage> {
     setState(() {
       // Add the new discussion to the top of the list
       _discussionList.insert(0, newDiscussion);
+      // Set this as the selected discussion
+      _selectedDiscussionId = newDiscussion['discussion_id'];
+    });
+  }
+
+  // Method to handle new reply being posted
+  void _onReplyPosted(Map<String, dynamic> replyData) {
+    setState(() {
+      // Find the discussion that this reply belongs to
+      for (int i = 0; i < _discussionList.length; i++) {
+        if (_discussionList[i]['discussion_id'] == _selectedDiscussionId) {
+          // Initialize the replies list if it doesn't exist
+          if (_discussionList[i]['discussion_replies_list'] == null) {
+            _discussionList[i]['discussion_replies_list'] = [];
+          }
+
+          // Add the new reply to the discussion's replies list
+          _discussionList[i]['discussion_replies_list'].add(replyData);
+
+          // Update the total replies count
+          _discussionList[i]['discussion_total_replies'] =
+              (_discussionList[i]['discussion_total_replies'] ?? 0) + 1;
+
+          break;
+        }
+      }
+    });
+  }
+
+  // Method to select a discussion for replying
+  void _selectDiscussionForReply(int discussionId) {
+    setState(() {
+      _selectedDiscussionId = discussionId;
+      // Optionally scroll to the reply container
+      // Or focus the reply text field
+      _replyController.clear();
     });
   }
 
@@ -73,67 +116,79 @@ class _DiscussionPageState extends State<DiscussionPage> {
               // Message container (only show if discussionData is not empty)
               if (_discussionList.isNotEmpty)
                 ..._discussionList.map((discussion) {
+                  final isSelected = discussion['discussion_id'] == _selectedDiscussionId;
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
+                    decoration: isSelected ? BoxDecoration(
+                      border: Border.all(color: const Color(0XFF78A03F), width: 1),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey[50],
+                    ) : null,
+                    padding: isSelected ? const EdgeInsets.all(8) : EdgeInsets.zero,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: _getImageProvider(
-                                discussion['discussion_user_image'],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(8),
+                        InkWell(
+                          onTap: () {
+                            _selectDiscussionForReply(discussion['discussion_id']);
+                          },
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: _getImageProvider(
+                                  discussion['discussion_user_image'],
                                 ),
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          discussion['discussion_user_name'] ?? 'Unknown User',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            discussion['discussion_user_name'] ?? 'Unknown User',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        if (discussion['discussion_user_type'] == "Instructor")
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 2,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue[100],
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            child: Text(
-                                              "Instructor",
-                                              style: TextStyle(
-                                                color: Colors.blue[800],
-                                                fontSize: 12,
+                                          const SizedBox(width: 8),
+                                          if (discussion['discussion_user_type'] == "Instructor")
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue[100],
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: Text(
+                                                "Instructor",
+                                                style: TextStyle(
+                                                  color: Colors.blue[800],
+                                                  fontSize: 12,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(discussion['discussion_comment'] ?? 'No comment'),
-                                  ],
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(discussion['discussion_comment'] ?? 'No comment'),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 56, top: 8),
@@ -198,7 +253,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                                                 ),
                                               ),
                                               const SizedBox(width: 8),
-                                              if (reply['reply_user_type'] == "Instructor")
+                                              if (reply['reply_user_type'] == "Student")
                                                 Container(
                                                   padding: const EdgeInsets.symmetric(
                                                     horizontal: 8,
@@ -242,12 +297,28 @@ class _DiscussionPageState extends State<DiscussionPage> {
                 }).toList(),
 
               // Leave a reply container
-              InstructorContainer(
-                replyController: _replyController,
-                courseID: widget.courseID,
-                discussionId: _discussionList.isNotEmpty ? _discussionList.first['discussion_id'] : null,
-              ),
-
+              if (_selectedDiscussionId != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12, bottom: 8),
+                      child: Text(
+                        'Reply to discussion',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                    InstructorContainer(
+                      replyController: _replyController,
+                      courseID: widget.courseID,
+                      discussionId: _selectedDiscussionId,
+                      onReplyPosted: _onReplyPosted,
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
