@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/api_constants.dart';
 
 class ConversationContainer extends StatefulWidget {
   final TextEditingController messageController;
   final int courseID;
+  final Function(Map<String, dynamic>) onMessagePosted;
 
-  const ConversationContainer({Key? key, required this.messageController,required this.courseID}) : super(key: key);
+  const ConversationContainer({
+    Key? key,
+    required this.messageController,
+    required this.courseID,
+    required this.onMessagePosted,
+  }) : super(key: key);
 
   @override
   _ConversationContainerState createState() => _ConversationContainerState();
@@ -12,6 +22,75 @@ class ConversationContainer extends StatefulWidget {
 
 class _ConversationContainerState extends State<ConversationContainer> {
   bool isExpanded = false;
+  bool isLoading = false;
+
+  Future<void> _postDiscussion() async {
+    if (widget.messageController.text.isEmpty) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token') ?? '';
+
+      if (token.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You need to be logged in to post a discussion')),
+        );
+        setState(() {
+          isLoading = false;
+        });
+        return;
+      }
+
+      final url = '${ApiConstants.baseUrl}student/course/create-discussion';
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'course_id': widget.courseID,
+          'discussion_comment': widget.messageController.text,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        print("API successfully post data");
+        print("API status code: ${response.statusCode}");
+
+        widget.messageController.clear();
+        setState(() {
+          isExpanded = false;
+        });
+
+        if (responseData != null && responseData['discussion'] != null) {
+          widget.onMessagePosted(responseData['discussion']);
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Discussion posted successfully'),
+            backgroundColor: Colors.green,),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to post discussion: ${response.reasonPhrase}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +126,11 @@ class _ConversationContainerState extends State<ConversationContainer> {
                       vertical: 12,
                     ),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
-                      const Icon(Icons.people, color: Colors.white),
-                      const SizedBox(width: 8),
-                      const Text(
+                      Icon(Icons.people, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
                         'Start a Conversation',
                         style: TextStyle(
                           color: Colors.white,
@@ -88,15 +167,14 @@ class _ConversationContainerState extends State<ConversationContainer> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: () {
-                  if (widget.messageController.text.isNotEmpty) {
-                    widget.messageController.clear();
-                    setState(() {
-                      isExpanded = false;
-                    });
-                  }
-                },
-                child: const Text(
+                onPressed: isLoading ? null : _postDiscussion,
+                child: isLoading
+                    ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                )
+                    : const Text(
                   'Post',
                   style: TextStyle(color: Colors.white),
                 ),

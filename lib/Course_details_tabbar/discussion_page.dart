@@ -17,9 +17,27 @@ class DiscussionPage extends StatefulWidget {
 }
 
 class _DiscussionPageState extends State<DiscussionPage> {
-  bool isExpanded = false;
+  late List<dynamic> _discussionList;
   final TextEditingController _replyController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+  late Map<String, dynamic> _authUserImages;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Extract discussion items and auth_user_images
+    _discussionList = [];
+    _authUserImages = {};
+
+    for (var item in widget.discussionData) {
+      if (item is Map<String, dynamic> && item.containsKey('auth_user_images')) {
+        _authUserImages = item['auth_user_images'];
+      } else if (item is Map<String, dynamic> && item.containsKey('discussion_id')) {
+        _discussionList.add(item);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -28,10 +46,16 @@ class _DiscussionPageState extends State<DiscussionPage> {
     super.dispose();
   }
 
+  // Method to handle new discussion being posted
+  void _onMessagePosted(Map<String, dynamic> newDiscussion) {
+    setState(() {
+      // Add the new discussion to the top of the list
+      _discussionList.insert(0, newDiscussion);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    print("Check the discussion data course id: ${widget.courseID}");
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -41,13 +65,14 @@ class _DiscussionPageState extends State<DiscussionPage> {
               // First container with Start Conversation
               ConversationContainer(
                 messageController: _messageController,
-                courseID: widget.courseID, // Pass courseID to ConversationContainer
+                courseID: widget.courseID,
+                onMessagePosted: _onMessagePosted, // Pass the callback
               ),
               const SizedBox(height: 20),
 
               // Message container (only show if discussionData is not empty)
-              if (widget.discussionData.isNotEmpty)
-                ...widget.discussionData.map((discussion) {
+              if (_discussionList.isNotEmpty)
+                ..._discussionList.map((discussion) {
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     child: Column(
@@ -72,12 +97,35 @@ class _DiscussionPageState extends State<DiscussionPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      discussion['discussion_user_name'] ?? 'Unknown User',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          discussion['discussion_user_name'] ?? 'Unknown User',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        if (discussion['discussion_user_type'] == "Instructor")
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue[100],
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: Text(
+                                              "Instructor",
+                                              style: TextStyle(
+                                                color: Colors.blue[800],
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                     const SizedBox(height: 4),
                                     Text(discussion['discussion_comment'] ?? 'No comment'),
@@ -120,7 +168,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                             discussion['discussion_replies_list'].isNotEmpty)
                           ...(discussion['discussion_replies_list'] ?? []).map((reply) {
                             return Container(
-                              margin: const EdgeInsets.only(left: 40, bottom: 16),
+                              margin: const EdgeInsets.only(left: 40, top: 16, bottom: 8),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -144,7 +192,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                                             children: [
                                               Text(
                                                 reply['reply_user_name'] ?? 'Unknown User',
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16,
                                                 ),
@@ -152,7 +200,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                                               const SizedBox(width: 8),
                                               if (reply['reply_user_type'] == "Instructor")
                                                 Container(
-                                                  padding: EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets.symmetric(
                                                     horizontal: 8,
                                                     vertical: 2,
                                                   ),
@@ -161,7 +209,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                                                     borderRadius: BorderRadius.circular(12),
                                                   ),
                                                   child: Text(
-                                                    reply['reply_user_type'] ?? 'Unknown',
+                                                    "Instructor",
                                                     style: TextStyle(
                                                       color: Colors.blue[800],
                                                       fontSize: 12,
@@ -172,6 +220,14 @@ class _DiscussionPageState extends State<DiscussionPage> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(reply['reply_comment'] ?? 'No comment'),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            reply['reply_created_at'] ?? '',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 12,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -188,7 +244,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
               // Leave a reply container
               InstructorContainer(
                 replyController: _replyController,
-                courseID: widget.courseID, // Pass courseID to InstructorContainer
+                courseID: widget.courseID,
               ),
             ],
           ),
@@ -201,7 +257,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
   ImageProvider _getImageProvider(String? imageUrl) {
     if (imageUrl == null || imageUrl.isEmpty || !Uri.parse(imageUrl).isAbsolute) {
       // Use a local fallback image if the URL is invalid
-      return AssetImage('assets/avatar.png');
+      return const AssetImage('assets/avatar.png');
     } else {
       // Use the provided image URL
       return NetworkImage(imageUrl);
