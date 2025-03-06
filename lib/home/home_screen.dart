@@ -879,25 +879,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // Row(
-                              //   children: [
-                              //     Image(
-                              //       image: NetworkImage(latest['user_pic'].toString()),
-                              //       height: 40.h,
-                              //       width: 40.w,
-                              //     ),
-                              //
-                              //     SizedBox(width: 10.w),
-                              //     Text(
-                              //       latest['user_name'].toString(),
-                              //       style:  TextStyle(
-                              //           fontFamily: 'Gilroy',
-                              //           fontWeight: FontWeight.w400,
-                              //           color: Color(0XFF5E8421),
-                              //           fontSize: 15.sp),
-                              //     ),
-                              //   ],
-                              // ),
                               if (latest['price'] != null && latest['price'].toString() != "Rs 0.00")                              Container(
                                 height: 35.h,
                                 width: 100.w,

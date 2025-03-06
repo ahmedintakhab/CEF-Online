@@ -195,9 +195,9 @@ class _OngoingScreenState extends State<OngoingScreen> {
                                   const SizedBox(height: 10),
                                   LinearPercentIndicator(
                                     padding: EdgeInsets.zero,
-                                    width: 170.0,
+                                    width: 150.0,
                                     lineHeight: 6.0,
-                                    percent: ongoing['progress'] / 100, // Progress dynamic
+                                    percent: double.parse(ongoing['progress']) / 100, // Progress dynamic
                                     trailing: Padding(
                                       padding: EdgeInsets.only(left: 4.w),
                                       child: Text(

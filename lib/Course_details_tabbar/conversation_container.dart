@@ -6,13 +6,13 @@ import '../utils/api_constants.dart';
 
 class ConversationContainer extends StatefulWidget {
   final TextEditingController messageController;
-  final int courseID;
+  final String courseId;
   final Function(Map<String, dynamic>) onMessagePosted;
 
   const ConversationContainer({
     Key? key,
     required this.messageController,
-    required this.courseID,
+    required this.courseId,
     required this.onMessagePosted,
   }) : super(key: key);
 
@@ -53,7 +53,7 @@ class _ConversationContainerState extends State<ConversationContainer> {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          'course_id': widget.courseID,
+          'course_id': widget.courseId,
           'discussion_comment': widget.messageController.text,
         }),
       );

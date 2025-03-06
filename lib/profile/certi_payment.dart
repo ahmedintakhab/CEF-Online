@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:learn_megnagmet/cources/payment_screen.dart';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 
 import '../controller/controller.dart';
@@ -254,7 +255,9 @@ class _CertificatePaymentState extends State<CertificatePayment> {
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(22.h),
                     topRight: Radius.circular(22.h))),
-            CardBottomSheet());
+            // CardBottomSheet()
+          PaymenConfirm()
+        );
       },
       child: Padding(
         padding:  EdgeInsets.only(bottom: 40.h, top: 15.h),

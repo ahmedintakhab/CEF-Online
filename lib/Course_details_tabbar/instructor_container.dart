@@ -7,14 +7,14 @@ import '../utils/api_constants.dart';
 
 class InstructorContainer extends StatefulWidget {
   final TextEditingController replyController;
-  final int courseID;
+  final String courseId;
   final int? discussionId;
   final Function(Map<String, dynamic>)? onReplyPosted;
 
   const InstructorContainer({
     Key? key,
     required this.replyController,
-    required this.courseID,
+    required this.courseId,
     required this.discussionId,
     this.onReplyPosted,
   }) : super(key: key);
@@ -124,7 +124,7 @@ class _InstructorContainerState extends State<InstructorContainer> {
         },
         body: json.encode({
           'discussion_id': widget.discussionId,
-          'course_id': widget.courseID,
+          'course_id': widget.courseId,
           'reply_comment': replyText,
         }),
       );

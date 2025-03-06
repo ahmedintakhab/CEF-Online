@@ -139,34 +139,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           ])),
     );
   }
-  //
-  // Widget phone_number_field() {
-  //   return IntlPhoneField(
-  //
-  //     decoration:  InputDecoration(
-  //       labelText: 'Phone Number',
-  //       labelStyle: TextStyle(fontFamily: 'Gilroy',fontWeight: FontWeight.w700,fontSize: 15.sp,color: const Color(0XFF9B9B9B)),
-  //       border: OutlineInputBorder(
-  //           borderRadius:BorderRadius.circular(12),borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w)
-  //       ),
-  //   focusedBorder: OutlineInputBorder(
-  //   borderRadius: BorderRadius.circular(12),
-  //   borderSide: BorderSide(color: const Color(0XFF23408F), width: 1.w)),
-  //   enabledBorder:OutlineInputBorder(
-  //   borderSide: BorderSide(color: const Color(0XFFDEDEDE),width: 1.w),
-  //   borderRadius: BorderRadius.circular(12),
-  //   )
-  //
-  //     ),
-  //     initialCountryCode: 'IN',
-  //
-  //
-  //
-  //     onChanged: (phone) {
-  //       print(phone.completeNumber);
-  //     },
-  //   );
-  // }
 
   Widget backbutton() {
     return GestureDetector(

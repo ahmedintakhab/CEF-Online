@@ -73,7 +73,7 @@ class _EmptyStateState extends State<EmptyState> {
         // Parse the JSON response
         final data = jsonDecode(response.body);
         PrefData.setLogin(true); // Update login state
-        print("Login successful: ${data}");
+        print("Login successful!");
         await saveUserData(data['userDetails']);
         print("User data saved successfully!");
         // Include token in userDetails

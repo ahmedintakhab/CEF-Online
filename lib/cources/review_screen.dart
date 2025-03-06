@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/cources/rating_row_widget.dart';
 import 'package:learn_megnagmet/cources/review_dialog_box.dart';
 import 'package:learn_megnagmet/models/riview_data.dart';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
-
 import '../controller/controller.dart';
 import '../utils/screen_size.dart';
-import '../widget/button.dart';
 
 class Review extends StatefulWidget {
   final String courseId;

@@ -31,7 +31,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
   late List<Widget> pages;
   List<dynamic> liveCourses = [];
   List<dynamic> nonLiveCourses = [];
-  int courseID = 0;
+  String courseId = '';
 
 
   // API Data
@@ -104,7 +104,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
         print("Student course details Api response: ${response.statusCode}");
         setState(() {
           apiData = json.decode(response.body);
-          courseID = apiData!['course_id'];
+          courseId = apiData!['course_id'].toString();
           print("Discussion Data: ${apiData!['course_discussion_tab']}");
 
 
@@ -152,9 +152,9 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
           if (widget.courseType != 'Live') AssignmentPage(),
           NoticePage(noticeData: apiData!['course_notice_tab']),
           LiveClassPage(),
-          DiscussionPage(discussionData: apiData!['course_discussion_tab'],courseID:courseID), // Pass the list
+          DiscussionPage(discussionData: apiData!['course_discussion_tab'],courseId:courseId), // Pass the list
           // CertificatePage(),
-          ReviewPage(),
+          ReviewPage(reviewData: apiData!['course_review_tab'],courseId :courseId),
         ];
       });
     }

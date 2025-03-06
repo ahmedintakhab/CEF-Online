@@ -4,12 +4,12 @@ import 'package:learn_megnagmet/Course_details_tabbar/instructor_container.dart'
 
 class DiscussionPage extends StatefulWidget {
   final List<dynamic> discussionData;
-  final int courseID;
+  final String courseId;
 
   const DiscussionPage({
     Key? key,
     required this.discussionData,
-    required this.courseID,
+    required this.courseId,
   }) : super(key: key);
 
   @override
@@ -108,7 +108,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
               // First container with Start Conversation
               ConversationContainer(
                 messageController: _messageController,
-                courseID: widget.courseID,
+                courseId: widget.courseId,
                 onMessagePosted: _onMessagePosted, // Pass the callback
               ),
               const SizedBox(height: 20),
@@ -313,7 +313,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                     ),
                     InstructorContainer(
                       replyController: _replyController,
-                      courseID: widget.courseID,
+                      courseId: widget.courseId,
                       discussionId: _selectedDiscussionId,
                       onReplyPosted: _onReplyPosted,
                     ),
