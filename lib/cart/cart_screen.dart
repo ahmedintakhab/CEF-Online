@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:learn_megnagmet/cart/billing_address.dart';
 import 'order_summary.dart';
 
 class CartScreen extends StatefulWidget {
@@ -355,6 +356,10 @@ class _CartScreenState extends State<CartScreen> {
                   children: [
                     Expanded(
                       flex: 2,
+                      child: GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>BillingAddress()));
+                        },
                       child: Container(
                         height: 50.h,
                         decoration: BoxDecoration(
@@ -373,6 +378,7 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                         ),
                       ),
+                    ),
                     ),
                     SizedBox(width: 10.w),
                     Expanded(

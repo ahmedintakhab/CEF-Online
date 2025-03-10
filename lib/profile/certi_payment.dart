@@ -256,8 +256,7 @@ class _CertificatePaymentState extends State<CertificatePayment> {
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(22.h),
                     topRight: Radius.circular(22.h))),
-            // CardBottomSheet()
-          CartScreen()
+            CardBottomSheet()
         );
       },
       child: Padding(

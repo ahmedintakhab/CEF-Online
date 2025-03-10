@@ -18,6 +18,7 @@ import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../cart/cart_screen.dart';
 import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import 'category_wise_courses.dart';
@@ -43,6 +44,18 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true; // Add loading state
    String? courseSlug;
   List<dynamic> fetchtrendingCourses = [];
+  int cartItemCount = 2; // State to track the number of items in the cart
+
+
+  void _navigateToCartScreen() {
+    Get.to(() => CartScreen()); // Navigate to CartScreen
+  }
+
+  void _updateCartItemCount(int count) {
+    setState(() {
+      cartItemCount = count; // Update the cart item count
+    });
+  }
 
 
   // int currentpage = 0;
@@ -185,6 +198,44 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               ),
+                            ),
+                          ),
+                          SizedBox(width: 10.w), // Add some spacing
+                          // Cart Icon with Notification Badge
+                          GestureDetector(
+                            onTap: _navigateToCartScreen,
+                            child: Stack(
+                              alignment: Alignment.topRight,
+                              children: [
+                                Icon(
+                                  Icons.shopping_cart,
+                                  size: 30.h,
+                                  color: Colors.black,
+                                ),
+                                if (cartItemCount > 0)
+                                  Positioned(
+                                    right: 0,
+                                    child: Container(
+                                      padding: EdgeInsets.all(2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      constraints: BoxConstraints(
+                                        minWidth: 12,
+                                        minHeight: 12,
+                                      ),
+                                      child: Text(
+                                        '$cartItemCount',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 8,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
 
