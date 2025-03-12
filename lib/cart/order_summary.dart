@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class OrderSummary extends StatelessWidget {
+class OrderSummary extends StatefulWidget {
   final int itemCount;
   final double totalAmount;
   final double platformCharge;
+  final double grandTotal;
 
   const OrderSummary({
     Key? key,
     required this.itemCount,
     required this.totalAmount,
-    this.platformCharge = 0,
+    required this.platformCharge,
+    required this.grandTotal,
   }) : super(key: key);
+
+  @override
+  State<OrderSummary> createState() => _OrderSummaryState();
+}
+
+class _OrderSummaryState extends State<OrderSummary> {
+  bool _isChecked = false; // Checkbox state
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +50,7 @@ class OrderSummary extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Items ($itemCount) :",
+                "Items (${widget.itemCount}) :",
                 style: TextStyle(
                   fontFamily: 'Gilroy',
                   fontSize: 16.sp,
@@ -49,7 +58,7 @@ class OrderSummary extends StatelessWidget {
                 ),
               ),
               Text(
-                "Rs ${totalAmount.toStringAsFixed(2)}",
+                "Rs ${widget.totalAmount.toStringAsFixed(2)}",
                 style: TextStyle(
                   fontFamily: 'Gilroy',
                   fontSize: 16.sp,
@@ -74,7 +83,7 @@ class OrderSummary extends StatelessWidget {
                 ),
               ),
               Text(
-                "Rs ${platformCharge.toStringAsFixed(0)}",
+                "Rs ${widget.platformCharge.toStringAsFixed(2)}",
                 style: TextStyle(
                   fontFamily: 'Gilroy',
                   fontSize: 16.sp,
@@ -124,7 +133,7 @@ class OrderSummary extends StatelessWidget {
                 ),
               ),
               Text(
-                "Rs ${totalAmount.toStringAsFixed(2)}",
+                "Rs ${widget.grandTotal.toStringAsFixed(2)}",
                 style: TextStyle(
                   fontFamily: 'Gilroy',
                   fontSize: 18.sp,
@@ -141,17 +150,27 @@ class OrderSummary extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 20.w,
-                height: 20.h,
-                decoration: BoxDecoration(
-                  color: Color(0xFF78A03F),
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Icon(
-                  Icons.check,
-                  color: Colors.white,
-                  size: 16.sp,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isChecked = !_isChecked; // Toggle state
+                  });
+                },
+                child: Container(
+                  width: 20.w,
+                  height: 20.h,
+                  decoration: BoxDecoration(
+                    color: _isChecked ? Color(0xFF78A03F) : Colors.white,
+                    borderRadius: BorderRadius.circular(4.r),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child: _isChecked
+                      ? Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 16.sp,
+                  )
+                      : null,
                 ),
               ),
               SizedBox(width: 8.w),
