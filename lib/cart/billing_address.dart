@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/api_constants.dart';
 import '../widget/custom_text_form_field.dart';
 import 'billing_summary.dart';
 import 'order_review.dart';
 import 'payment_method.dart';
-import 'custom_dropdown.dart'; // Import the custom dropdown widget
+import 'custom_dropdown.dart';
 
 class BillingAddress extends StatefulWidget {
   const BillingAddress({Key? key}) : super(key: key);
@@ -25,9 +29,79 @@ class _BillingAddressState extends State<BillingAddress> {
   String? _selectedState;
   String? _selectedCity;
 
-  final List<String> _countries = ['USA', 'Canada', 'UK', 'Pakistan', 'India', 'Australia'];
+  final List<String> _countries = []; // List to store country names
   final List<String> _states = ['Select state'];
   final List<String> _cities = ['Select city'];
+
+  // Data for OrderReview and OrderSummary
+  Map<String, dynamic> _orderReviewData = {};
+  Map<String, dynamic> _billingSummaryData = {};
+  bool _isLoading = true;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCheckoutData();
+  }
+
+  Future<void> _fetchCheckoutData() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}student/checkout/1'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        print('Checkout API response status code: ${response.statusCode}');
+
+        if (data['success'] == true) {
+          setState(() {
+            // Set order review data
+            _orderReviewData = data['data']['order_review'];
+            // Set billing summary data
+            _billingSummaryData = data['data']['billingSummary'];
+             // Set countries list data
+            List<dynamic> countries = data['data']['countries'];
+            _countries.clear();
+            _countries.addAll(countries.map((country) => country['country_name'] as String));
+
+            // Prefill form with user info
+            Map<String, dynamic> userInfo = data['data']['userInfo'];
+            _firstNameController.text = userInfo['first_name'] ?? '';
+            _lastNameController.text = userInfo['last_name'] ?? '';
+            _emailController.text = userInfo['email'] ?? '';
+            _addressController.text = userInfo['address'] ?? '';
+            _phoneController.text = userInfo['mobile_number'] ?? '';
+
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _errorMessage = data['message'] ?? 'Failed to load data';
+            _isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Request failed with status: ${response.statusCode}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -44,7 +118,11 @@ class _BillingAddressState extends State<BillingAddress> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: Color(0XFF78A03F)))
+            : _errorMessage.isNotEmpty
+            ? Center(child: Text(_errorMessage, style: TextStyle(color: Colors.red)))
+            : SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Column(
@@ -63,10 +141,9 @@ class _BillingAddressState extends State<BillingAddress> {
                   ),
                 ),
                 SizedBox(height: 20.h),
-                // Order Review Section - Added new widget
-                const OrderReview(),
+                // Order Review Section with fetched data
+                OrderReview(orderReviewData: _orderReviewData),
                 // Billing Address Form
-
                 Container(
                   padding: EdgeInsets.all(16.w),
                   decoration: BoxDecoration(
@@ -268,8 +345,8 @@ class _BillingAddressState extends State<BillingAddress> {
                 const PaymentMethod(),
                 SizedBox(height: 16.h),
 
-                // Order Summary Section - Added new widget
-                const OrderSummary(),
+                // Order Summary Section with fetched data
+                OrderSummary(billingSummaryData: _billingSummaryData),
 
                 SizedBox(height: 24.h),
               ],

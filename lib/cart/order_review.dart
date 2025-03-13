@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OrderReview extends StatefulWidget {
-  const OrderReview({Key? key}) : super(key: key);
+  final Map<String, dynamic> orderReviewData;
+
+  const OrderReview({Key? key, required this.orderReviewData}) : super(key: key);
 
   @override
   State<OrderReview> createState() => _OrderReviewState();
@@ -11,26 +13,12 @@ class OrderReview extends StatefulWidget {
 class _OrderReviewState extends State<OrderReview> {
   bool _isExpanded = true;
 
-  // Sample data - in a real app, this would come from your cart or API
-  final List<Map<String, dynamic>> _cartItems = [
-    {
-      'id': 1,
-      'title': '25 Character Workshops for Grade 6 to 12: Building Leaders of Tomorrow',
-      'price': 4999.0,
-      'image': 'https://cef.org.pk/shop/wp-content/uploads/2024/03/CEF-Beginner-300x300.webp',
-      'currency': 'Rs'
-    },
-    {
-      'id': 2,
-      'title': 'Tajweed Excellence & Seerah Insights: A Dual Learning Experience',
-      'price': 6500.0,
-      'image': 'https://cef.org.pk/shop/wp-content/uploads/2024/03/CEF-Beginner-300x300.webp',
-      'currency': 'Rs'
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    // Extract courses and totalItems from the data
+    List<dynamic> courses = widget.orderReviewData['courses'] ?? [];
+    int totalItems = widget.orderReviewData['total_items'] ?? 0;
+
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
@@ -85,7 +73,7 @@ class _OrderReviewState extends State<OrderReview> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${_cartItems.length} Items In Card",
+                    "$totalItems Items In Cart",
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
@@ -97,18 +85,23 @@ class _OrderReviewState extends State<OrderReview> {
 
                   // List of cart items
                   ...List.generate(
-                    _cartItems.length,
-                        (index) => _buildCartItem(_cartItems[index]),
+                    courses.length,
+                        (index) => _buildCartItem(courses[index]),
                   ),
 
                   SizedBox(height: 16.h),
-                  Container(
-                    height: 4.h,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF8EC741), Color(0xFF8EC741)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
+                  // Scrollable bar
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      height: 4.h,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF8EC741), Color(0xFF8EC741)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
                       ),
                     ),
                   ),
@@ -182,7 +175,7 @@ class _OrderReviewState extends State<OrderReview> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                item['currency'],
+                "Rs", // Assuming the currency is always Rs
                 style: TextStyle(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.bold,

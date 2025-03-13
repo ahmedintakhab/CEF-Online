@@ -2,25 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OrderSummary extends StatefulWidget {
-  const OrderSummary({Key? key}) : super(key: key);
+  final Map<String, dynamic> billingSummaryData;
+
+  const OrderSummary({Key? key, required this.billingSummaryData,
+  }) : super(key: key);
 
   @override
   State<OrderSummary> createState() => _OrderSummaryState();
 }
 
 class _OrderSummaryState extends State<OrderSummary> {
-  // Sample data - in a real app, this would be calculated from cart items
-  final double subtotal = 11499.00;
 
-  final double discount = 0.00;
-
-  final double grandTotal = 11499.00;
 
   // Checkbox state
   bool isChecked = false;
 
   @override
   Widget build(BuildContext context) {
+    // Extract billing summary data
+    final subtotal = widget.billingSummaryData['subtotal'] ?? 0;
+    final discount = widget.billingSummaryData['discount'] ?? 0;
+    final platformCharge = widget.billingSummaryData['platform_charge'] ?? 0;
+    final grandTotal = widget.billingSummaryData['grand_total'] ?? 0;
+    final conversionRate = widget.billingSummaryData['conversion_rate'] ?? "1 PKR = ?";
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -81,7 +85,7 @@ class _OrderSummaryState extends State<OrderSummary> {
           // Conversion Rate row
           _buildSummaryRow(
             title: "Conversion Rate",
-            value: "1 PKR = ?",
+            value: "$conversionRate",
             isBold: false,
           ),
 
