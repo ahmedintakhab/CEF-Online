@@ -19,6 +19,7 @@ class _CartScreenState extends State<CartScreen> {
   bool isLoading = true;
   String errorMessage = '';
   Map<String, dynamic> orderSummary = {};
+  final String cartID = '';
 
   TextEditingController couponController = TextEditingController();
 
@@ -70,12 +71,57 @@ class _CartScreenState extends State<CartScreen> {
       });
     }
   }
+// Remove the cart items
+  Future<void> removeItem(int index) async {
+    try {
+      // Retrieve the cart_id from the cartItems list
+      final cartId = cartItems[index]['cart_id'];
 
-  void removeItem(int index) {
-    setState(() {
-      cartItems.removeAt(index);
-    });
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      // Call the delete API
+      final url = Uri.parse('${ApiConstants.baseUrl}student/cart-delete/$cartId');
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Delete cart items API response: ${response.statusCode}');
+        if (data['success'] == true) {
+          // Remove the item from the cartItems list
+          setState(() {
+            cartItems.removeAt(index);
+          });
+        } else {
+          setState(() {
+            errorMessage = data['message'] ?? 'Failed to delete item';
+          });
+        }
+      } else {
+        setState(() {
+          errorMessage = 'Failed to delete item: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'An error occurred: $e';
+      });
+    }
   }
+
+
+  // void removeItem(int index) {
+  //   setState(() {
+  //     cartItems.removeAt(index);
+  //   });
+  // }
 
   double calculateAverageRating(List<dynamic> reviews) {
     if (reviews.isEmpty) return 0.0;
