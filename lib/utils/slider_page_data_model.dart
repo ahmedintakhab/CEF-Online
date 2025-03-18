@@ -562,19 +562,22 @@ class Utils {
   static List<ProfileOption> getProfileOption() {
     return [
       ProfileOption(
-          title: 'My Certifications', icon: 'assets/prorfileoptionicon1st.png'),
+          title: 'Home', icon: 'assets/prorfileoptionicon1st.png'),
       ProfileOption(
-          title: 'My Projects', icon: 'assets/prorfileoptionicon2nd.png'),
+          title: 'My Courses', icon: 'assets/prorfileoptionicon2nd.png'),
       ProfileOption(
-          title: 'Saved Course', icon: 'assets/prorfileoptionicon3rd.png'),
-      ProfileOption(title: 'My Card', icon: 'assets/prorfileoptionicon4th.png'),
+          title: 'My Products', icon: 'assets/prorfileoptionicon3rd.png'),
+      ProfileOption(title: 'Classes Schedule', icon: 'assets/prorfileoptionicon4th.png'),
       ProfileOption(
-          title: 'Help Center', icon: 'assets/prorfileoptionicon5th.png'),
+          title: 'Classes History', icon: 'assets/prorfileoptionicon5th.png'),
       ProfileOption(
-          title: 'Privacy Policy', icon: 'assets/prorfileoptionicon6th.png'),
+          title: 'Pending Payment', icon: 'assets/prorfileoptionicon6th.png'),
       ProfileOption(
-          title: 'Feedback', icon: 'assets/prorfileoptionicon7th.png'),
-      ProfileOption(title: 'Rate Us', icon: 'assets/prorfileoptionicon8th.png'),
+          title: 'Profile', icon: 'assets/prorfileoptionicon7th.png'),
+
+      ProfileOption(title: 'Address & Location', icon: 'assets/prorfileoptionicon8th.png'),
+
+      ProfileOption(title: 'Change Password', icon: 'assets/prorfileoptionicon8th.png'),
     ];
   }
 

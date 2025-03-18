@@ -55,7 +55,7 @@ class _MyCourcesState extends State<MyCources> {
       ongoingCourses = courseController.ongoingCourses;
       courseType = courseDetails['course_type'];
       btnText = courseDetails['btn_text'];
-      btnApiRoute = courseDetails['btn_api_route'];
+      btnApiRoute = courseDetails['btn_api_route'] ?? '';
       courseId = courseDetails['course_id'].toString();
       previewSrcType = courseDetails['course_preview_src_type'];
 

@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:learn_megnagmet/cart/cart_count.dart';
 import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/cources/cources.dart';
 import 'package:learn_megnagmet/home/recent_added_cource_detail.dart';
@@ -18,7 +19,6 @@ import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../cart/cart_screen.dart';
 import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import 'category_wise_courses.dart';
@@ -44,18 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true; // Add loading state
    String? courseSlug;
   List<dynamic> fetchtrendingCourses = [];
-  int cartItemCount = 2; // State to track the number of items in the cart
-
-
-  void _navigateToCartScreen() {
-    Get.to(() => CartScreen()); // Navigate to CartScreen
-  }
-
-  void _updateCartItemCount(int count) {
-    setState(() {
-      cartItemCount = count; // Update the cart item count
-    });
-  }
 
 
   // int currentpage = 0;
@@ -117,7 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
         print("API successfully fetched data!");
         print("Home Page API Status Code: ${response.statusCode}");
         final data = json.decode(response.body);
-        print("API Data: $data"); // Print the full API data
         setState(() {
           apiData = data;
           fetchtrendingCourses = data['trendingCourses']; // Extract trendingCourses
@@ -201,43 +188,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           SizedBox(width: 10.w), // Add some spacing
+
+
                           // Cart Icon with Notification Badge
-                          GestureDetector(
-                            onTap: _navigateToCartScreen,
-                            child: Stack(
-                              alignment: Alignment.topRight,
-                              children: [
-                                Icon(
-                                  Icons.shopping_cart,
-                                  size: 30.h,
-                                  color: Colors.black,
-                                ),
-                                if (cartItemCount > 0)
-                                  Positioned(
-                                    right: 0,
-                                    child: Container(
-                                      padding: EdgeInsets.all(2),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      constraints: BoxConstraints(
-                                        minWidth: 12,
-                                        minHeight: 12,
-                                      ),
-                                      child: Text(
-                                        '$cartItemCount',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 8,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
+                          CartCount(),
 
                       ],
 

@@ -216,12 +216,7 @@ class _MyProfileState extends State<MyProfile> {
                                                 profileOptionClass[index]);
                                           }
                                         }
-                                        // (index ==
-                                        //     profileOptionClass.length -
-                                        //         1)
-                                        //     ? rateUs_dialogue()
-                                        //     : Get.to(
-                                        //     profileOptionClass[index]);
+
                                       },
                                       child: Container(
                                           height: 60.h,
@@ -333,6 +328,7 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   Future rateUs_dialogue() {
+    //888888
     return Get.defaultDialog(
         barrierDismissible: false,
         title: '',
