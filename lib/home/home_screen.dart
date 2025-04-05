@@ -144,60 +144,88 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                      SizedBox(height: 16.h),
                     Padding(
-                      padding:  EdgeInsets.symmetric(horizontal: 15.w),
+                      padding: EdgeInsets.symmetric(horizontal: 15.w),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute space evenly
+                        crossAxisAlignment: CrossAxisAlignment.center, // Center items vertically
                         children: [
-                        Image(image: AssetImage(userDetail[0].image),height: 50.h,width: 49.93.w,),
-                         SizedBox(width: 10.w),
-                        Text("Welcome, $userName",
-                            style:  TextStyle(
-                                fontFamily: 'Gilroy',
-                                color: const Color(0XFF000000),
-                                fontSize: 20.sp,
-                                fontWeight: FontWeight.w700)),
-                        SizedBox(width: 40.w,),
-
-                        Container(
-                            height: 40.h, // Set the height
-                            width: 70.h,  // Set the width (same as height for a square container)
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF8CC13F), // Set the background color
-                              borderRadius: BorderRadius.circular(22), // Rounded corners
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                if (courseSlug != null) {
-                                  Get.to(() => SearchScreen(slug: courseSlug!)); // Navigate to SearchScreen
-                                } else {
-                                  print("No slug available");
-                                }
-                              },
-                              child: Center(
-                                child: ColorFiltered(
-                                  colorFilter: const ColorFilter.mode(
-                                    Colors.white, // Make the image white
-                                    BlendMode.srcIn, // Apply the color to the image
-                                  ),
-                                  child: Image(
-                                    image: const AssetImage('assets/search.png'), // Use the search image
-                                    height: 24.h, // Set the image height
-                                    width: 24.w,  // Set the image width
+                          // Left side with image and welcome text
+                          Flexible(
+                            flex: 3, // Give more space to this part
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min, // Take only needed space
+                              children: [
+                                Image(
+                                  image: AssetImage(userDetail[0].image),
+                                  height: 50.h,
+                                  width: 50.w, // Made equal for better aspect ratio
+                                ),
+                                SizedBox(width: 10.w),
+                                Flexible( // Make text flexible to avoid overflow
+                                  child: Text(
+                                    "Welcome, $userName",
+                                    style: TextStyle(
+                                      fontFamily: 'Gilroy',
+                                      color: const Color(0XFF000000),
+                                      fontSize: 20.sp,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 10.w), // Add some spacing
 
+                          // Right side with icons
+                          Flexible(
+                            flex: 2, // Give less space to icons
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min, // Take only needed space
+                              children: [
+                                // Search Button
+                                Container(
+                                  height: 40.h,
+                                  width: 40.h, // Made square
+                                  margin: EdgeInsets.only(right: 8.w), // Reduced spacing
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF8CC13F),
+                                    borderRadius: BorderRadius.circular(22),
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (courseSlug != null) {
+                                        Get.to(() => SearchScreen(slug: courseSlug!));
+                                      } else {
+                                        print("No slug available");
+                                      }
+                                    },
+                                    child: Center(
+                                      child: ColorFiltered(
+                                        colorFilter: const ColorFilter.mode(
+                                          Colors.white,
+                                          BlendMode.srcIn,
+                                        ),
+                                        child: Image(
+                                          image: const AssetImage('assets/search.png'),
+                                          height: 24.h,
+                                          width: 24.w,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
 
-                          // Cart Icon with Notification Badge
-                          CartCount(),
-
-                      ],
-
+                                // Cart Icon
+                                CartCount(),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                     SizedBox(height: 30.h),
+                    SizedBox(height: 30.h),
                     Expanded(
                       child: ListView(
                         // physics: BouncingScrollPhysics(),
@@ -424,126 +452,126 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget horizontal_disidn() {
-    final categories = apiData?['categories']; // Fetch categories from apiData
+    final categories = apiData?['categories'];
 
-    // If categories are null or empty, show shimmer effect
-    if (categories == null || categories.isEmpty) {
-      return Container(
-        height: 150.h, // Adjust height to fit image and name together
-        width: double.infinity,
-        child: ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 15.w),
-          shrinkWrap: true,
-          physics: const BouncingScrollPhysics(),
-          scrollDirection: Axis.horizontal,
-          itemCount: 5, // Show 5 shimmer placeholders
-          itemBuilder: (BuildContext context, index) {
-            return Padding(
-              padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
-              child: Shimmer.fromColors(
-                baseColor: Colors.grey[300]!, // Light grey
-                highlightColor: Colors.grey[100]!, // Lighter grey
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Shimmer effect for image
-                    Container(
-                      height: 100.h,
-                      width: 100.w,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300], // Base grey color
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth = constraints.maxWidth * 0.3; // 30% of available width
+        final imageSize = itemWidth * 0.8; // 80% of item width for image
+
+        // If categories are null or empty, show shimmer effect
+        if (categories == null || categories.isEmpty) {
+          return SizedBox(
+            height: imageSize + 50.h, // Image + text + padding
+            child: ListView.builder(
+              padding: EdgeInsets.symmetric(horizontal: 15.w),
+              scrollDirection: Axis.horizontal,
+              itemCount: 5,
+              itemBuilder: (context, index) {
+                return Container(
+                  width: itemWidth,
+                  margin: EdgeInsets.only(right: 10.w),
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: imageSize,
+                          width: imageSize,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Container(
+                          height: 16.h,
+                          width: imageSize,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Container(
+                          height: 12.h,
+                          width: imageSize * 0.8,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 6.h), // Space between image and text
-                    // Shimmer effect for text
-                    Container(
-                      width: 120.w,
-                      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 8.h),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300], // Base grey color
+                  ),
+                );
+              },
+            ),
+          );
+        }
+
+        // If categories are available
+        return SizedBox(
+          height: imageSize + 50.h, // Image + text + padding
+          child: ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 15.w),
+            scrollDirection: Axis.horizontal,
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return Container(
+                width: itemWidth,
+                margin: EdgeInsets.only(right: 10.w),
+                child: GestureDetector(
+                  onTap: () {
+                    Get.to(() => CategoryWiseCourses(
+                      categoryId: category['id'],
+                      categoryName: category['name'],
+                    ));
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      ClipRRect(
                         borderRadius: BorderRadius.circular(8.r),
+                        child: Image.network(
+                          category['image'],
+                          height: imageSize,
+                          width: imageSize,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            height: imageSize,
+                            width: imageSize,
+                            color: Colors.grey[200],
+                            child: Icon(Icons.broken_image),
+                          ),
+                        ),
                       ),
-                      child: Text(
-                        '', // Empty text
+                      SizedBox(height: 8.h),
+                      Text(
+                        category['name'] ?? '',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.transparent, // Hide text
+                          color: Color(0XFF000000),
                           fontSize: 12.sp,
                           fontFamily: 'Gilroy',
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    }
-
-    // If categories are available, show the actual data
-    return Container(
-      height: 150.h, // Adjust height to fit image and name together
-      width: double.infinity,
-      child: ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 15.w),
-        shrinkWrap: true,
-        physics: const BouncingScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        itemBuilder: (BuildContext context, index) {
-          final category = categories[index]; // Access each category from the list
-          return GestureDetector(
-              onTap: () {
-                // Navigate to CategoryWiseCourses with category ID
-                Get.to(() => CategoryWiseCourses(categoryId: category['id'],categoryName : category['name']));
-              },
-
-          child:  Padding(
-            padding: EdgeInsets.only(left: index == 0 ? 0.w : 6.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.r),
-                  child: Image(
-                    image: NetworkImage(category['image']), // Fetch image
-                    height: 100.h,
-                    width: 100.w,
-                    fit: BoxFit.cover,
+                    ],
                   ),
                 ),
-                SizedBox(height: 6.h), // Space between image and text
-                Container(
-                  width: 120.w,
-                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 8.h),
-                  child: Text(
-                    category['name'] ?? '', // Fetch name
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Color(0XFF000000),
-                      fontSize: 12.sp,
-                      fontFamily: 'Gilroy',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-          );
-        },
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
-
 
   Widget trending_cource_list(Map<String, dynamic> apiData) {
     final trendingCourses = apiData['trendingCourses']; // Fetch trendingCourses from apiData

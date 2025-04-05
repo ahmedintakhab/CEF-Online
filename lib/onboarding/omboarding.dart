@@ -18,6 +18,10 @@ class _SlidePageState extends State<SlidePage> {
   List<Sliders> pages = [];
   int currentpage = 0;
   PageController controller = PageController();
+  // For storing image dimensions
+  // double imageWidth = 0;
+  // double imageHeight = 0;
+
 
   @override
   void initState() {
@@ -171,13 +175,34 @@ class _SlidePageState extends State<SlidePage> {
         itemCount: pages.length,
         scrollDirection: Axis.horizontal,
         controller: controller,
+
         onPageChanged: _onchanged,
         itemBuilder: (context, index) {
+          // final imageProvider = AssetImage(pages[index].image!);
+          // final image = Image(
+          //   image: imageProvider,
+          //   height: 520.h,
+          //   width: double.infinity,
+          //   fit: BoxFit.cover,
+          // );
+
+          // Get image dimensions
+          // imageProvider.resolve(const ImageConfiguration()).addListener(
+          //   ImageStreamListener((ImageInfo info, bool _) {
+          //     setState(() {
+          //       imageWidth = info.image.width.toDouble();
+          //       imageHeight = info.image.height.toDouble();
+          //     });
+          //     print('Image Width: ${info.image.width}');
+          //     print('Image Height: ${info.image.height}');
+          //   }),
+          // );
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Image(image: AssetImage(pages[index].image!),height: 520.h,width:double.infinity,fit: BoxFit.cover,),
                SizedBox(height: 50.h),
+
               Text(
                 pages[index].name!,
                 style:  TextStyle(

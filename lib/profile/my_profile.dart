@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_megnagmet/profile/address_and_location.dart';
+import 'package:learn_megnagmet/profile/change_password.dart';
 import 'package:learn_megnagmet/profile/privacy_policy.dart';
 import 'package:learn_megnagmet/profile/profile_field_container.dart';
 import 'package:learn_megnagmet/profile/rateus_dialogue_widget.dart';
@@ -229,14 +231,16 @@ class _MyProfileState extends State<MyProfile> {
                               title: 'Address & Location',
                               icon: Icon(Icons.location_on_outlined, color: Color(0XFF78A03F)),
                               onTap: () {
-                                // Disabled as per original code
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context)=>AddressAndLocation()));
                               },
                             ),
                             ProfileFieldContainer(
                               title: 'Change Password',
                               icon: Icon(Icons.settings, color: Color(0XFF78A03F)),
                               onTap: () {
-                                // Disabled as per original code
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context)=>ChangePassword()));
                               },
                             ),
                             SizedBox(height: 30.h),
