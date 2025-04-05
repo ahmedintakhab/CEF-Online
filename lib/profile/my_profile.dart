@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/profile/address_and_location.dart';
 import 'package:learn_megnagmet/profile/change_password.dart';
+import 'package:learn_megnagmet/profile/pending_payment.dart';
 import 'package:learn_megnagmet/profile/privacy_policy.dart';
 import 'package:learn_megnagmet/profile/profile_field_container.dart';
 import 'package:learn_megnagmet/profile/rateus_dialogue_widget.dart';
@@ -213,7 +214,8 @@ class _MyProfileState extends State<MyProfile> {
                               title: 'Pending Payment',
                               icon: Icon(Icons.pending_actions, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Get.to(CertificatePayment());
+                                Get.to(PendingPayment());
+                                // Get.to(CertificatePayment());
 
                                 // Disabled as per original code
                               },
