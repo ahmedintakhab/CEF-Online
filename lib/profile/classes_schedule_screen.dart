@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'individual_class_history.dart';
-import 'group_class_history.dart';
+import 'group_class_schedule.dart';
+import 'individual_class_schedule.dart';
 
-class ClassHistoryScreen extends StatefulWidget {
+
+class ClassScheduleScreen extends StatefulWidget {
   @override
-  _ClassHistoryScreenState createState() => _ClassHistoryScreenState();
+  _ClassScheduleScreenState createState() => _ClassScheduleScreenState();
 }
 
-class _ClassHistoryScreenState extends State<ClassHistoryScreen>
+class _ClassScheduleScreenState extends State<ClassScheduleScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late PageController _pageController;
@@ -32,7 +33,7 @@ class _ClassHistoryScreenState extends State<ClassHistoryScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Classes History',
+          'Classes Schedule',
           style: TextStyle(
             fontSize: 22.sp,
             fontWeight: FontWeight.bold,
@@ -114,19 +115,19 @@ class _ClassHistoryScreenState extends State<ClassHistoryScreen>
           _tabController.animateTo(index);
         },
         children: [
-          // Individual Class History Tab
+          // Individual Schedule Tab
           SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 17.w),
-              child: IndividualClassHistory(),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: IndividualSchedule(),
             ),
           ),
 
-          // Group Class History Tab
+          // Group Schedule Tab
           SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 17.w),
-              child: GroupClassHistory(),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: GroupSchedule(),
             ),
           ),
         ],
