@@ -24,6 +24,7 @@ import '../models/new_user_detail.dart';
 import '../models/profile_option.dart';
 import '../utils/slider_page_data_model.dart';
 import 'certi_payment.dart';
+import 'classes_history_screen.dart';
 import 'feedback.dart';
 
 class MyProfile extends StatefulWidget {
@@ -206,7 +207,8 @@ class _MyProfileState extends State<MyProfile> {
                               title: 'Classes History',
                               icon: Icon(Icons.history, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Get.to(PrivacyPolicy());
+                                Get.to(ClassHistoryScreen());
+                                // Get.to(PrivacyPolicy());
                               },
                             ),
                             // Privacy Policy
