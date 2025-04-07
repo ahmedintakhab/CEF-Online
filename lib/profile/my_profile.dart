@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_megnagmet/home/home_screen.dart';
 import 'package:learn_megnagmet/profile/address_and_location.dart';
 import 'package:learn_megnagmet/profile/change_password.dart';
 import 'package:learn_megnagmet/profile/pending_payment.dart';
@@ -175,7 +176,8 @@ class _MyProfileState extends State<MyProfile> {
                               title: 'Home',
                               icon: Icon(Icons.home, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Get.to(MyCertification());
+                                Get.to(HomeScreen());
+                                // Get.to(MyCertification());
                               },
                             ),
                             // My Project

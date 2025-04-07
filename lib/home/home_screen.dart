@@ -127,11 +127,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     initializeScreenSize(context);
-    return WillPopScope(
-      onWillPop: (){
-        return Future.value(false);
-      },
-      child: Scaffold(
+    // return WillPopScope(
+    //   onWillPop: (){
+    //     return Future.value(false);
+    //   },
+    //   child:
+
+      return Scaffold(
         body: SafeArea(
           child: SizedBox(
             height: double.infinity,
@@ -144,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                      SizedBox(height: 16.h),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15.w),
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute space evenly
                         crossAxisAlignment: CrossAxisAlignment.center, // Center items vertically
@@ -155,6 +157,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min, // Take only needed space
                               children: [
+                                // In your HomeScreen's build method, add a back button somewhere:
+                                IconButton(
+                                  icon: Icon(Icons.arrow_back),
+                                  onPressed: () => Get.back(),
+                                ),
                                 Image(
                                   image: AssetImage(userDetail[0].image),
                                   height: 50.h,
@@ -163,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 SizedBox(width: 10.w),
                                 Flexible( // Make text flexible to avoid overflow
                                   child: Text(
-                                    "Welcome, $userName",
+                                    "Hi, $userName",
                                     style: TextStyle(
                                       fontFamily: 'Gilroy',
                                       color: const Color(0XFF000000),
@@ -301,8 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget generatePage() {

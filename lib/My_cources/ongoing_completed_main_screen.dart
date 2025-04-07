@@ -47,6 +47,7 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> with Si
     return Scaffold(
       body: WillPopScope(
         onWillPop: () async {
+          Get.back();
           return false;
         },
         child: GetBuilder<OngoingCompletedController>(
@@ -60,7 +61,8 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> with Si
                   children: [
                     GestureDetector(
                       onTap: () {
-                        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                        Get.back();
+                        // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
                       },
                       child: Image(
                         image: const AssetImage("assets/back_arrow.png"),
