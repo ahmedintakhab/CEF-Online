@@ -1,43 +1,48 @@
 import 'package:flutter/material.dart';
 
 class IndividualClassHistory extends StatelessWidget {
-  final List<Map<String, String>> classes = [
-    {
-      'No': '1',
-      'Instructor': 'Nouman Ab',
-      'Type': 'Individual',
-      'Status': 'Completed',
-      'Course': 'Tajweed ul Quran the easy way (English)',
-      'Date Time': '12-03-2025 Wed 11:34 AM'
-    },
-    {
-      'No': '2',
-      'Instructor': 'Ali Hassan',
-      'Type': 'Individual',
-      'Status': 'Missed',
-      'Course': 'Tajweed ul Quran the easy way (English)',
-      'Date Time': '21-11-2024 Thu 04:15 PM'
-    },
-    {
-      'No': '3',
-      'Instructor': 'Ahmed Meer',
-      'Type': 'Individual',
-      'Status': 'Completed',
-      'Course': 'Tajweed ul Quran the easy way (English)',
-      'Date Time': '21-11-2024 Thu 04:11 PM'
-    },
-    {
-      'No': '4',
-      'Instructor': 'Zain Ali',
-      'Type': 'Individual',
-      'Status': 'Missed',
-      'Course': 'Tajweed ul Quran the easy way (English)',
-      'Date Time': '02-11-2024 Sat 03:40 PM'
-    },
-  ];
+
+final List<dynamic> Classes;
+IndividualClassHistory ({required this.Classes});
+
+  // final List<Map<String, String>> classes = [
+  //   {
+  //     'No': '1',
+  //     'Instructor': 'Nouman Ab',
+  //     'Type': 'Individual',
+  //     'Status': 'Completed',
+  //     'Course': 'Tajweed ul Quran the easy way (English)',
+  //     'Date Time': '12-03-2025 Wed 11:34 AM'
+  //   },
+  //   {
+  //     'No': '2',
+  //     'Instructor': 'Ali Hassan',
+  //     'Type': 'Individual',
+  //     'Status': 'Missed',
+  //     'Course': 'Tajweed ul Quran the easy way (English)',
+  //     'Date Time': '21-11-2024 Thu 04:15 PM'
+  //   },
+  //   {
+  //     'No': '3',
+  //     'Instructor': 'Ahmed Meer',
+  //     'Type': 'Individual',
+  //     'Status': 'Completed',
+  //     'Course': 'Tajweed ul Quran the easy way (English)',
+  //     'Date Time': '21-11-2024 Thu 04:11 PM'
+  //   },
+  //   {
+  //     'No': '4',
+  //     'Instructor': 'Zain Ali',
+  //     'Type': 'Individual',
+  //     'Status': 'Missed',
+  //     'Course': 'Tajweed ul Quran the easy way (English)',
+  //     'Date Time': '02-11-2024 Sat 03:40 PM'
+  //   },
+  // ];
 
   @override
   Widget build(BuildContext context) {
+    print("Check the individual classes: $Classes");
     return Container(
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -68,13 +73,13 @@ class IndividualClassHistory extends StatelessWidget {
             ),
           ),
           const Divider(height: 0),
-          ...classes.map((classData) => _buildClassItem(classData)).toList(),
+          ...Classes.map((classData) => _buildClassItem(classData)).toList(),
         ],
       ),
     );
   }
 
-  Widget _buildClassItem(Map<String, String> classData) {
+  Widget _buildClassItem(Map<String, dynamic> classData) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -82,12 +87,12 @@ class IndividualClassHistory extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildInfoRow('No', classData['No']!),
-          _buildInfoRow('Instructor', classData['Instructor']!),
-          _buildInfoRow('Type', classData['Type']!),
-          _buildInfoRow('Status', classData['Status']!, isStatus: true),
-          _buildInfoRow('Course', classData['Course']!),
-          _buildInfoRow('Date', classData['Date Time']!),
+          _buildInfoRow('No', classData['sr_no']?.toString() ?? 'N/A'),
+          _buildInfoRow('Instructor', classData['instructor'] ?? 'N/A'),
+          _buildInfoRow('Type', classData['type'] ?? 'N/A'),
+          _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A', isStatus: true),
+          _buildInfoRow('Course', classData['course'] ?? 'N/A'),
+          _buildInfoRow('Date', classData['date_time'] ?? 'N/A'),
         ],
       ),
     );

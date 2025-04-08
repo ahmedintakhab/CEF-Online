@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/api_constants.dart';
 import 'individual_class_history.dart';
 import 'group_class_history.dart';
 
@@ -12,12 +17,59 @@ class _ClassHistoryScreenState extends State<ClassHistoryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late PageController _pageController;
+  Map<String, dynamic> classHistoryData = {};
+  bool isLoading = true;
+  String errorMessage = '';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _pageController = PageController();
+    _fetchClassHistory();
+  }
+
+  Future<void> _fetchClassHistory() async {
+    try {
+      final url = Uri.parse("${ApiConstants.baseUrl}student/class-history");
+
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      // Make the API request
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Successful API call
+        print(" Classes History API Response: ${response.statusCode}");
+        // print(" Classes History API Response: ${response.body}");
+        setState(() {
+          classHistoryData = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        // Handle API error
+        print(" Classes History API Error: ${response.statusCode} - ${response.body}");
+        setState(() {
+          isLoading = false;
+          errorMessage = 'Failed to load data. Status code: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      // Handle network errors
+      print("Exception: $e");
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Network error occurred. Please try again.';
+      });
+    }
   }
 
   @override
@@ -108,29 +160,50 @@ class _ClassHistoryScreenState extends State<ClassHistoryScreen>
           ),
         ),
       ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          _tabController.animateTo(index);
-        },
-        children: [
-          // Individual Class History Tab
-          SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 17.w),
-              child: IndividualClassHistory(),
-            ),
-          ),
+      body: _buildBody(),
+    );
+  }
 
-          // Group Class History Tab
-          SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 17.w),
-              child: GroupClassHistory(),
-            ),
+  Widget _buildBody() {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (errorMessage.isNotEmpty) {
+      return Center(
+        child: Text(
+          errorMessage,
+          style: TextStyle(fontSize: 16.sp, color: Colors.red),
+        ),
+      );
+    }
+
+    // Get data for individual and group classes from the API response
+    final individualClasses = classHistoryData['individual'] ?? [];
+    final groupClasses = classHistoryData['group'] ?? [];
+
+    return PageView(
+      controller: _pageController,
+      onPageChanged: (index) {
+        _tabController.animateTo(index);
+      },
+      children: [
+        // Individual Class History Tab
+        SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 17.w),
+            child: IndividualClassHistory(Classes: individualClasses),
           ),
-        ],
-      ),
+        ),
+
+        // Group Class History Tab
+        SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 17.w),
+            child: GroupClassHistory(Classes: groupClasses),
+          ),
+        ),
+      ],
     );
   }
 }
