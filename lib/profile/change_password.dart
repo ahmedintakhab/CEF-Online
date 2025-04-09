@@ -74,15 +74,19 @@ class _ChangePasswordState extends State<ChangePassword> {
         _newPasswordController.clear();
       } else {
         final error = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error['message'] ?? 'Failed to update password')),
-        );
+        Get.snackbar('Failed Update Password',error['message'] , snackPosition: SnackPosition.BOTTOM);
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text(error['message'] ?? 'Failed to update password')),
+        // );
       }
     } catch (e) {
       print('API error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      Get.snackbar('Failed Update Password', 'Error: $e', snackPosition: SnackPosition.BOTTOM);
+
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error: $e')),
+      // );
     } finally {
       setState(() {
         _isLoading = false;

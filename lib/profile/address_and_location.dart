@@ -1,5 +1,8 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/widget/button.dart';
@@ -16,7 +19,6 @@ class AddressAndLocation extends StatefulWidget {
 }
 
 class _AddressAndLocationState extends State<AddressAndLocation> {
-
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
 
@@ -24,12 +26,12 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
   String? _selectedState;
   String? _selectedCity;
 
-  final List<String> _countries = []; // List to store country names
+  final Map<String, int> _countryMap = {};
   final List<String> _states = ['Select state'];
   final List<String> _cities = ['Select city'];
 
   bool _isLoading = true;
-  bool _isUpdating = false; // For update button loading state
+  bool _isUpdating = false;
   String _errorMessage = '';
 
   @override
@@ -57,15 +59,15 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
 
         if (data['success'] == true) {
           setState(() {
-            // Set countries list data
             List<dynamic> countries = data['data']['countries'];
-            _countries.clear();
-            _countries.addAll(countries.map((country) => country['country_name'] as String));
+            _countryMap.clear();
+            for (var country in countries) {
+              _countryMap[country['country_name']] = country['id'];
+            }
+            _selectedCountry = data['data']['userInfo']['country_name'] ?? null;
 
-            // Prefill form with user info
-            Map<String, dynamic> userInfo = data['data']['userInfo'];
-            _addressController.text = userInfo['address'] ?? '';
-
+            _addressController.text = data['data']['userInfo']['address'] ?? '';
+            _zipCodeController.text = data['data']['userInfo']['postal_code'] ?? '';
             _isLoading = false;
           });
         } else {
@@ -87,6 +89,79 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
       });
     }
   }
+
+  Future<void> _updateAddress() async {
+    if (_selectedCountry == null || _addressController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isUpdating = true;
+    });
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final url = Uri.parse("${ApiConstants.baseUrl}student/update-address-location");
+      final body = jsonEncode({
+        'country_id': _countryMap[_selectedCountry],
+        'postal_code': _zipCodeController.text,
+        'address': _addressController.text,
+      });
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        print('Address and Location API response: ${response.statusCode}');
+        Get.snackbar('Address & Location','Address & Location Update Successfully',
+            snackPosition: SnackPosition.BOTTOM);
+        // Clear all fields after successful update
+        setState(() {
+          _selectedCity = null;
+          _selectedCountry = null;
+          _selectedState = null ;
+          _addressController.clear();
+          _zipCodeController.clear();
+        });
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text('Address and Location updated successfully')),
+        // );
+      } else {
+        final error = jsonDecode(response.body);
+        Get.snackbar('Failed Update Address',error['message'] , snackPosition: SnackPosition.BOTTOM);
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text(error['message'] ?? 'Failed to update address')),
+        // );
+      }
+    } catch (e) {
+      Get.snackbar('Failed Update Address', 'Error: $e', snackPosition: SnackPosition.BOTTOM);
+
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error: $e')),
+      // );
+    } finally {
+      setState(() {
+        _isUpdating = false;
+      });
+    }
+  }
+  //
+  // void _handleUpdate() {
+  //   _updateAddress();
+  // }
 
   @override
   void dispose() {
@@ -138,18 +213,49 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLabel("Country", false),
+                      _buildLabel("Country", true),
                       SizedBox(height: 8.h),
-                      CustomDropdown(
-                        hint: "Select Country",
-                        value: _selectedCountry,
-                        items: _countries,
+                      DropdownSearch<String>(
+                        popupProps: PopupProps.menu(
+                          showSearchBox: true,
+                          searchFieldProps: TextFieldProps(
+                            decoration: InputDecoration(
+                              hintText: "Search country...",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.r),
+                                borderSide: BorderSide(color: Colors.grey),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(8)),
+                                borderSide: BorderSide(color: Color(0xFF8CC13F), width: 2.0), // Focused border color
+                              ),
+
+                            ),
+                          ),
+                        ),
+                        items: _countryMap.keys.toList(),
+                        dropdownDecoratorProps: DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            hintText: "Select Country",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                              borderSide: BorderSide(color: Colors.grey), // Default border color
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                              borderSide: BorderSide(color: Color(0xFF8CC13F), width: 2.0), // Focused border color
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                          ),
+                        ),
                         onChanged: (String? newValue) {
                           setState(() {
                             _selectedCountry = newValue;
                           });
                         },
+                        selectedItem: _selectedCountry,
                       ),
+
                       SizedBox(height: 16.h),
                       Row(
                         children: [
@@ -195,15 +301,13 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
                         ],
                       ),
                       SizedBox(height: 16.h),
-
-                                _buildLabel("Postal Code", false),
-                                SizedBox(height: 8.h),
-                                customTextFormField(
-                                  controller: _zipCodeController,
-                                  hintText: "Postal code",
-                                  validator: (value) => null,
-                            ),
-
+                      _buildLabel("Postal Code", true),
+                      SizedBox(height: 8.h),
+                      customTextFormField(
+                        controller: _zipCodeController,
+                        hintText: "Postal code",
+                        validator: (value) => null,
+                      ),
                       SizedBox(height: 16.h),
                       _buildLabel("Address", true),
                       SizedBox(height: 8.h),
@@ -218,8 +322,10 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
                         },
                       ),
                       SizedBox(height: 24.h),
-
-                      CustomButton(onTap: (){}, buttonText: 'Update')
+                      CustomButton(
+                        onTap: _isUpdating ? () {} : _updateAddress,
+                        buttonText: _isUpdating ? 'Updating...' : 'Update',
+                      ),
                     ],
                   ),
                 ),
