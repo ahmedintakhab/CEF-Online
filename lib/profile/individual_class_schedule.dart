@@ -2,36 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class IndividualSchedule extends StatelessWidget {
-  final List<Map<String, String>> classes = [
-    {
-      'No': '1',
-      'Instructor': 'Nouman Ab',
-      'Course': 'Tajweed ul Quran the easy way (English)',
-      'Date Time': '07-04-2025 Wed 02:00 PM',
-      'Status': 'Missed'
-    },
-    {
-      'No': '2',
-      'Instructor': 'Nouman Ab',
-      'Course': 'Tajweed ul Quran the easy way (English)',
-      'Date Time': '07-04-2025 Wed 03:00 PM',
-      'Status': 'Waiting'
-    },
-    {
-      'No': '3',
-      'Instructor': 'Nouman Ab',
-      'Course': 'Tajweed ul Quran the easy way (English)',
-      'Date Time': '14-04-2025 Wed 02:00 PM',
-      'Status': 'Scheduled'
-    },
-    {
-      'No': '4',
-      'Instructor': 'Nouman Ab',
-      'Course': 'Tajweed ul Quran the easy way (English)',
-      'Date Time': '14-04-2025 Wed 03:00 PM',
-      'Status': 'Scheduled'
-    },
-  ];
+  final List<dynamic> Classes;
+  IndividualSchedule({required this.Classes});
+
+  // final List<Map<String, String>> classes = [
+  //   {
+  //     'No': '1',
+  //     'Instructor': 'Nouman Ab',
+  //     'Course': 'Tajweed ul Quran the easy way (English)',
+  //     'Date Time': '07-04-2025 Wed 02:00 PM',
+  //     'Status': 'Missed'
+  //   },
+  //   {
+  //     'No': '2',
+  //     'Instructor': 'Nouman Ab',
+  //     'Course': 'Tajweed ul Quran the easy way (English)',
+  //     'Date Time': '07-04-2025 Wed 03:00 PM',
+  //     'Status': 'Waiting'
+  //   },
+  //   {
+  //     'No': '3',
+  //     'Instructor': 'Nouman Ab',
+  //     'Course': 'Tajweed ul Quran the easy way (English)',
+  //     'Date Time': '14-04-2025 Wed 02:00 PM',
+  //     'Status': 'Scheduled'
+  //   },
+  //   {
+  //     'No': '4',
+  //     'Instructor': 'Nouman Ab',
+  //     'Course': 'Tajweed ul Quran the easy way (English)',
+  //     'Date Time': '14-04-2025 Wed 03:00 PM',
+  //     'Status': 'Scheduled'
+  //   },
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -64,13 +67,13 @@ class IndividualSchedule extends StatelessWidget {
             ),
           ),
           Divider(height: 0),
-          ...classes.map((classData) => _buildClassItem(classData)).toList(),
+          ...Classes.map((classData) => _buildClassItem(classData)).toList(),
         ],
       ),
     );
   }
 
-  Widget _buildClassItem(Map<String, String> classData) {
+  Widget _buildClassItem(Map<String, dynamic> classData) {
     return Container(
       padding: EdgeInsets.all(16.h),
       decoration: BoxDecoration(
@@ -78,11 +81,11 @@ class IndividualSchedule extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildInfoRow('No', classData['No']!),
-          _buildInfoRow('Instructor', classData['Instructor']!),
-          _buildInfoRow('Course', classData['Course']!),
-          _buildInfoRow('Date', classData['Date Time']!),
-          _buildInfoRow('Status', classData['Status']!, isStatus: true),
+          _buildInfoRow('No', classData['sr_no']?.toString() ?? 'N/A'),
+          _buildInfoRow('Instructor', classData['instructor'] ?? 'N/A'),
+          _buildInfoRow('Course', classData['course'] ?? 'N/A'),
+          _buildInfoRow('Date', classData['date_time'] ?? 'N/A'),
+          _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A', isStatus: true),
         ],
       ),
     );

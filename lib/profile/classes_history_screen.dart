@@ -166,7 +166,8 @@ class _ClassHistoryScreenState extends State<ClassHistoryScreen>
 
   Widget _buildBody() {
     if (isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F),
+      ));
     }
 
     if (errorMessage.isNotEmpty) {

@@ -29,6 +29,7 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
   final List<String> _cities = ['Select city'];
 
   bool _isLoading = true;
+  bool _isUpdating = false; // For update button loading state
   String _errorMessage = '';
 
   @override
