@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:learn_megnagmet/cart/billing_address.dart';
 import 'package:learn_megnagmet/widget/button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +20,7 @@ class PendingPayment extends StatefulWidget {
 class _PendingPaymentState extends State<PendingPayment> {
   List<dynamic> pendingPayments = [];
   bool isLoading = true;
+  bool isCheckingOut = false; // For checkout button loading state
   String errorMessage = '';
 
   @override
@@ -66,6 +69,68 @@ class _PendingPaymentState extends State<PendingPayment> {
       setState(() {
         isLoading = false;
         errorMessage = 'Network error occurred. Please try again.';
+      });
+    }
+  }
+  Future<void> _checkoutPayment(String paymentId, String paymentType) async {
+    setState(() {
+      isCheckingOut = true;
+    });
+
+    try {
+      final url = Uri.parse(
+          "${ApiConstants.baseUrl}student/pending-payment/checkout-details");
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final body = jsonEncode({
+        'payment_id': paymentId,
+        'payment_type': paymentType,
+      });
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        print("Checkout API Response: ${response.statusCode}");
+        Get.snackbar('Payment Checkout','Payment checkout Successfully', snackPosition: SnackPosition.BOTTOM);
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text('Payment checked out successfully')),
+        // );
+        // Optionally refresh the list after checkout
+        await _fetchPendingPayments();
+        // Navigate to BillingAddress page
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => BillingAddress()));
+      } else {
+        final error = jsonDecode(response.body);
+        print("Checkout API Error: ${response.statusCode} - ${response.body}");
+        Get.snackbar('Failed Payment Checkout',error['message'] , snackPosition: SnackPosition.BOTTOM);
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //       content: Text(
+        //           error['message'] ?? 'Failed to checkout payment. Please try again.')),
+        // );
+      }
+    } catch (e) {
+      print("Checkout Exception: $e");
+      Get.snackbar('Checkout Exception', 'Error: $e', snackPosition: SnackPosition.BOTTOM);
+
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error: $e')),
+      // );
+    } finally {
+      setState(() {
+        isCheckingOut = false;
       });
     }
   }
@@ -179,10 +244,15 @@ class _PendingPaymentState extends State<PendingPayment> {
                       SizedBox(height: 12.h),  // Responsive height
                       _buildInfoRow('Issue Month',payment['issue_month']?.toString() ?? 'N/A'),
                       SizedBox(height: 24.h),  // Responsive height
-                      CustomButton(onTap: (){
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context)=>BillingAddress()));
-                      }, buttonText: 'CHECKOUT')
+                      CustomButton(
+                        onTap: isCheckingOut
+                            ? () {}
+                            : () => _checkoutPayment(
+                          payment['payment_id']?.toString() ?? '',
+                          payment['payment_type']?.toString() ?? '',
+                        ),
+                        buttonText: isCheckingOut ? 'Checking Out...' : 'CHECKOUT',
+                      ),
                     ],
                   ),
                 ),

@@ -266,7 +266,7 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
                                 _buildLabel("State", false),
                                 SizedBox(height: 8.h),
                                 CustomDropdown(
-                                  hint: "Select State",
+                                  hint: "Select",
                                   value: _selectedState,
                                   items: _states,
                                   onChanged: (String? newValue) {
@@ -286,7 +286,7 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
                                 _buildLabel("City", false),
                                 SizedBox(height: 8.h),
                                 CustomDropdown(
-                                  hint: "Select City",
+                                  hint: "Select",
                                   value: _selectedCity,
                                   items: _cities,
                                   onChanged: (String? newValue) {
