@@ -1,40 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class IndividualSchedule extends StatelessWidget {
   final List<dynamic> Classes;
   IndividualSchedule({required this.Classes});
-
-  // final List<Map<String, String>> classes = [
-  //   {
-  //     'No': '1',
-  //     'Instructor': 'Nouman Ab',
-  //     'Course': 'Tajweed ul Quran the easy way (English)',
-  //     'Date Time': '07-04-2025 Wed 02:00 PM',
-  //     'Status': 'Missed'
-  //   },
-  //   {
-  //     'No': '2',
-  //     'Instructor': 'Nouman Ab',
-  //     'Course': 'Tajweed ul Quran the easy way (English)',
-  //     'Date Time': '07-04-2025 Wed 03:00 PM',
-  //     'Status': 'Waiting'
-  //   },
-  //   {
-  //     'No': '3',
-  //     'Instructor': 'Nouman Ab',
-  //     'Course': 'Tajweed ul Quran the easy way (English)',
-  //     'Date Time': '14-04-2025 Wed 02:00 PM',
-  //     'Status': 'Scheduled'
-  //   },
-  //   {
-  //     'No': '4',
-  //     'Instructor': 'Nouman Ab',
-  //     'Course': 'Tajweed ul Quran the easy way (English)',
-  //     'Date Time': '14-04-2025 Wed 03:00 PM',
-  //     'Status': 'Scheduled'
-  //   },
-  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -85,13 +55,16 @@ class IndividualSchedule extends StatelessWidget {
           _buildInfoRow('Instructor', classData['instructor'] ?? 'N/A'),
           _buildInfoRow('Course', classData['course'] ?? 'N/A'),
           _buildInfoRow('Date', classData['date_time'] ?? 'N/A'),
-          _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A', isStatus: true),
+          _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A',
+              isStatus: true,
+              btnHref: classData['status']['btnHref']),
+
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool isStatus = false}) {
+  Widget _buildInfoRow(String label, String value, {bool isStatus = false, String? btnHref}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
@@ -111,8 +84,34 @@ class IndividualSchedule extends StatelessWidget {
           Expanded(
             flex: 3,
             child: isStatus
-                ? Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                ? value == 'Start Class' && btnHref != null
+                ? ElevatedButton(
+              onPressed: () async {
+                final url = Uri.parse(btnHref);
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                } else {
+                  throw 'Could not launch $btnHref';
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _getStatusColor(value).withOpacity(0.1),
+                foregroundColor: _getStatusColor(value),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                value,
+                style: TextStyle(
+                  color: _getStatusColor(value),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 17.sp,
+                ),
+              ),
+            )
+                :Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: _getStatusColor(value).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
@@ -121,7 +120,7 @@ class IndividualSchedule extends StatelessWidget {
                 value,
                 style: TextStyle(
                   color: _getStatusColor(value),
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   fontSize: 17.sp,
                 ),
               ),
@@ -149,6 +148,10 @@ class IndividualSchedule extends StatelessWidget {
         return Colors.orange;
       case 'Scheduled':
         return Colors.blue;
+
+        case 'Start Class':
+        return Colors.green;
+
       default:
         return Colors.grey;
     }
