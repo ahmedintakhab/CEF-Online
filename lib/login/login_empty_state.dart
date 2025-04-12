@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:learn_megnagmet/home/home_main.dart';
 import 'package:learn_megnagmet/login/forgot_password.dart';
 import 'package:learn_megnagmet/login/sign_up/sign_up_empty_screen.dart';
+import 'package:learn_megnagmet/login/sign_up/signup_radio_button.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -309,13 +310,13 @@ class _EmptyStateState extends State<EmptyState> {
     return Center(
       child: RichText(
           text: TextSpan(
-              text: 'Already have an account?',
+              text: 'Dont have an account?',
               style:  TextStyle(color: Colors.black, fontSize: 15.sp,fontFamily: 'Gilroy'),
               children: [
             TextSpan(
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  Get.to(const SignInEmptyScreen());
+                  Get.to(const SignupRadioButton());
                 },
               text: ' Sign up',
               style:  TextStyle(

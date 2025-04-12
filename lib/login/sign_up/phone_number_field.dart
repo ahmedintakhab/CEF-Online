@@ -41,7 +41,7 @@ Widget phone_number_field({
                 borderSide: BorderSide(color: Colors.red, width: 1.5),
               ),
             ),
-            initialCountryCode: 'IN', // Default country code
+            initialCountryCode: 'PK', // Default country code
             onChanged: (phone) {
               onPhoneNumberChanged(phone.completeNumber);
               state.didChange(phone.completeNumber); // Update the FormField state

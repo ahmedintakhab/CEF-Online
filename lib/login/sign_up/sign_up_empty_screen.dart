@@ -13,14 +13,14 @@ import '../../utils/api_constants.dart';
 import '../../utils/screen_size.dart';
 import '../../widget/dropdown_button.dart';
 
-class SignInEmptyScreen extends StatefulWidget {
-  const SignInEmptyScreen({Key? key}) : super(key: key);
+class StudentSignupScreen extends StatefulWidget {
+  const StudentSignupScreen({Key? key}) : super(key: key);
 
   @override
-  State<SignInEmptyScreen> createState() => _SignInEmptyScreenState();
+  State<StudentSignupScreen> createState() => _StudentSignupScreenState();
 }
 
-class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
+class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
   bool ischeaked = false;
   bool ispassHiden = true;
@@ -107,20 +107,20 @@ class _SignInEmptyScreenState extends State<SignInEmptyScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               SizedBox(height: 60.h),
-              back_button(),
-               SizedBox(height: 20.h),
-               Center(
-                child: Text(
-                  "Create an account",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24.sp,
-                      fontFamily: 'Gilroy',
-                      color: const Color(0XFF000000)),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              //  SizedBox(height: 60.h),
+              // back_button(),
+              //  SizedBox(height: 20.h),
+              //  Center(
+              //   child: Text(
+              //     "Create an account",
+              //     style: TextStyle(
+              //         fontWeight: FontWeight.bold,
+              //         fontSize: 24.sp,
+              //         fontFamily: 'Gilroy',
+              //         color: const Color(0XFF000000)),
+              //     textAlign: TextAlign.center,
+              //   ),
+              // ),
              //  SizedBox(height: 20.h),
               Expanded(
                 child:ListView(

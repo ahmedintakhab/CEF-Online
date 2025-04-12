@@ -95,20 +95,20 @@ class IndividualSchedule extends StatelessWidget {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _getStatusColor(value).withOpacity(0.1),
+                backgroundColor: _getStatusColor(value).withOpacity(0.2),
                 foregroundColor: _getStatusColor(value),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+                elevation: 0, // Remove shadow to match Container
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-              child: Text(
-                value,
-                style: TextStyle(
+                textStyle: TextStyle(
                   color: _getStatusColor(value),
                   fontWeight: FontWeight.w600,
                   fontSize: 17.sp,
                 ),
               ),
+              child: Text(value),
             )
                 :Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
