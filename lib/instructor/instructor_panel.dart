@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_megnagmet/My_cources/ongoing_screen.dart';
 import 'package:learn_megnagmet/home/home_screen.dart';
+import 'package:learn_megnagmet/instructor/instructor_courses.dart';
 import 'package:learn_megnagmet/profile/address_and_location.dart';
 import 'package:learn_megnagmet/profile/change_password.dart';
 import 'package:learn_megnagmet/profile/pending_payment.dart';
@@ -186,7 +188,7 @@ class _InstructorPanelState extends State<InstructorPanel> {
                               title: 'My Courses',
                               icon: Icon(Icons.book, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Get.to(OngoingCompletedScreen());
+                                Get.to(InstructorCourses());
                               },
                             ),
                             // Saved Course
