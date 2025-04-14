@@ -53,11 +53,11 @@ class _MyCourcesState extends State<MyCources> {
 
     setState(() {
       ongoingCourses = courseController.ongoingCourses;
-      courseType = courseDetails['course_type'];
-      btnText = courseDetails['btn_text'];
+      courseType = courseDetails['course_type'] ?? '';
+      btnText = courseDetails['btn_text'] ?? '';
       btnApiRoute = courseDetails['btn_api_route'] ?? '';
       courseId = courseDetails['course_id'].toString();
-      previewSrcType = courseDetails['course_preview_src_type'];
+      previewSrcType = courseDetails['course_preview_src_type'] ?? '';
 
       // Setup pages based on course type
       setupPages(courseDetails);

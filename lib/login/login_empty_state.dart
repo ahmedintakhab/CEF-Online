@@ -38,10 +38,12 @@ class _EmptyStateState extends State<EmptyState> {
   }
   Future<void> saveUserData(Map<String, dynamic> userDetails) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    print('Saving role: ${userDetails['role']}');
 
     // Save user details
     prefs.setString('user_name', userDetails['name'] ?? '');
     prefs.setString('email', userDetails['email'] ?? '');
+    prefs.setString('role', userDetails['role']?.toString() ?? '');
     prefs.setString('phone_number', userDetails['mobile_number'] ?? '');
     prefs.setString('avatar', userDetails['avatar'] ?? '');
     prefs.setString('auth_token', userDetails['auth_token'] ?? ''); // Save the token
@@ -75,12 +77,11 @@ class _EmptyStateState extends State<EmptyState> {
         final data = jsonDecode(response.body);
         PrefData.setLogin(true); // Update login state
         print("Login successful!");
-        await saveUserData(data['userDetails']);
-        print("User data saved successfully!");
-        // Include token in userDetails
-        final userDetails = data['userDetails'];
-        userDetails['auth_token'] = data['token']; // Add token to userDetails
+        print("Login API response code: ${response.statusCode}");
 
+        // Include token in userDetails
+        final userDetails = data['userDetails']as Map<String, dynamic>;
+        userDetails['auth_token'] = data['token']; // Add token to userDetails
         // Save userDetails with token
         await saveUserData(userDetails);
 
