@@ -8,12 +8,10 @@ import 'package:learn_megnagmet/home/home_screen.dart';
 import 'package:learn_megnagmet/profile/address_and_location.dart';
 import 'package:learn_megnagmet/profile/change_password.dart';
 import 'package:learn_megnagmet/profile/pending_payment.dart';
-import 'package:learn_megnagmet/profile/privacy_policy.dart';
 import 'package:learn_megnagmet/profile/profile_field_container.dart';
 import 'package:learn_megnagmet/profile/rateus_dialogue_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:learn_megnagmet/profile/edit_screen.dart';
-import 'package:learn_megnagmet/profile/my_certification.dart';
 import 'package:learn_megnagmet/utils/api_constants.dart';
 import 'package:learn_megnagmet/utils/screen_size.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
@@ -24,10 +22,9 @@ import '../login/login_empty_state.dart';
 import '../models/new_user_detail.dart';
 import '../models/profile_option.dart';
 import '../utils/slider_page_data_model.dart';
-import 'certi_payment.dart';
+import '../widget/button.dart';
 import 'classes_history_screen.dart';
 import 'classes_schedule_screen.dart';
-import 'feedback.dart';
 
 class MyProfile extends StatefulWidget {
   const MyProfile({Key? key, required this.user_detail}) : super(key: key);
@@ -121,6 +118,9 @@ class _MyProfileState extends State<MyProfile> {
                               style: TextStyle(
                                   fontWeight: FontWeight.w700, fontSize: 24.sp, fontFamily: 'Gilroy'),
                             ),
+                            SizedBox(width: 40.w),
+                            SizedBox(width: 180.w, height: 35.h,
+                                child: CustomButton(onTap: (){}, buttonText: 'Student Panel'))
                           ],
                         ),
                       ),
