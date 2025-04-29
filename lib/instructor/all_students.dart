@@ -39,7 +39,7 @@ class _AllStudentsState extends State<AllStudents> {
       if (response.statusCode == 200) {
         print('All students API response: ${response.statusCode}');
         final data = jsonDecode(response.body);
-        print('All students API data: $data');
+        // print('All students API data: $data');
 
         if (data['success'] == true) {
           setState(() {
@@ -71,7 +71,7 @@ class _AllStudentsState extends State<AllStudents> {
         // backgroundColor: Colors.blue[900],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F),))
           : students.isEmpty
           ? const Center(child: Text('No students found'))
           : ListView.builder(

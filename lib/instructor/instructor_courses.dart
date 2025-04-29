@@ -1,28 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import '../utils/api_constants.dart';
 
-class InstructorCourses extends StatelessWidget {
+class InstructorCourses extends StatefulWidget {
   const InstructorCourses({Key? key}) : super(key: key);
 
-  // Static data for courses (to be replaced with API data later)
-  final List<Map<String, dynamic>> courses = const [
-    {
-      'image': 'https://assets.blurb.com/pages/website-assets/lp-homepage/3_Tradebooks-922752db04177f3417c8505ff1970f9d88be19f966cff7ce4654bd85c5073ac3.png', // Placeholder image
-      'name': '25 Character Workshops for Grade 6 to 12',
-      'price': 'Rs 4999.00',
-      'rating': 4.3,
-      'reviews': 3,
-      'status': 'Published',
-    },
-    {
-      'image': 'https://static.vecteezy.com/system/resources/thumbnails/040/534/371/small/ai-generated-enchanting-open-magic-book-colorful-generate-ai-photo.jpg', // Placeholder image
-      'name': '25 Character Traits for Success: A Comprehensive Guide',
-      'price': 'Rs 4999.00',
-      'rating': 4.0,
-      'reviews': 4,
-      'status': 'Published',
-    },
-  ];
+  @override
+  State<InstructorCourses> createState() => _InstructorCoursesState();
+}
+
+class _InstructorCoursesState extends State<InstructorCourses> {
+  List<dynamic> courses = [];
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCourses();
+  }
+  Future<void> fetchCourses() async {
+    String apiUrl = "${ApiConstants.baseUrl}instructor/my-courses";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('auth_token') ?? '';
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Instructor Courses API response: ${response.statusCode}');
+        final data = jsonDecode(response.body);
+        // print('Instructor Courses API data: $data');
+
+        if (data['success'] == true) {
+          setState(() {
+            courses = data['data'];
+            isLoading = false;
+          });
+        } else {
+          throw Exception('Failed to load courses');
+        }
+      } else {
+        throw Exception('Failed to load courses');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching instructor courses: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching courses: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +88,11 @@ class InstructorCourses extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)))
+          : courses.isEmpty
+          ? const Center(child: Text('No courses found'))
+          :SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
           child: Column(
@@ -101,7 +144,7 @@ class InstructorCourses extends StatelessWidget {
               SizedBox(
                 width: 190.w, // Adjust width to fit mobile screen
                 child: Text(
-                  course['name'],
+                  course['title'] ?? '',
                   style: TextStyle(
                     fontFamily: 'Gilroy',
                     fontSize: 16.sp,
@@ -116,7 +159,7 @@ class InstructorCourses extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    course['price'],
+                    ' Rs${course['price']}' ?? '',
                     style: TextStyle(
                       fontFamily: 'Gilroy',
                       fontSize: 14.sp,
@@ -128,7 +171,7 @@ class InstructorCourses extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        course['rating'].toString(),
+                        course['average_rating'].toString(),
                         style: TextStyle(
                           fontFamily: 'Gilroy',
                           fontSize: 14.sp,
@@ -140,7 +183,7 @@ class InstructorCourses extends StatelessWidget {
                         children: List.generate(
                           5,
                               (index) => Icon(
-                            index < course['rating'].floor()
+                                index < double.parse(course['average_rating']).floor()
                                 ? Icons.star
                                 : Icons.star_border,
                             color: Colors.amber,
@@ -150,7 +193,7 @@ class InstructorCourses extends StatelessWidget {
                       ),
                       SizedBox(width: 2.w),
                       Text(
-                        '(${course['reviews']})',
+                        '(${course['review_count']})',
                         style: TextStyle(
                           fontFamily: 'Gilroy',
                           fontSize: 14.sp,
@@ -171,7 +214,7 @@ class InstructorCourses extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Text(
-                  course['status'],
+                  course['status'] == 1 ? 'Published' : 'Unpublished',
                   style: TextStyle(
                     fontFamily: 'Gilroy',
                     fontSize: 12.sp,
