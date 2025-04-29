@@ -4,12 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:learn_megnagmet/My_cources/ongoing_screen.dart';
 import 'package:learn_megnagmet/home/home_screen.dart';
 import 'package:learn_megnagmet/instructor/instructor_courses.dart';
+import 'package:learn_megnagmet/instructor/instructor_notice_board.dart';
 import 'package:learn_megnagmet/profile/address_and_location.dart';
 import 'package:learn_megnagmet/profile/change_password.dart';
-import 'package:learn_megnagmet/profile/pending_payment.dart';
 import 'package:learn_megnagmet/profile/profile_field_container.dart';
 import 'package:learn_megnagmet/profile/rateus_dialogue_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,7 +17,6 @@ import 'package:learn_megnagmet/utils/api_constants.dart';
 import 'package:learn_megnagmet/utils/screen_size.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
 
-import '../My_cources/ongoing_completed_main_screen.dart';
 import '../controller/controller.dart';
 import '../login/login_empty_state.dart';
 import '../models/new_user_detail.dart';
@@ -222,7 +220,7 @@ class _InstructorPanelState extends State<InstructorPanel> {
                               title: 'Notice Board',
                               icon: Icon(Icons.pending_actions, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Get.to(PendingPayment());
+                                Get.to(InstructorNoticeBoard());
                                 // Get.to(CertificatePayment());
 
                                 // Disabled as per original code

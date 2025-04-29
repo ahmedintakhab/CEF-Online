@@ -910,6 +910,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontSize: 18.sp,
                                 color: Color(0XFF000000),
                                 fontFamily: 'Gilroy'),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                          SizedBox(height: 11.h),

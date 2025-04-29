@@ -29,7 +29,8 @@ class _LessonState extends State<Lesson> {
     initializeScreenSize(context);
     return GetBuilder(
         init: HomeController(),
-        builder: (controller) => SingleChildScrollView(
+        builder: (controller) =>
+            SingleChildScrollView(
               child: Column(
                 children: [
                   ListView.builder(
@@ -38,30 +39,38 @@ class _LessonState extends State<Lesson> {
                       shrinkWrap: true,
                       itemCount: widget.lessonsData.length,
                       itemBuilder: (BuildContext, index) {
-                        var lesson = widget.lessonsData[index]; // Get each lesson data
+                        var lesson = widget
+                            .lessonsData[index]; // Get each lesson data
                         return Padding(
-                          padding:  EdgeInsets.only(top:index==0?0.h: 8.h,bottom: 8.h,left: 15.w,right: 15.w),
+                          padding: EdgeInsets.only(top: index == 0 ? 0.h : 8.h,
+                              bottom: 8.h,
+                              left: 15.w,
+                              right: 15.w),
                           child: Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12.h),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: const Color(0XFF23408F).withOpacity(0.14),
-                                      offset: const Offset(-4, 5),
-                                      blurRadius: 16),
-                                ],
-                               ),
+                              borderRadius: BorderRadius.circular(12.h),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: const Color(0XFF23408F).withOpacity(
+                                        0.14),
+                                    offset: const Offset(-4, 5),
+                                    blurRadius: 16),
+                              ],
+                            ),
                             child: ExpansionTileCard(
-                              trailing:Padding(
-                                padding:  EdgeInsets.only(right: 20.w),
-                                child: Image.asset("assets/down.png",height: 24.h,width: 24.w,color: Color(0XFF78A03F),),
+                              trailing: Padding(
+                                padding: EdgeInsets.only(right: 20.w),
+                                child: Image.asset(
+                                  "assets/down.png", height: 24.h,
+                                  width: 24.w,
+                                  color: Color(0XFF78A03F),),
                               ),
                               animateTrailing: true,
 
 
-
-                              contentPadding: EdgeInsets.symmetric(vertical: 5.h),
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 5.h),
                               borderRadius: BorderRadius.circular(22.h),
                               leading: Image.asset(
                                 lessonLists[index].image!,
@@ -74,43 +83,45 @@ class _LessonState extends State<Lesson> {
                                 children: [
                                   Text(
                                     lesson['lesson_name'] ?? 'No Name',
-                                    style:  TextStyle(
+                                    style: TextStyle(
                                         fontSize: 14.sp,
                                         color: Color(0XFF000000),
                                         fontFamily: 'Gilroy',
                                         fontWeight: FontWeight.bold),
                                   ),
-                                   SizedBox(height: 4.h),
+                                  SizedBox(height: 4.h),
                                   Container(
                                     height: 20.h,
                                     width: 63.w,
                                     decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(22.h),
+                                        borderRadius: BorderRadius.circular(
+                                            22.h),
                                         color: const Color(0XFFEBF2C2)),
                                     child: Center(
                                         child: Text(
-                                    'Lesson ${lesson['lesson_no'].toString()}',
-                                      style:  TextStyle(
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color(0XFF78A03F)),
-                                    )),
+                                          'Lesson ${lesson['lesson_no']
+                                              .toString()}',
+                                          style: TextStyle(
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.bold,
+                                              color: const Color(0XFF78A03F)),
+                                        )),
                                   ),
                                 ],
                               ),
                               children: <Widget>[
-                                 Divider(
+                                Divider(
                                   thickness: 1.0,
                                   height: 1.0.h,
                                 ),
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: Padding(
-                                      padding:  EdgeInsets.symmetric(
+                                    padding: EdgeInsets.symmetric(
                                         horizontal: 16.0.w,
                                         vertical: 8.0.h
-                                      ),
-                                      child: lesson_detail(index),),
+                                    ),
+                                    child: lesson_detail(index),),
                                 )
                               ],
                             ),
@@ -122,6 +133,7 @@ class _LessonState extends State<Lesson> {
               ),
             ));
   }
+
   Widget lesson_detail(int index) {
     // Get the lectures data for the current lesson
     var lectures = widget.lessonsData[index]['lesson_lectures'] as List;
@@ -142,7 +154,8 @@ class _LessonState extends State<Lesson> {
                 Flexible(
                   child: Text(
                     lecture['lecture_title'] ?? 'No Title',
-                    style: TextStyle(fontSize: 14.sp, color: const Color(0XFF000000)),
+                    style: TextStyle(
+                        fontSize: 14.sp, color: const Color(0XFF000000)),
                   ),
                 ),
                 SizedBox(width: 10.w),
@@ -153,28 +166,29 @@ class _LessonState extends State<Lesson> {
                     color: Colors.grey,
                     size: 20.h,
                   )
-                else if (lecture['lecture_is'] == 'Free')
-                  Container(
-                    width: 70,
-                    height: 20,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        final url = lecture['lecture_preview_btn_src'];
-                        if (url != null && url.isNotEmpty) {
-                          launchUrl(Uri.parse(url));
-                        } else {
-                          print('Invalid or missing URL for lecture preview');
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0XFF78A03F),
-                      ),
-                      child: Text(
-                        'Preview',
-                        style: TextStyle(fontSize: 8.sp, color: Colors.white),
+                else
+                  if (lecture['lecture_is'] == 'Free')
+                    Container(
+                      width: 70,
+                      height: 20,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final url = lecture['lecture_preview_btn_src'];
+                          if (url != null && url.isNotEmpty) {
+                            launchUrl(Uri.parse(url));
+                          } else {
+                            print('Invalid or missing URL for lecture preview');
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0XFF78A03F),
+                        ),
+                        child: Text(
+                          'Preview',
+                          style: TextStyle(fontSize: 8.sp, color: Colors.white),
+                        ),
                       ),
                     ),
-                  ),
               ],
             ),
             SizedBox(height: 5.h),
@@ -194,7 +208,8 @@ class _LessonState extends State<Lesson> {
       String svgContent = response.body;
 
       // Fix rotation values using proper RegExp replacement
-      svgContent = svgContent.replaceAll(RegExp(r'rotate\(\s*\d+deg\s*\)'), 'rotate(0)');
+      svgContent =
+          svgContent.replaceAll(RegExp(r'rotate\(\s*\d+deg\s*\)'), 'rotate(0)');
       svgContent = svgContent.replaceAllMapped(
           RegExp(r'(-?\d+)deg'),
               (match) => match.group(1) ?? '0'
@@ -259,11 +274,12 @@ class _LessonState extends State<Lesson> {
         height: 20.h,
         width: 20.w,
         color: const Color(0XFF8CC13F),
-        errorBuilder: (context, error, stackTrace) => Icon(
-          Icons.error,
-          color: Colors.red,
-          size: 20.h,
-        ),
+        errorBuilder: (context, error, stackTrace) =>
+            Icon(
+              Icons.error,
+              color: Colors.red,
+              size: 20.h,
+            ),
       );
     }
   }
