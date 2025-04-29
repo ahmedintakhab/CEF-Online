@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/home/home_screen.dart';
+import 'package:learn_megnagmet/instructor/all_students.dart';
 import 'package:learn_megnagmet/instructor/instructor_courses.dart';
 import 'package:learn_megnagmet/instructor/instructor_notice_board.dart';
 import 'package:learn_megnagmet/profile/address_and_location.dart';
@@ -194,7 +195,8 @@ class _InstructorPanelState extends State<InstructorPanel> {
                               title: 'All Students',
                               icon: Icon(Icons.storefront, color: Color(0XFF78A03F)),
                               onTap: () {
-                                // Disabled as per original code
+                                Get.to(AllStudents());
+
                               },
                             ),
                             // Certificate Payment
