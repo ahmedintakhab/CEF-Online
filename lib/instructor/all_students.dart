@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/instructor/student_information_dialog.dart';
+import 'package:learn_megnagmet/widget/button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../utils/api_constants.dart';
@@ -141,22 +142,25 @@ class _AllStudentsState extends State<AllStudents> {
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => StudentInformationDialog(student: student),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0XFF78A03F),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          // side: const BorderSide(color: Colors.green, width: 2),
-                        ),
-                      ),
-                      child: const Text('VIEW', style: TextStyle(color: Colors.white)),
-                    ),
+                    child: CustomButton(onTap: (){
+                      showDialog(context: context, builder: (context) => StudentInformationDialog(student: student),);
+                    }, buttonText: 'View Details'),
+                    // child: ElevatedButton(
+                    //   onPressed: () {
+                    //     showDialog(
+                    //       context: context,
+                    //       builder: (context) => StudentInformationDialog(student: student),
+                    //     );
+                    //   },
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: Color(0XFF78A03F),
+                    //     shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(8),
+                    //       // side: const BorderSide(color: Colors.green, width: 2),
+                    //     ),
+                    //   ),
+                    //   child: const Text('VIEW', style: TextStyle(color: Colors.white)),
+                    // ),
                   ),
                 ],
               ),

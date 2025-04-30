@@ -7,15 +7,12 @@ import '../utils/api_constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
-
-
-class InstructorClassesSchedule extends StatefulWidget {
+class InstructorClassesHistory extends StatefulWidget {
   @override
-  _InstructorClassesScheduleState createState() => _InstructorClassesScheduleState();
+  _InstructorClassesHistoryState createState() => _InstructorClassesHistoryState();
 }
 
-class _InstructorClassesScheduleState extends State<InstructorClassesSchedule>
+class _InstructorClassesHistoryState extends State<InstructorClassesHistory>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late PageController _pageController;
@@ -33,7 +30,7 @@ class _InstructorClassesScheduleState extends State<InstructorClassesSchedule>
   }
   Future<void> _fetchClassSchedule() async {
     try {
-      final url = Uri.parse("${ApiConstants.baseUrl}instructor/classes-schedule");
+      final url = Uri.parse("${ApiConstants.baseUrl}instructor/class-history");
 
       // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -50,14 +47,14 @@ class _InstructorClassesScheduleState extends State<InstructorClassesSchedule>
 
       if (response.statusCode == 200) {
         // Successful API call
-        print("Instructor Classes Schedule API Response: ${response.statusCode}");
+        print("Instructor Classes History API Response: ${response.statusCode}");
         final responseData = json.decode(response.body);
         if (responseData['success'] == true) {
           setState(() {
             classScheduleData = responseData['data'];
             isLoading = false;
           });
-          print("Parsed Schedule data: $classScheduleData");
+          print("Parsed History class data: $classScheduleData");
         } else {
           setState(() {
             isLoading = false;
@@ -95,7 +92,7 @@ class _InstructorClassesScheduleState extends State<InstructorClassesSchedule>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Classes Schedule',
+          'Classes History',
           style: TextStyle(
             fontSize: 24.sp,
             fontWeight: FontWeight.bold,

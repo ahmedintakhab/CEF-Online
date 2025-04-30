@@ -6,9 +6,11 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/home/home_screen.dart';
 import 'package:learn_megnagmet/instructor/all_students.dart';
+import 'package:learn_megnagmet/instructor/instructor_classes_history.dart';
 import 'package:learn_megnagmet/instructor/instructor_classes_schedule.dart';
 import 'package:learn_megnagmet/instructor/instructor_courses.dart';
 import 'package:learn_megnagmet/instructor/instructor_notice_board.dart';
+import 'package:learn_megnagmet/instructor/live_class_screen.dart';
 import 'package:learn_megnagmet/profile/address_and_location.dart';
 import 'package:learn_megnagmet/profile/change_password.dart';
 import 'package:learn_megnagmet/profile/profile_field_container.dart';
@@ -205,7 +207,7 @@ class _InstructorPanelState extends State<InstructorPanel> {
                               title: 'Classes Schedule',
                               icon: Icon(Icons.calendar_month, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Get.to(ClassScheduleScreen());
+                                Get.to(InstructorClassesSchedule());
                                 // Get.to(FeedBack());
                               },
                             ),
@@ -214,7 +216,7 @@ class _InstructorPanelState extends State<InstructorPanel> {
                               title: 'Classes History',
                               icon: Icon(Icons.history, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Get.to(InstructorClassesSchedule());
+                                Get.to(InstructorClassesHistory());
                                 // Get.to(PrivacyPolicy());
                               },
                             ),
@@ -233,8 +235,8 @@ class _InstructorPanelState extends State<InstructorPanel> {
                               title: 'Live Class',
                               icon: Icon(Icons.class_, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context)=>ChangePassword()));
+                                Get.to(LiveClassScreen());
+
                               },
                             ),
                             ProfileFieldContainer(
