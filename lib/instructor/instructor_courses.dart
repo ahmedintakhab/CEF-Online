@@ -78,7 +78,7 @@ class _InstructorCoursesState extends State<InstructorCourses> {
           style: TextStyle(
             fontFamily: 'Gilroy',
             fontWeight: FontWeight.w700,
-            fontSize: 24,
+            fontSize: 24,color: Color(0XFF78A03f)
           ),
         ),
         backgroundColor: Colors.white,

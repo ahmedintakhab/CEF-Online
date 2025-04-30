@@ -67,7 +67,8 @@ class _AllStudentsState extends State<AllStudents> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Students', style: TextStyle(fontWeight: FontWeight.bold,fontSize: 24),),
+        title: const Text('All Students', style: TextStyle(fontWeight:
+        FontWeight.bold,fontSize: 24, color: Color(0XFF78A03f),),)
         // backgroundColor: Colors.blue[900],
       ),
       body: isLoading
