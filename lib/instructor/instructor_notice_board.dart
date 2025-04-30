@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
+import 'package:learn_megnagmet/instructor/view_notice_list_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import '../utils/api_constants.dart';
+import 'add_notice_dialog.dart';
 
 class InstructorNoticeBoard extends StatefulWidget {
   const InstructorNoticeBoard({Key? key}) : super(key: key);
@@ -9,48 +15,79 @@ class InstructorNoticeBoard extends StatefulWidget {
 }
 
 class _InstructorNoticeBoardState extends State<InstructorNoticeBoard> {
-  // Static data for courses that can be replaced with API data later
-  final List<CourseNotice> _courseNotices = [
-    CourseNotice(
-      id: '1',
-      courseName: 'Tajweed ul Quran Asaan Treeqy (Urdu)',
-      totalNotices: 2,
-      courseImage: 'assets/tajweed_quran.png',
-    ),
-    CourseNotice(
-      id: '2',
-      courseName: 'Learn Quranic Arabic the easy way (52 Hours Course)',
-      totalNotices: 1,
-      courseImage: 'assets/quranic_arabic.png',
-    ),
-    CourseNotice(
-      id: '3',
-      courseName: 'Islamic Studies Fundamentals',
-      totalNotices: 3,
-      courseImage: 'assets/islamic_studies.png',
-    ),
-    CourseNotice(
-      id: '4',
-      courseName: 'Arabic Conversation Practice',
-      totalNotices: 0,
-      courseImage: 'assets/arabic_conversation.png',
-    ),
-  ];
+  List<CourseNotice> _courseNotices = [];
+  String noticeBoardTitle = 'Notice Board';
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchNoticeBoardData();
+  }
+
+  Future<void> fetchNoticeBoardData() async {
+    String apiUrl = "${ApiConstants.baseUrl}instructor/notice-board";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('auth_token') ?? '';
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          setState(() {
+            noticeBoardTitle = data['data']['title'];
+            _courseNotices = (data['data']['courses'] as List).map((course) {
+              return CourseNotice(
+                id: course['id'].toString(),
+                courseName: course['title'],
+                courseImage: course['image'],
+                uuid: course['uuid'],
+              );
+            }).toList();
+            isLoading = false;
+          });
+        } else {
+          throw Exception('Failed to load notice board data');
+        }
+      } else {
+        throw Exception('Failed to load notice board data');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching notice board data: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title:  Center(
+        title: Center(
           child: Text(
-            'Notice Board',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0XFF78A03F),fontSize: 22),
+            noticeBoardTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0XFF78A03F), fontSize: 22),
           ),
         ),
         elevation: 0,
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)))
+          : _courseNotices.isEmpty
+          ? const Center(child: Text('No courses found'))
+          : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
@@ -76,16 +113,6 @@ class _InstructorNoticeBoardState extends State<InstructorNoticeBoard> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Chip(
-                            label: Text(
-                              'Active Courses: 4',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            ),
-                            backgroundColor: Color(0XFF78A03F),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -98,12 +125,18 @@ class _InstructorNoticeBoardState extends State<InstructorNoticeBoard> {
                             return CourseNoticeItem(
                               courseNotice: _courseNotices[index],
                               onAddNotice: () {
-                                // Function to handle add notice
-                                _showAddNoticeDialog(context, _courseNotices[index]);
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) => AddNoticeDialog(course: _courseNotices[index]),
+                                );
                               },
                               onViewList: () {
-                                // Function to handle view list
-                                _showNoticeListDialog(context, _courseNotices[index]);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ViewNoticesScreen(course: _courseNotices[index]),
+                                  ),
+                                );
                               },
                             );
                           },
@@ -117,108 +150,6 @@ class _InstructorNoticeBoardState extends State<InstructorNoticeBoard> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showAddNoticeDialog(BuildContext context, CourseNotice course) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        String noticeTitle = '';
-        String noticeContent = '';
-
-        return AlertDialog(
-          title: Text('Add Notice for ${course.courseName}'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Notice Title',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    noticeTitle = value;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Notice Content',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 5,
-                  onChanged: (value) {
-                    noticeContent = value;
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Add'),
-              onPressed: () {
-                // TODO: Add notice logic here
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Notice added to ${course.courseName}'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showNoticeListDialog(BuildContext context, CourseNotice course) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Notices for ${course.courseName}'),
-          content: course.totalNotices > 0
-              ? ListView.builder(
-            shrinkWrap: true,
-            itemCount: course.totalNotices,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text('Notice ${index + 1}'),
-                subtitle: Text('Posted on ${DateTime.now().subtract(Duration(days: index)).toString().substring(0, 10)}'),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  // View notice details
-                },
-              );
-            },
-          )
-              : const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text('No notices available for this course.'),
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }
@@ -238,27 +169,22 @@ class CourseNoticeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 160.h, // Adjusted container height to prevent overflow
+      height: 160.h,
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // Responsive layout
           final isSmallScreen = constraints.maxWidth < 400;
 
           if (isSmallScreen) {
-            // Stack layout for small screens
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top part: Image and Course Info
                 Expanded(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Image on left
                       _buildCourseImage(),
                       const SizedBox(width: 12),
-                      // Course name and notices
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +199,6 @@ class CourseNoticeItem extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Bottom part: Buttons
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -285,19 +210,15 @@ class CourseNoticeItem extends StatelessWidget {
               ],
             );
           } else {
-            // Row layout for larger screens
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top part: Image and Course Info
                 Expanded(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Image on left
                       _buildCourseImage(),
                       const SizedBox(width: 16),
-                      // Course name and notices
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,7 +233,6 @@ class CourseNoticeItem extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Bottom part: Buttons
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -339,7 +259,7 @@ class CourseNoticeItem extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: Image.asset(
+        child: Image.network(
           courseNotice.courseImage,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
@@ -425,13 +345,16 @@ class CourseNoticeItem extends StatelessWidget {
 class CourseNotice {
   final String id;
   final String courseName;
-  final int totalNotices;
   final String courseImage;
+  final String uuid;
 
   CourseNotice({
     required this.id,
     required this.courseName,
-    required this.totalNotices,
     required this.courseImage,
+    required this.uuid,
   });
+
+  // Add totalNotices getter for backward compatibility
+  int get totalNotices => 0; // This will be fetched dynamically in ViewNoticesScreen
 }
