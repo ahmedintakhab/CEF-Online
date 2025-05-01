@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:learn_megnagmet/instructor/view_live_class_details.dart';
 import 'package:learn_megnagmet/widget/button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -262,7 +263,10 @@ class _LiveClassScreenState extends State<LiveClassScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
                       children: [
-                        Expanded(child: CustomButton(onTap: () {}, buttonText: 'View List')),
+                        Expanded(child: CustomButton(onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context)=>ViewLiveClassDetails()));
+                        }, buttonText: 'View List')),
                         const SizedBox(width: 16),
                         Expanded(
                           child: CustomButton(
