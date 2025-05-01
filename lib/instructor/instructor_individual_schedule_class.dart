@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class IndividualSchedule extends StatelessWidget {
+class InstructorIndividualScheduleClass extends StatelessWidget {
   final List<dynamic> Classes;
-  IndividualSchedule({required this.Classes});
+  InstructorIndividualScheduleClass({required this.Classes});
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +52,9 @@ class IndividualSchedule extends StatelessWidget {
       child: Column(
         children: [
           _buildInfoRow('No', classData['sr_no']?.toString() ?? 'N/A'),
-          _buildInfoRow('Instructor', classData['instructor'] ?? 'N/A'),
-          _buildInfoRow('Course', classData['course'] ?? 'N/A'),
-          _buildInfoRow('Date', classData['date_time'] ?? 'N/A'),
+          _buildInfoRow('Student', classData['student_name'] ?? 'N/A'),
+          _buildInfoRow('Course', classData['course_title'] ?? 'N/A'),
+          _buildInfoRow('Date', classData['class_date'] ?? 'N/A'),
           _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A',
               isStatus: true,
               btnHref: classData['status']['btnHref']),

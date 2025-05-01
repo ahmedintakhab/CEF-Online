@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class GroupSchedule extends StatelessWidget {
+class InstructorGroupScheduleClass extends StatelessWidget {
   final List<dynamic> Classes;
-  GroupSchedule({required this.Classes});
+  InstructorGroupScheduleClass({required this.Classes});
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +51,9 @@ class GroupSchedule extends StatelessWidget {
       child: Column(
         children: [
           _buildInfoRow('No', classData['sr_no']?.toString() ?? 'N/A'),
-          _buildInfoRow('Instructor', classData['instructor'] ?? 'N/A'),
-          _buildInfoRow('Course', classData['course'] ?? 'N/A'),
-          _buildInfoRow('Date', classData['date_time'] ?? 'N/A'),
+          // _buildInfoRow('Instructor', classData['instructor'] ?? 'N/A'),
+          _buildInfoRow('Course', classData['course_title'] ?? 'N/A'),
+          _buildInfoRow('Date', classData['class_date'] ?? 'N/A'),
           _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A', isStatus: true),
         ],
       ),

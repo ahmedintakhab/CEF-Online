@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:learn_megnagmet/instructor/instructor_group_class_history.dart';
+import 'package:learn_megnagmet/instructor/instructor_group_schedule_class.dart';
 import 'package:learn_megnagmet/instructor/instructor_individual_class_history.dart';
+import 'package:learn_megnagmet/instructor/instructor_individual_schedule_class.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/api_constants.dart';
 import 'package:http/http.dart' as http;
@@ -204,7 +206,7 @@ class _InstructorClassesScheduleState extends State<InstructorClassesSchedule>
         SingleChildScrollView(
           child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: InstructorIndividualClassHistory(Classes: individualClasses)),
+              child: InstructorIndividualScheduleClass(Classes: individualClasses)),
         ),
 
 
@@ -212,7 +214,7 @@ class _InstructorClassesScheduleState extends State<InstructorClassesSchedule>
         SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: InstructorGroupClassHistory(Classes: groupClasses),
+            child: InstructorGroupScheduleClass(Classes: groupClasses),
           ),
         ),
       ],

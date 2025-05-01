@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:learn_megnagmet/cart/custom_dropdown.dart';
 import 'package:learn_megnagmet/widget/button.dart';
 import 'package:learn_megnagmet/widget/custom_text_form_field.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:intl/intl.dart'; // Add intl package for date formatting
+import '../utils/api_constants.dart';
 
 class CreateLiveClass extends StatefulWidget {
+  final String courseuuid; // Add uuid parameter
+  const CreateLiveClass({Key? key, required this.courseuuid}) : super(key: key);
+
   @override
   _CreateLiveClassState createState() => _CreateLiveClassState();
 }
@@ -15,19 +24,121 @@ class _CreateLiveClassState extends State<CreateLiveClass> {
   final TextEditingController _dateController = TextEditingController();
   TimeOfDay? _selectedTime;
   String? _selectedLearningTool;
+  bool _isLoading = false; // To show loading indicator
+  String _errorMessage = ''; // To show error message
 
-  final List<String> _learningTools = [ 'Zoom', 'BigBlueButton'];
+  final List<String> _learningTools = ['Zoom', 'BigBlueButton'];
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    // Pick Date
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(), // Start from today
       lastDate: DateTime(2100),
     );
-    if (picked != null) {
+
+    if (pickedDate != null) {
+      // Pick Time
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        // Combine date and time
+        final DateTime combinedDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        // Format the date and time to MM/dd/yyyy hh:mm a
+        final String formattedDateTime = DateFormat('MM/dd/yyyy hh:mm a').format(combinedDateTime);
+
+        setState(() {
+          _dateController.text = formattedDateTime; // Format: MM/dd/yyyy hh:mm a (e.g., 04/30/2025 06:04 PM)
+          _selectedTime = pickedTime; // Store selected time if needed
+        });
+      }
+    }
+  }
+
+  Future<void> _createLiveClass() async {
+    // Validate inputs
+    if (_topicController.text.isEmpty ||
+        _dateController.text.isEmpty ||
+        _durationController.text.isEmpty ||
+        _selectedLearningTool == null) {
       setState(() {
-        _dateController.text = "${picked.toLocal()}".split(' ')[0];
+        _errorMessage = 'Please fill in all fields.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      final url = Uri.parse("${ApiConstants.baseUrl}instructor/live-class/store/${widget.courseuuid}");
+
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+      // Transform the learning_tool value for the API
+      String apiLearningTool;
+      if (_selectedLearningTool == 'BigBlueButton') {
+        apiLearningTool = 'bbb';
+      } else if (_selectedLearningTool == 'Zoom') {
+        apiLearningTool = 'zoom';
+      } else {
+        apiLearningTool = _selectedLearningTool ?? ''; // Fallback in case of unexpected value
+      }
+
+      // Prepare the request body
+      final Map<String, dynamic> body = {
+        'class_topic': _topicController.text,
+        'date': _dateController.text,
+        'duration': _durationController.text,
+        'learning_tool': apiLearningTool,
+      };
+
+      // Make the API request
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        print('Create Live class Api response: ${response.statusCode}');
+
+        // Successful API call
+        Get.snackbar('Successful', 'Successfully created live class', snackPosition: SnackPosition.BOTTOM);
+
+        Navigator.pop(context); // Navigate back on success
+      } else {
+        // Handle API error
+        print('Failed to create live class. Status code: ${response.statusCode}');
+        setState(() {
+          _errorMessage = 'Failed to create live class. Status code: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      // Handle network errors
+      setState(() {
+        _errorMessage = 'Network error occurred. Please try again.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
       });
     }
   }
@@ -36,6 +147,7 @@ class _CreateLiveClassState extends State<CreateLiveClass> {
   void dispose() {
     _topicController.dispose();
     _durationController.dispose();
+    _dateController.dispose();
     super.dispose();
   }
 
@@ -68,11 +180,14 @@ class _CreateLiveClassState extends State<CreateLiveClass> {
               ),
             ),
             SizedBox(height: 8.h),
-            customTextFormField(controller: _topicController,
-                hintText: 'Enter your topic', validator: (val) {
+            customTextFormField(
+              controller: _topicController,
+              hintText: 'Enter your topic',
+              validator: (val) {
                 if (val == null || val.isEmpty) return 'Enter your topic';
                 return null;
-              }, ),
+              },
+            ),
             SizedBox(height: 16.h),
 
             // Live Class Date
@@ -87,17 +202,15 @@ class _CreateLiveClassState extends State<CreateLiveClass> {
             SizedBox(height: 8.h),
             customTextFormField(
               controller: _dateController,
-              hintText: 'Select date (yyyy-MM-dd)',
+              hintText: 'Select date (MM/dd/yyyy hh:mm a)', // Updated hint to reflect expected format
               suffixIcon: IconButton(
-                icon: Icon(Icons.calendar_today),
-                color: Color(0XFF78A03F),
+                icon: const Icon(Icons.calendar_today),
+                color: const Color(0XFF78A03F),
                 onPressed: () => _selectDate(context),
               ),
               validator: (value) =>
-              value?.isEmpty ?? true ? 'Please select date' : null,
+              value?.isEmpty ?? true ? 'Please select date and time' : null,
             ),
-
-
             SizedBox(height: 16.h),
 
             // Time Duration
@@ -110,12 +223,14 @@ class _CreateLiveClassState extends State<CreateLiveClass> {
               ),
             ),
             SizedBox(height: 8.h),
-            customTextFormField(controller:_durationController, hintText: "Type duration in minutes",
-              validator: (val){
+            customTextFormField(
+              controller: _durationController,
+              hintText: "Type duration in minutes",
+              validator: (val) {
                 if (val!.isEmpty) return 'Enter the duration';
                 return null;
-              },),
-
+              },
+            ),
             SizedBox(height: 16.h),
 
             // Learning Tool
@@ -128,13 +243,27 @@ class _CreateLiveClassState extends State<CreateLiveClass> {
               ),
             ),
             SizedBox(height: 8.h),
-            CustomDropdown(hint: 'Select Option', value: _selectedLearningTool,
-              items: _learningTools, onChanged: (String? newValue) {
-        setState(() {_selectedLearningTool = newValue;
-      });
-      },),
-
+            CustomDropdown(
+              hint: 'Select Option',
+              value: _selectedLearningTool,
+              items: _learningTools,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedLearningTool = newValue;
+                });
+              },
+            ),
             SizedBox(height: 24.h),
+
+            // Error Message
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(bottom: 16.h),
+                child: Text(
+                  _errorMessage,
+                  style: TextStyle(color: Colors.red, fontSize: 14.sp),
+                ),
+              ),
 
             // Buttons Row
             Row(
@@ -149,11 +278,21 @@ class _CreateLiveClassState extends State<CreateLiveClass> {
                 ),
                 SizedBox(width: 16.w),
                 Expanded(
-                  child: CustomButton(
-                    onTap: () {
-                      // Add functionality for creating the meeting
-                    },
-                    buttonText: 'Create Meeting',
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CustomButton(
+                        onTap: () {
+                          _createLiveClass(); // Wrap Future in a VoidCallback
+                        },
+                        buttonText: _isLoading ? '' : 'Create Meeting', // Hide text when loading
+                      ),
+                      if (_isLoading)
+                        const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
+                    ],
                   ),
                 ),
               ],
