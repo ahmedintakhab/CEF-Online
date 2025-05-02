@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:learn_megnagmet/instructor/instructor_group_class_history.dart';
 import 'package:learn_megnagmet/instructor/instructor_group_schedule_class.dart';
-import 'package:learn_megnagmet/instructor/instructor_individual_class_history.dart';
 import 'package:learn_megnagmet/instructor/instructor_individual_schedule_class.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/api_constants.dart';

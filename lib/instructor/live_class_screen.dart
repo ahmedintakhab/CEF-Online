@@ -265,7 +265,7 @@ class _LiveClassScreenState extends State<LiveClassScreen> {
                       children: [
                         Expanded(child: CustomButton(onTap: () {
                           Navigator.push(context,
-                              MaterialPageRoute(builder: (context)=>ViewLiveClassDetails()));
+                              MaterialPageRoute(builder: (context)=>ViewLiveClassDetails(courseuuid: courseuuid)));
                         }, buttonText: 'View List')),
                         const SizedBox(width: 16),
                         Expanded(

@@ -1,27 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:learn_megnagmet/instructor/create_live_class.dart';
 import 'package:learn_megnagmet/widget/button.dart';
 
 class PastLiveScreen extends StatelessWidget {
-  PastLiveScreen({super.key});
+  final List<Map<String, dynamic>> classes;
+  final String courseuuid;
 
-  // Static list of classes for Past screen
-  final List<Map<String, String>> classes = [
-    {
-      'Topic': 'Urdu translation',
-      'Date Time': '2025-04-01 08:44:00',
-      'Time Duration': '20 minutes',
-      'Learning Tool': 'BigBlueButton',
-      'Status': 'Completed',
-    },
-    {
-      'Topic': 'Arabic language',
-      'Date Time': '2025-04-15 22:00:00',
-      'Time Duration': '45 minutes',
-      'Learning Tool': 'Zoom',
-      'Status': 'Missed',
-    },
-  ];
+  const PastLiveScreen({super.key, required this.classes, required this.courseuuid});
 
   Color _getStatusColor(String status) {
     switch (status) {
@@ -29,6 +15,8 @@ class PastLiveScreen extends StatelessWidget {
         return Colors.green;
       case 'Missed':
         return Colors.red;
+      case 'Pending':
+        return Colors.blue;
       default:
         return Colors.grey;
     }
@@ -41,7 +29,9 @@ class PastLiveScreen extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: ListView.builder(
+            child: classes.isEmpty
+                ? const Center(child: Text('No past live classes available'))
+                : ListView.builder(
               itemCount: classes.length,
               itemBuilder: (context, index) {
                 final classData = classes[index];
@@ -62,108 +52,125 @@ class PastLiveScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 30.h,
-                                child: const Text(
-                                  'Topic',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                          // Titles Column with fixed width
+                          SizedBox(
+                            width: 120.w, // Fixed width for titles
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 30.h,
+                                  child: const Text(
+                                    'Topic',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 30.h,
-                                child: const Text(
-                                  'Date & Time',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                SizedBox(
+                                  height: 30.h,
+                                  child: const Text(
+                                    'Date & Time',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 30.h,
-                                child: const Text(
-                                  'Time Duration',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                SizedBox(
+                                  height: 30.h,
+                                  child: const Text(
+                                    'Time Duration',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 30.h,
-                                child: const Text(
-                                  'Learning Tool',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                SizedBox(
+                                  height: 30.h,
+                                  child: const Text(
+                                    'Learning Tool',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 30.h,
-                                child: const Text(
-                                  'Status',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                SizedBox(
+                                  height: 30.h,
+                                  child: const Text(
+                                    'Status',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 20.h,
-                                child: const Text(
-                                  'Action',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                SizedBox(height: 10.h,),
+                                SizedBox(
+                                  height: 40.h,
+                                  child: const Text(
+                                    'Action',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 30.h,
-                                child: Text(classData['Topic'] ?? ''),
-                              ),
-                              SizedBox(
-                                height: 30.h,
-                                child: Text(classData['Date Time'] ?? ''),
-                              ),
-                              SizedBox(
-                                height: 30.h,
-                                child: Text(classData['Time Duration'] ?? ''),
-                              ),
-                              SizedBox(
-                                height: 30.h,
-                                child: Text(classData['Learning Tool'] ?? ''),
-                              ),
-                              SizedBox(
-                                height: 30.h,
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 4.h),
-                                  decoration: BoxDecoration(
-                                    color: _getStatusColor(classData['Status'] ?? '').withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                          SizedBox(width: 50.w,),
+                          // Information Column
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 30.h,
                                   child: Text(
-                                    classData['Status'] ?? '',
-                                    style: TextStyle(
-                                      color: _getStatusColor(classData['Status'] ?? ''),
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 17.sp,
+                                    classData['class_topic']?.toString() ?? '',
+                                    style: const TextStyle(color: Colors.black),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 30.h,
+                                  child: Text(
+                                    '${classData['date']} ${classData['time']}',
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 30.h,
+                                  child: Text('${classData['duration']} minutes'),
+                                ),
+                                SizedBox(
+                                  height: 30.h,
+                                  child: Text(
+                                    classData['meeting_host_name']?.toString() ?? '',
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 30.h,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 4.h),
+                                    decoration: BoxDecoration(
+                                      color: _getStatusColor(classData['status']?.toString() ?? '').withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      classData['status']?.toString() ?? '',
+                                      style: TextStyle(
+                                        color: _getStatusColor(classData['status']?.toString() ?? ''),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 17.sp,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(height: 10,),
-                              SizedBox(
-                                height: 40.h,
-                                width: 100.w,
-                                child: ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                SizedBox(height: 10.h,),
+                                SizedBox(
+                                  height: 40.h,
+                                  child: ElevatedButton(
+                                    onPressed: () {},
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
                                     ),
+                                    child: const Icon(Icons.delete, color: Colors.white),
                                   ),
-                                  child: const Icon(Icons.delete, color: Colors.white),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -176,9 +183,28 @@ class PastLiveScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: CustomButton(onTap: () {}, buttonText: 'Back')),
-              SizedBox(width: 10,),
-              Expanded(child: CustomButton(onTap: () {}, buttonText: 'Add Live Class')),
+              Expanded(
+                child: CustomButton(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  buttonText: 'Back',
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: CustomButton(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateLiveClass(courseuuid: courseuuid),
+                      ),
+                    );
+                  },
+                  buttonText: 'Add Live Class',
+                ),
+              ),
             ],
           ),
         ],

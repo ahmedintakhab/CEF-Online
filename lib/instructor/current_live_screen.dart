@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class CurrentLiveScreen extends StatelessWidget {
-  const CurrentLiveScreen({super.key});
+  final List<Map<String, dynamic>> classes;
 
+  const CurrentLiveScreen({super.key, required this.classes});
   @override
   Widget build(BuildContext context) {
     return const Center(

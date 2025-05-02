@@ -12,7 +12,6 @@ import 'package:learn_megnagmet/instructor/instructor_courses.dart';
 import 'package:learn_megnagmet/instructor/instructor_notice_board.dart';
 import 'package:learn_megnagmet/instructor/live_class_screen.dart';
 import 'package:learn_megnagmet/profile/address_and_location.dart';
-import 'package:learn_megnagmet/profile/change_password.dart';
 import 'package:learn_megnagmet/profile/profile_field_container.dart';
 import 'package:learn_megnagmet/profile/rateus_dialogue_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,8 +24,6 @@ import '../controller/controller.dart';
 import '../login/login_empty_state.dart';
 import '../models/new_user_detail.dart';
 import '../models/profile_option.dart';
-import '../profile/classes_history_screen.dart';
-import '../profile/classes_schedule_screen.dart';
 import '../utils/slider_page_data_model.dart';
 import '../widget/button.dart';
 
@@ -243,8 +240,8 @@ class _InstructorPanelState extends State<InstructorPanel> {
                               title: 'Discussion',
                               icon: Icon(Icons.message, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context)=>ChangePassword()));
+                                // Navigator.push(context,
+                                //     MaterialPageRoute(builder: (context)=>ChangePassword()));
                               },
                             ),
                             // Feedback

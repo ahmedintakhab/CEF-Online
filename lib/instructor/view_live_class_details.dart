@@ -3,13 +3,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:learn_megnagmet/instructor/current_live_screen.dart';
 import 'package:learn_megnagmet/instructor/past_live_screen.dart';
 import 'package:learn_megnagmet/instructor/upcoming_live_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
-import '../Course_details_tabbar/current_screen.dart';
-import '../Course_details_tabbar/upcoming_screen.dart';
+import '../utils/api_constants.dart';
+
 
 
 class ViewLiveClassDetails extends StatefulWidget {
-  const ViewLiveClassDetails({super.key});
+  final String courseuuid; // Add uuid parameter
+
+  const ViewLiveClassDetails({Key? key, required this.courseuuid}) : super(key: key);
 
   @override
   State<ViewLiveClassDetails> createState() => _ViewLiveClassDetailsState();
@@ -18,11 +23,18 @@ class ViewLiveClassDetails extends StatefulWidget {
 class _ViewLiveClassDetailsState extends State<ViewLiveClassDetails> with TickerProviderStateMixin {
   late TabController _tabController;
 
+  String courseTitle = '';
+  List<Map<String, dynamic>> upcomingData = [];
+  List<Map<String, dynamic>> currentData = [];
+  List<Map<String, dynamic>> pastData = [];
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _tabController.index = 0; // Set default tab to Upcoming
+    _tabController.index = 0;
+    fetchLiveClasses();
   }
 
   @override
@@ -30,6 +42,50 @@ class _ViewLiveClassDetailsState extends State<ViewLiveClassDetails> with Ticker
     _tabController.dispose();
     super.dispose();
   }
+
+  Future<void> fetchLiveClasses() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('auth_token') ?? '';
+
+    String apiUrl = "${ApiConstants.baseUrl}instructor/live-class-list/${widget.courseuuid}";
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("View Live classes API response:${response.statusCode}");
+        final data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          setState(() {
+            courseTitle = data['data']['course']['title'];
+            upcomingData = List<Map<String, dynamic>>.from(data['data']['upcoming_live_classes']);
+            currentData = List<Map<String, dynamic>>.from(data['data']['current_live_classes']);
+            pastData = List<Map<String, dynamic>>.from(data['data']['past_live_classes']);
+            isLoading = false;
+          });
+        } else {
+          throw Exception('API returned success: false');
+        }
+      } else {
+        throw Exception('Failed to load live classes: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching live classes: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching live classes: $e')),
+      );
+    }
+  }
+
 
   List<Widget> _buildTabs() {
     return [
@@ -43,13 +99,15 @@ class _ViewLiveClassDetailsState extends State<ViewLiveClassDetails> with Ticker
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:  Text('Tajweed ul Quran Asaan Treeqy sy (Urdu)',style: TextStyle(color: Color(0XFF78A03F),
+        title:  Text(courseTitle,style: TextStyle(color: Color(0XFF78A03F),
             fontSize: 22.sp,fontWeight: FontWeight.bold),maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
         centerTitle: true,
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F),))
+          :Column(
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -89,9 +147,13 @@ class _ViewLiveClassDetailsState extends State<ViewLiveClassDetails> with Ticker
             child: TabBarView(
               controller: _tabController,
               children: [
-                 UpcomingLiveScreen(),
-                CurrentLiveScreen(),
-                 PastLiveScreen(),
+                UpcomingLiveScreen(classes: upcomingData,
+                  courseuuid: widget.courseuuid,
+                ),
+                CurrentLiveScreen(classes: currentData),
+                PastLiveScreen(classes: pastData,
+                  courseuuid: widget.courseuuid
+                ),
               ],
             ),
           ),

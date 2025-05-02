@@ -55,10 +55,12 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
           _buildInfoRow('Student', classData['student_name'] ?? 'N/A'),
           _buildInfoRow('Course', classData['course_title'] ?? 'N/A'),
           _buildInfoRow('Date', classData['class_date'] ?? 'N/A'),
-          _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A',
-              isStatus: true,
-              btnHref: classData['status']['btnHref']),
-
+          _buildInfoRow(
+            'Status',
+            classData['status'] ?? 'N/A',
+            isStatus: true,
+            btnHref: classData['btnHref'], // Use btnHref if provided in API
+          ),
         ],
       ),
     );

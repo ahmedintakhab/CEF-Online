@@ -54,8 +54,11 @@ class InstructorGroupScheduleClass extends StatelessWidget {
           // _buildInfoRow('Instructor', classData['instructor'] ?? 'N/A'),
           _buildInfoRow('Course', classData['course_title'] ?? 'N/A'),
           _buildInfoRow('Date', classData['class_date'] ?? 'N/A'),
-          _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A', isStatus: true),
-        ],
+          _buildInfoRow(
+            'Status',
+            classData['status'] ?? 'N/A',
+            isStatus: true,
+          ),        ],
       ),
     );
   }
