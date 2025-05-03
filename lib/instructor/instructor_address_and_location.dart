@@ -11,14 +11,14 @@ import '../cart/custom_dropdown.dart';
 import '../utils/api_constants.dart';
 import '../widget/custom_text_form_field.dart';
 
-class AddressAndLocation extends StatefulWidget {
-  const AddressAndLocation({Key? key}) : super(key: key);
+class InstructorAddressAndLocation extends StatefulWidget {
+  const InstructorAddressAndLocation({Key? key}) : super(key: key);
 
   @override
-  State<AddressAndLocation> createState() => _AddressAndLocationState();
+  State<InstructorAddressAndLocation> createState() => _InstructorAddressAndLocationState();
 }
 
-class _AddressAndLocationState extends State<AddressAndLocation> {
+class _InstructorAddressAndLocationState extends State<InstructorAddressAndLocation> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
 
@@ -133,24 +133,14 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
           _addressController.clear();
           _zipCodeController.clear();
         });
-
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(content: Text('Address and Location updated successfully')),
-        // );
       } else {
         final error = jsonDecode(response.body);
         Get.snackbar('Failed Update Address',error['message'] , snackPosition: SnackPosition.BOTTOM);
 
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text(error['message'] ?? 'Failed to update address')),
-        // );
       }
     } catch (e) {
       Get.snackbar('Failed Update Address', 'Error: $e', snackPosition: SnackPosition.BOTTOM);
 
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Error: $e')),
-      // );
     } finally {
       setState(() {
         _isUpdating = false;

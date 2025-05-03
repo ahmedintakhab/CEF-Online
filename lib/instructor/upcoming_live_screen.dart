@@ -1,28 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:learn_megnagmet/instructor/create_live_class.dart';
 import 'package:learn_megnagmet/widget/button.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/api_constants.dart';
 
-class UpcomingLiveScreen extends StatelessWidget {
+class UpcomingLiveScreen extends StatefulWidget {
   final List<Map<String, dynamic>> classes;
   final String courseuuid;
 
   const UpcomingLiveScreen({super.key, required this.classes, required this.courseuuid});
 
   @override
+  State<UpcomingLiveScreen> createState() => _UpcomingLiveScreenState();
+}
+
+class _UpcomingLiveScreenState extends State<UpcomingLiveScreen> {
+  Future<void> deleteLiveClass(String classuuid, int index) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final response = await http.delete(
+        Uri.parse('${ApiConstants.baseUrl}instructor/live-class/$classuuid/delete'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Delete live class api response: ${response.statusCode}');
+        setState(() {
+          widget.classes.removeAt(index); // Remove the class from the list
+        });
+        Get.snackbar('Successful', 'live class deleted successful', snackPosition: SnackPosition.TOP);
+
+      } else {
+        throw Exception('Failed to delete class: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error deleting class: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting class: $e')),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    print('Check upcoming data: $classes');
+    print('Check upcoming data: ${widget.classes}');
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
       child: Column(
         children: [
           Expanded(
-            child: classes.isEmpty
+            child: widget.classes.isEmpty
                 ? const Center(child: Text('No upcoming live classes available'))
                 : ListView.builder(
-              itemCount: classes.length,
+              itemCount: widget.classes.length,
               itemBuilder: (context, index) {
-                final classData = classes[index];
+                final classData = widget.classes[index];
+                final classuuid = classData['uuid'] ?? '';
+                 print('check uuid: $classuuid');
                 return Container(
                   margin: EdgeInsets.only(bottom: 10.h),
                   padding: EdgeInsets.all(10.w),
@@ -145,12 +188,15 @@ class UpcomingLiveScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 10.h,),
-
+                                SizedBox(height: 10.h),
                                 SizedBox(
                                   height: 40.h,
                                   child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      if (classuuid.isNotEmpty) {
+                                        deleteLiveClass(classuuid, index);
+                                      }
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red,
                                       shape: RoundedRectangleBorder(
@@ -189,7 +235,7 @@ class UpcomingLiveScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CreateLiveClass(courseuuid: courseuuid),
+                        builder: (context) => CreateLiveClass(courseuuid: widget.courseuuid),
                       ),
                     );
                   },

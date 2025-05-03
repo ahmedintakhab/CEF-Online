@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/home/home_screen.dart';
 import 'package:learn_megnagmet/instructor/all_students.dart';
+import 'package:learn_megnagmet/instructor/instructor_address_and_location.dart';
 import 'package:learn_megnagmet/instructor/instructor_classes_history.dart';
 import 'package:learn_megnagmet/instructor/instructor_classes_schedule.dart';
 import 'package:learn_megnagmet/instructor/instructor_courses.dart';
@@ -257,8 +258,8 @@ class _InstructorPanelState extends State<InstructorPanel> {
                               title: 'Address & Location',
                               icon: Icon(Icons.location_on_outlined, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context)=>AddressAndLocation()));
+                                // Navigator.push(context,
+                                //     MaterialPageRoute(builder: (context)=>InstructorAddressAndLocation()));
                               },
                             ),
 

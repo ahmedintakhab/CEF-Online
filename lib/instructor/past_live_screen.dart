@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:learn_megnagmet/instructor/create_live_class.dart';
 import 'package:learn_megnagmet/widget/button.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/api_constants.dart';
 
-class PastLiveScreen extends StatelessWidget {
+class PastLiveScreen extends StatefulWidget {
   final List<Map<String, dynamic>> classes;
   final String courseuuid;
 
   const PastLiveScreen({super.key, required this.classes, required this.courseuuid});
 
+  @override
+  State<PastLiveScreen> createState() => _PastLiveScreenState();
+}
+
+class _PastLiveScreenState extends State<PastLiveScreen> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Completed':
@@ -21,6 +31,37 @@ class PastLiveScreen extends StatelessWidget {
         return Colors.grey;
     }
   }
+  Future<void> deleteLiveClass(String classuuid, int index) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final response = await http.delete(
+        Uri.parse('${ApiConstants.baseUrl}instructor/live-class/$classuuid/delete'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Delete live class api response: ${response.statusCode}');
+        setState(() {
+          widget.classes.removeAt(index); // Remove the class from the list
+        });
+        Get.snackbar('Successful', 'live class deleted successful',
+            snackPosition: SnackPosition.TOP);
+
+      } else {
+        throw Exception('Failed to delete class: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error deleting class: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting class: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +70,14 @@ class PastLiveScreen extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: classes.isEmpty
+            child: widget.classes.isEmpty
                 ? const Center(child: Text('No past live classes available'))
                 : ListView.builder(
-              itemCount: classes.length,
+              itemCount: widget.classes.length,
               itemBuilder: (context, index) {
-                final classData = classes[index];
+                final classData = widget.classes[index];
+                final classuuid = classData['uuid'] ?? '';
+
                 return Container(
                   margin: EdgeInsets.only(bottom: 10.h),
                   padding: EdgeInsets.all(10.w),
@@ -159,7 +202,11 @@ class PastLiveScreen extends StatelessWidget {
                                 SizedBox(
                                   height: 40.h,
                                   child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      if (classuuid.isNotEmpty) {
+                                        deleteLiveClass(classuuid, index);
+                                      }
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red,
                                       shape: RoundedRectangleBorder(
@@ -198,7 +245,7 @@ class PastLiveScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CreateLiveClass(courseuuid: courseuuid),
+                        builder: (context) => CreateLiveClass(courseuuid: widget.courseuuid),
                       ),
                     );
                   },

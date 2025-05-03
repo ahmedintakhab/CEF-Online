@@ -121,7 +121,8 @@ class _CreateLiveClassState extends State<CreateLiveClass> {
         print('Create Live class Api response: ${response.statusCode}');
 
         // Successful API call
-        Get.snackbar('Successful', 'Successfully created live class', snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar('Successful', 'Successfully created live class',
+            snackPosition: SnackPosition.TOP);
 
         Navigator.pop(context); // Navigate back on success
       } else {
