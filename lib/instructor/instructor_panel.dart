@@ -6,13 +6,12 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/home/home_screen.dart';
 import 'package:learn_megnagmet/instructor/all_students.dart';
-import 'package:learn_megnagmet/instructor/instructor_address_and_location.dart';
+import 'package:learn_megnagmet/instructor/instructor_basic_information.dart';
 import 'package:learn_megnagmet/instructor/instructor_classes_history.dart';
 import 'package:learn_megnagmet/instructor/instructor_classes_schedule.dart';
 import 'package:learn_megnagmet/instructor/instructor_courses.dart';
 import 'package:learn_megnagmet/instructor/instructor_notice_board.dart';
 import 'package:learn_megnagmet/instructor/live_class_screen.dart';
-import 'package:learn_megnagmet/profile/address_and_location.dart';
 import 'package:learn_megnagmet/profile/profile_field_container.dart';
 import 'package:learn_megnagmet/profile/rateus_dialogue_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -247,10 +246,10 @@ class _InstructorPanelState extends State<InstructorPanel> {
                             ),
                             // Feedback
                             ProfileFieldContainer(
-                              title: 'Profile',
+                              title: 'Basic Information',
                               icon: Icon(Icons.person, color: Color(0XFF78A03F)),
                               onTap: () {
-                                Get.to(EditScreen(user: widget.user_detail));
+                                Get.to(InstructorEditScreen(user: widget.user_detail));
                               },
                             ),
                             // Rate Us

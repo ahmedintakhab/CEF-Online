@@ -9,7 +9,6 @@ import 'package:learn_megnagmet/login/sign_up/term_and_condition.dart';
 import '../../cart/custom_dropdown.dart';
 import '../../utils/screen_size.dart';
 import '../../widget/custom_text_form_field.dart';
-import '../../widget/dropdown_button.dart';
 import '../../widget/file_choosen_widget.dart';
 import '../login_empty_state.dart';
 class InstructorSignupScreen extends StatefulWidget {
