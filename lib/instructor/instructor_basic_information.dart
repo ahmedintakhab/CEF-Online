@@ -7,8 +7,10 @@ import 'package:learn_megnagmet/models/new_user_detail.dart';
 import 'package:learn_megnagmet/widget/button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../controller/controller.dart';
+import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import '../widget/custom_text_form_field.dart';
 
@@ -30,11 +32,18 @@ class _InstructorEditScreenState extends State<InstructorEditScreen> {
   late TextEditingController phoneNumberController;
   late TextEditingController bioController;
   late TextEditingController skillsController;
+  late TextEditingController facebookController;
+  late TextEditingController twitterController;
+  late TextEditingController linkedinController;
+  late TextEditingController pinterestController;
   String? avatarUrl;
   File? _selectedImage;
   String? _selectedGender;
   final List<String> _gender = ['Male', 'Female', 'Others'];
   final ImagePicker _picker = ImagePicker();
+  bool isLoading = true; // Loading state
+  bool isUpdating = false;
+  String? instructorUuid;
 
   @override
   void initState() {
@@ -48,22 +57,67 @@ class _InstructorEditScreenState extends State<InstructorEditScreen> {
     phoneNumberController = TextEditingController();
     bioController = TextEditingController();
     skillsController = TextEditingController();
-    _loadUserData();
+    skillsController = TextEditingController();
+    facebookController = TextEditingController();
+    twitterController = TextEditingController();
+    linkedinController = TextEditingController();
+    pinterestController = TextEditingController();
+    _fetchProfileData();
   }
+  Future<void> _fetchProfileData() async {
+    final String apiUrl = "${ApiConstants.baseUrl}instructor/profile";
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
 
-  Future<void> _loadUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    firstnameController.text = prefs.getString('first_name') ?? '';
-    lastNameController.text = prefs.getString('last_name') ?? '';
-    emailController.text = prefs.getString('email') ?? '';
-    phoneNumberController.text = prefs.getString('phone_number') ?? '';
-    professionalTitleController.text = prefs.getString('professional_title') ?? '';
-    bioController.text = prefs.getString('about_me') ?? '';
-    skillsController.text = prefs.getString('skills') ?? '';
-    avatarUrl = prefs.getString('avatar');
-    setState(() {});
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        print("Fetch Instructor Profile data API response: ${response.statusCode}");
+
+        final jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['success'] == true) {
+          final instructorData = jsonResponse['data']['instructor'];
+          setState(() {
+            instructorUuid = instructorData['uuid']; // Fetch and store UUID
+            firstnameController.text = instructorData['first_name'] ?? '';
+            lastNameController.text = instructorData['last_name'] ?? '';
+            emailController.text = instructorData['email'] ?? '';
+            phoneNumberController.text = instructorData['phone'] ?? '';
+            professionalTitleController.text = instructorData['professional_title'] ?? '';
+            bioController.text = instructorData['bio'] ?? '';
+            _selectedGender = instructorData['gender'] ?? '';
+            avatarUrl = instructorData['image_url'] ?? '';
+            // facebookController.text = instructorData['social_link']['facebook'] ?? '';
+            // twitterController.text = instructorData['social_link']['twitter'] ?? '';
+            // linkedinController.text = instructorData['social_link']['linkedin'] ?? '';
+            // pinterestController.text = instructorData['social_link']['pinterest'] ?? '';
+            // skillsController.text = (instructorData['skills'] as List<dynamic>?)?.join(', ') ?? '';
+            isLoading = false; // Data fetched, stop loading
+          });
+        } else {
+          print("API Error: ${jsonResponse['message']}");
+          setState(() {
+            isLoading = false; // Stop loading even if there's an error
+          });
+        }
+      } else {
+        print("HTTP Error: ${response.statusCode}");
+        setState(() {
+          isLoading = false; // Stop loading even if there's an error
+        });
+      }
+    } catch (e) {
+      print("Error fetching profile data: $e");
+    }setState(() {
+      isLoading = false; // Stop loading even if there's an error
+    });
   }
-
   Future<void> _pickImage() async {
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -78,6 +132,62 @@ class _InstructorEditScreenState extends State<InstructorEditScreen> {
       print("Error picking image: $e");
     }
   }
+  Future<void> _updateProfile() async {
+    if (instructorUuid == null) {
+      print("Instructor UUID is not available");
+      return;
+    }
+
+    setState(() {
+      isUpdating = true; // Start loading
+    });
+
+    final String apiUrl = "${ApiConstants.baseUrl}instructor/profile/update/$instructorUuid";
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+      });
+
+      // Add text fields
+      request.fields['email'] = emailController.text;
+      request.fields['first_name'] = firstnameController.text;
+      request.fields['last_name'] = lastNameController.text;
+      request.fields['professional_title'] = professionalTitleController.text;
+      request.fields['phone_number'] = phoneNumberController.text;
+      request.fields['about_me'] = bioController.text;
+      request.fields['gender'] = _selectedGender ?? '';
+
+      // Add image if selected
+      if (_selectedImage != null) {
+        request.files.add(await http.MultipartFile.fromPath('image', _selectedImage!.path));
+      }
+
+      final response = await request.send();
+      final respStr = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(respStr);
+        if (jsonResponse['success'] == true) {
+          print("Profile updated successfully: ${jsonResponse['message']}");
+          Get.snackbar("Success", "Profile updated successfully");
+        } else {
+          print("API Error: ${jsonResponse['message']}");
+        }
+      } else {
+        print("HTTP Error: ${response.statusCode}, Response: $respStr");
+      }
+    } catch (e) {
+      print("Error updating profile: $e");
+    } finally {
+      setState(() {
+        isUpdating = false; // Stop loading
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,205 +198,227 @@ class _InstructorEditScreenState extends State<InstructorEditScreen> {
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(left: 20.w, right: 20.w),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20.h),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Get.back();
-                        },
-                        child: const Icon(Icons.arrow_back_ios),
-                      ),
-                      SizedBox(width: 16.w),
-                      Text(
-                        "Edit Profile",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 24.sp,
-                          fontFamily: 'Gilroy',
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20.h),
-                  // _buildLabel("Select Your Picture", true),
-                  SizedBox(height: 10.h),
-                  Center(
-                    child: Stack(
-                      alignment: Alignment.bottomRight,
+        body: Stack(
+          children: [
+           SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(left: 20.w, right: 20.w),
+              child: SingleChildScrollView(
+                child:Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 20.h),
+                    Row(
                       children: [
-                        CircleAvatar(
-                          radius: 50.h,
-                          backgroundImage: _selectedImage != null
-                              ? FileImage(_selectedImage!)
-                              : (avatarUrl != null && avatarUrl!.isNotEmpty
-                              ? NetworkImage(avatarUrl!)
-                              : const AssetImage("assets/person.png")) as ImageProvider,
+                        GestureDetector(
+                          onTap: () {
+                            Get.back();
+                          },
+                          child: const Icon(Icons.arrow_back_ios),
                         ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: GestureDetector(
-                            onTap: _pickImage,
-                            child: CircleAvatar(
-                              radius: 17.h,
-                              backgroundColor: Color(0XFF78A03F),
-                              child: Icon(
-                                Icons.edit,
-                                color: Colors.white,
-                                size: 20.h,
-                              ),
-                            ),
+                        SizedBox(width: 16.w),
+                        Text(
+                          "Edit Profile",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 24.sp,
+                            fontFamily: 'Gilroy',
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(height: 5.h),
-                  Center(
-                    child: Text(
-                      "Accepted image files: .JPEG, .JPG, .PNG\nAccepted Size: 300 x 300 (1MB)",
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontFamily: 'Gilroy',
-                        color: Colors.black54,
+                    SizedBox(height: 20.h),
+                    Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 10.h),
+                    Center(
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          CircleAvatar(
+                            radius: 50.h,
+                            backgroundImage: _selectedImage != null
+                                ? FileImage(_selectedImage!)
+                                : (avatarUrl != null && avatarUrl!.isNotEmpty
+                                ? NetworkImage(avatarUrl!)
+                                : const AssetImage("assets/person.png")) as ImageProvider,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: _pickImage,
+                              child: CircleAvatar(
+                                radius: 17.h,
+                                backgroundColor: Color(0XFF78A03F),
+                                child: Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: 20.h,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildLabel("First Name", true),
-                            SizedBox(height: 10.h),
-                            customTextFormField(
-                              controller: firstnameController,
-                              hintText: "First Name",
-                              validator: (value) => value!.isEmpty ? "Enter your name" : null,
-                            ),
-                          ],
+                    SizedBox(height: 5.h),
+                    Center(
+                      child: Text(
+                        "Accepted image files: .JPEG, .JPG, .PNG\nAccepted Size: 300 x 300 (1MB)",
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontFamily: 'Gilroy',
+                          color: Colors.black54,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      SizedBox(width: 10.w),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            _buildLabel("Last Name", true),
-                            SizedBox(height: 10.h),
-                            customTextFormField(
-                              controller: lastNameController,
-                              hintText: "Last Name",
-                              validator: (value) => value!.isEmpty ? "Enter your last name" : null,
-                            ),
-                          ],
+                    ),
+                    SizedBox(height: 20.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildLabel("First Name", true),
+                              SizedBox(height: 10.h),
+                              customTextFormField(
+                                controller: firstnameController,
+                                hintText: "First Name",
+                                validator: (value) => value!.isEmpty ? "Enter your name" : null,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Email", true),
-                  SizedBox(height: 10.h),
-                  customTextFormField(
-                    controller: emailController,
-                    hintText: "Email",
-                    validator: (value) => value!.isEmpty ? "Enter your email" : null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Professional Title", false),
-                  SizedBox(height: 10.h),
-                  customTextFormField(
-                    controller: professionalTitleController,
-                    hintText: "Title",
-                    validator: (value) => null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Phone Number", true),
-                  SizedBox(height: 10.h),
-                  customTextFormField(
-                    controller: phoneNumberController,
-                    hintText: "3035454888",
-                    validator: (value) => value!.isEmpty ? "Enter your phone number" : null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Bio", false),
-                  SizedBox(height: 10.h),
-                  customTextFormField(
-                    controller: bioController,
-                    hintText: "Bio",
-                    validator: (value) => null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Gender", false),
-                  SizedBox(height: 10.h),
-                  CustomDropdown(
-                    hint: 'Select Gender',
-                    value: _selectedGender,
-                    items: _gender,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedGender = newValue;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Social Links", false),
-                  _buildLabel("Facebook", false),
-                  SizedBox(height: 10.h),
-                  customTextFormField(
-                    controller: TextEditingController(),
-                    hintText: "https://facebook.com",
-                    validator: (value) => null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Linkedin", false),
-                  SizedBox(height: 10.h),
-                  customTextFormField(
-                    controller: TextEditingController(),
-                    hintText: "https://linkedin.com",
-                    validator: (value) => null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Twitter", false),
-                  SizedBox(height: 10.h),
-                  customTextFormField(
-                    controller: TextEditingController(),
-                    hintText: "https://twitter.com",
-                    validator: (value) => null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Pinterest", false),
-                  SizedBox(height: 10.h),
-                  customTextFormField(
-                    controller: TextEditingController(),
-                    hintText: "https://pinterest.com",
-                    validator: (value) => null,
-                  ),
-                  SizedBox(height: 20.h),
-                  _buildLabel("Skills", false),
-                  SizedBox(height: 10.h),
-                  customTextFormField(
-                    controller: skillsController,
-                    hintText: "",
-                    validator: (value) => null,
-                  ),
-                  SizedBox(height: 40.h),
-                  CustomButton(onTap: () {}, buttonText: 'Update Profile'),
-                  SizedBox(height: 20.h),
-                ],
+                        SizedBox(width: 10.w),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              _buildLabel("Last Name", true),
+                              SizedBox(height: 10.h),
+                              customTextFormField(
+                                controller: lastNameController,
+                                hintText: "Last Name",
+                                validator: (value) => value!.isEmpty ? "Enter your last name" : null,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Email", true),
+                    SizedBox(height: 10.h),
+                    customTextFormField(
+                      controller: emailController,
+                      hintText: "Email",
+                      validator: (value) => value!.isEmpty ? "Enter your email" : null,
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Professional Title", false),
+                    SizedBox(height: 10.h),
+                    customTextFormField(
+                      controller: professionalTitleController,
+                      hintText: "Title",
+                      validator: (value) => null,
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Phone Number", true),
+                    SizedBox(height: 10.h),
+                    customTextFormField(
+                      controller: phoneNumberController,
+                      hintText: "3035454888",
+                      validator: (value) => value!.isEmpty ? "Enter your phone number" : null,
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Bio", false),
+                    SizedBox(height: 10.h),
+                    customTextFormField(
+                      controller: bioController,
+                      hintText: "Bio",
+                      validator: (value) => null,
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Gender", false),
+                    SizedBox(height: 10.h),
+                    CustomDropdown(
+                      hint: 'Select Gender',
+                      value: _selectedGender,
+                      items: _gender,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedGender = newValue;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Social Links", false),
+                    _buildLabel("Facebook", false),
+                    SizedBox(height: 10.h),
+                    customTextFormField(
+                      controller: TextEditingController(),
+                      hintText: "https://facebook.com",
+                      validator: (value) => null,
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Linkedin", false),
+                    SizedBox(height: 10.h),
+                    customTextFormField(
+                      controller: TextEditingController(),
+                      hintText: "https://linkedin.com",
+                      validator: (value) => null,
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Twitter", false),
+                    SizedBox(height: 10.h),
+                    customTextFormField(
+                      controller: TextEditingController(),
+                      hintText: "https://twitter.com",
+                      validator: (value) => null,
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Pinterest", false),
+                    SizedBox(height: 10.h),
+                    customTextFormField(
+                      controller: TextEditingController(),
+                      hintText: "https://pinterest.com",
+                      validator: (value) => null,
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildLabel("Skills", false),
+                    SizedBox(height: 10.h),
+                    customTextFormField(
+                      controller: skillsController,
+                      hintText: "",
+                      validator: (value) => null,
+                    ),
+                    SizedBox(height: 40.h),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CustomButton(
+                          onTap: _updateProfile,
+                          buttonText: isUpdating ? '' : 'Update Profile',
+                        ),
+                        if (isUpdating)
+                          const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                      ],
+                    ),
+              SizedBox(height: 20.h),
+                  ],
+                ),
+                ]
+              )
+
               ),
             ),
           ),
+    ]
         ),
       ),
     );

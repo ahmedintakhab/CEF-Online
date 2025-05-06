@@ -105,7 +105,7 @@ class _InstructorAddressAndLocationState extends State<InstructorAddressAndLocat
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
 
-      final url = Uri.parse("${ApiConstants.baseUrl}student/update-address-location");
+      final url = Uri.parse("${ApiConstants.baseUrl}instructor/address");
       final body = jsonEncode({
         'country_id': _countryMap[_selectedCountry],
         'postal_code': _zipCodeController.text,
@@ -139,6 +139,7 @@ class _InstructorAddressAndLocationState extends State<InstructorAddressAndLocat
 
       }
     } catch (e) {
+      print('Failed Address and Location Api: $e');
       Get.snackbar('Failed Update Address', 'Error: $e', snackPosition: SnackPosition.BOTTOM);
 
     } finally {

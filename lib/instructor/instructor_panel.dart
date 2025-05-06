@@ -26,6 +26,7 @@ import '../models/new_user_detail.dart';
 import '../models/profile_option.dart';
 import '../utils/slider_page_data_model.dart';
 import '../widget/button.dart';
+import 'instructor_address_and_location.dart';
 
 class InstructorPanel extends StatefulWidget {
   const InstructorPanel({Key? key, required this.user_detail}) : super(key: key);
@@ -257,8 +258,8 @@ class _InstructorPanelState extends State<InstructorPanel> {
                               title: 'Address & Location',
                               icon: Icon(Icons.location_on_outlined, color: Color(0XFF78A03F)),
                               onTap: () {
-                                // Navigator.push(context,
-                                //     MaterialPageRoute(builder: (context)=>InstructorAddressAndLocation()));
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context)=>InstructorAddressAndLocation()));
                               },
                             ),
 

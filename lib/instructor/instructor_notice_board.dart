@@ -5,7 +5,7 @@ import 'package:learn_megnagmet/instructor/view_notice_list_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../utils/api_constants.dart';
-import 'add_notice_dialog.dart';
+import 'add_notice_screen.dart';
 
 class InstructorNoticeBoard extends StatefulWidget {
   const InstructorNoticeBoard({Key? key}) : super(key: key);
@@ -16,7 +16,7 @@ class InstructorNoticeBoard extends StatefulWidget {
 
 class _InstructorNoticeBoardState extends State<InstructorNoticeBoard> {
   List<CourseNotice> _courseNotices = [];
-  String noticeBoardTitle = 'Notice Board';
+  String noticeBoardTitle = '';
   bool isLoading = true;
 
   @override
@@ -50,6 +50,7 @@ class _InstructorNoticeBoardState extends State<InstructorNoticeBoard> {
                 courseName: course['title'],
                 courseImage: course['image'],
                 uuid: course['uuid'],
+                totalNotices: course['total_notices'] ?? 0, // Fetch total_notices from API
               );
             }).toList();
             isLoading = false;
@@ -78,13 +79,13 @@ class _InstructorNoticeBoardState extends State<InstructorNoticeBoard> {
         title: Center(
           child: Text(
             noticeBoardTitle,
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0XFF78A03F), fontSize: 22),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF78A03F), fontSize: 22),
           ),
         ),
         elevation: 0,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF8CC13F)))
           : _courseNotices.isEmpty
           ? const Center(child: Text('No courses found'))
           : Column(
@@ -125,9 +126,11 @@ class _InstructorNoticeBoardState extends State<InstructorNoticeBoard> {
                             return CourseNoticeItem(
                               courseNotice: _courseNotices[index],
                               onAddNotice: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) => AddNoticeDialog(course: _courseNotices[index]),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddNoticeScreen(course: _courseNotices[index]),
+                                  ),
                                 );
                               },
                               onViewList: () {
@@ -313,7 +316,7 @@ class CourseNoticeItem extends StatelessWidget {
     return ElevatedButton(
       onPressed: onAddNotice,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0XFF78A03F),
+        backgroundColor: const Color(0xFF78A03F),
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         minimumSize: const Size(0, 38),
@@ -329,8 +332,8 @@ class CourseNoticeItem extends StatelessWidget {
     return OutlinedButton(
       onPressed: onViewList,
       style: OutlinedButton.styleFrom(
-        foregroundColor: const Color(0XFF78A03F),
-        side: const BorderSide(color: Color(0XFF78A03F)),
+        foregroundColor: const Color(0xFF78A03F),
+        side: const BorderSide(color: Color(0xFF78A03F)),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         minimumSize: const Size(0, 38),
         shape: RoundedRectangleBorder(
@@ -347,14 +350,13 @@ class CourseNotice {
   final String courseName;
   final String courseImage;
   final String uuid;
+  final int totalNotices; // Add totalNotices field
 
   CourseNotice({
     required this.id,
     required this.courseName,
     required this.courseImage,
     required this.uuid,
+    required this.totalNotices, // Make totalNotices a required parameter
   });
-
-  // Add totalNotices getter for backward compatibility
-  int get totalNotices => 0; // This will be fetched dynamically in ViewNoticesScreen
 }
