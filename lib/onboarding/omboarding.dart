@@ -144,11 +144,14 @@ class _SlidePageState extends State<SlidePage> {
             padding: const EdgeInsets.only(top: 25, right: 20),
             child: GestureDetector(
                 onTap: () {
-                  setState(() {
-                    controller.nextPage(
-                        duration: const Duration(milliseconds: 100),
-                        curve: Curves.bounceIn);
-                  });
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=>EmptyState()));
+                  // setState(() {
+                  //   controller.nextPage(
+                  //       duration: const Duration(milliseconds: 100),
+                  //       curve: Curves.bounceIn);
+                  // }
+                  // );
                 },
                 child: Container(
                     height: 32.h,
@@ -178,25 +181,6 @@ class _SlidePageState extends State<SlidePage> {
 
         onPageChanged: _onchanged,
         itemBuilder: (context, index) {
-          // final imageProvider = AssetImage(pages[index].image!);
-          // final image = Image(
-          //   image: imageProvider,
-          //   height: 520.h,
-          //   width: double.infinity,
-          //   fit: BoxFit.cover,
-          // );
-
-          // Get image dimensions
-          // imageProvider.resolve(const ImageConfiguration()).addListener(
-          //   ImageStreamListener((ImageInfo info, bool _) {
-          //     setState(() {
-          //       imageWidth = info.image.width.toDouble();
-          //       imageHeight = info.image.height.toDouble();
-          //     });
-          //     print('Image Width: ${info.image.width}');
-          //     print('Image Height: ${info.image.height}');
-          //   }),
-          // );
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

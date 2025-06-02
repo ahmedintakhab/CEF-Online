@@ -146,14 +146,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                      SizedBox(height: 16.h),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute space evenly
                         crossAxisAlignment: CrossAxisAlignment.center, // Center items vertically
                         children: [
                           // Left side with image and welcome text
                           Flexible(
-                            flex: 3, // Give more space to this part
+                            flex: 4, // Give more space to this part
                             child: Row(
                               mainAxisSize: MainAxisSize.min, // Take only needed space
                               children: [

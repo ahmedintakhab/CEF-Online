@@ -48,13 +48,13 @@ class _SplashscreenState extends State<Splashscreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Center(
-              child:Container(height:95.h,width:95.h,
+              child:Container(height:140.h,width:140.h,
                   child: Image(image:
-                  const AssetImage("assets/education_image.png",),fit: BoxFit.cover,color: Color(0XFF8CC13F),))),
+                  const AssetImage("assets/ceflogo.png",),fit: BoxFit.cover,))),
            Text(
-            "Learn Management",
+            "CEF Online",
             style: TextStyle(
-                fontSize: 28.sp,
+                fontSize: 32.sp,
                 color: const Color(0XFF8cc13f),
                 fontFamily: 'AvenirLTPro',
                 fontWeight: FontWeight.w700),

@@ -145,7 +145,7 @@ class _OngoingScreenState extends State<OngoingScreen> {
                         ));
                   },
                   child: Container(
-                    height: 124,
+                    height: 150.h,
                     width: double.infinity,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(22),
