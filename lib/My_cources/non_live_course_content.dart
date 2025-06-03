@@ -4,18 +4,46 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
-
 import '../utils/api_constants.dart';
+import 'content_display_screen.dart';
 
 class NonLiveCourseContent extends StatelessWidget {
   final List<dynamic> nonLiveCourses;
-  final Function? onLectureOpen; // Callback function to trigger refresh
+  final Function? onLectureOpen;
 
+  const NonLiveCourseContent({
+    Key? key,
+    required this.nonLiveCourses,
+    this.onLectureOpen,
+  }) : super(key: key);
 
-  const NonLiveCourseContent({Key? key, required this.nonLiveCourses,this.onLectureOpen}) : super(key: key);
+  // Function to map API lecture_type and lecture_resource_type to ContentDisplayScreen contentType
+  String _mapLectureTypeToContentType(String lectureType, String lectureResourceType) {
+    lectureType = lectureType.toLowerCase();
+    lectureResourceType = lectureResourceType.toLowerCase();
+    if (lectureType == 'resource' && lectureResourceType == 'slide document') {
+      return 'webview'; // Use webview for Slide Document
+    }
+    switch (lectureType) {
+      case 'video':
+        return 'video';
+      case 'youtube':
+        return 'youtube';
+      case 'audio':
+        return 'audio';
+      case 'image':
+        return 'image';
+      case 'pdf':
+        return 'pdf';
+      case 'text':
+        return 'text';
+      default:
+        return 'text'; // Default to text for unknown types
+    }
+  }
+
   // Function to make the POST API call
-  Future<void> _callClickLectureApi(String lectureId) async {
+  Future<void> _callClickLectureApi(BuildContext context, String lectureId, String lectureTitle) async {
     final String apiUrl = '${ApiConstants.baseUrl}student/course/click-lecture';
     try {
       // Retrieve the token from SharedPreferences
@@ -36,22 +64,30 @@ class NonLiveCourseContent extends StatelessWidget {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("On Icon click API response:${response.statusCode}");
+        print("On Icon click API response: ${response.statusCode}");
         print("On Icon click API Data: $data");
 
-        // Extract the lecture_preview_src from the response
+        // Extract the lecture_preview_src, lecture_type, and lecture_resource_type from the response
         String lecturePreviewSrc = data['data']['lecture_preview_src'];
+        String lectureType = data['data']['lecture_type']?.toString().toLowerCase() ?? 'text';
+        String lectureResourceType = data['data']['lecture_resource_type']?.toString().toLowerCase() ?? '';
 
-        // Open the lecture_preview_src link
-        if (await canLaunch(lecturePreviewSrc)) {
-          await launch(lecturePreviewSrc);
-          // Trigger the refresh callback after successful launch
-          if (onLectureOpen != null) {
-            onLectureOpen!();
-          }
-        } else {
-          Get.snackbar('Error', 'Could not launch the document');
-        }
+        // Map lecture_type to contentType
+        String contentType = _mapLectureTypeToContentType(lectureType, lectureResourceType);
+
+        // Navigate to ContentDisplayScreen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ContentDisplayScreen(
+              title: lectureTitle,
+              contentType: contentType,
+              source: lecturePreviewSrc,
+            ),
+          ),
+        ).then((_) {
+          if (onLectureOpen != null) onLectureOpen!();
+        });
       } else {
         print("Error: Failed to call API. Status Code: ${response.statusCode}");
         Get.snackbar('Error', 'Failed to call API');
@@ -62,14 +98,12 @@ class NonLiveCourseContent extends StatelessWidget {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: nonLiveCourses.length,
       itemBuilder: (context, index) {
         var lessonCategory = nonLiveCourses[index];
-        // Fetch the lesson_lectures sub-array
         List<dynamic> lessonLectures = lessonCategory['lesson_lectures'] ?? [];
 
         return Padding(
@@ -82,7 +116,6 @@ class NonLiveCourseContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Display the lesson name
               index == 0
                   ? Padding(
                 padding: EdgeInsets.only(bottom: 20.h),
@@ -102,19 +135,10 @@ class NonLiveCourseContent extends StatelessWidget {
                 ),
               )
                   : const SizedBox(),
-
-              // Display the lesson lectures dynamically
               ...lessonLectures.map((lecture) {
-                // Check the lecture_type condition
                 if (lecture['lecture_type'] == 'Assignment') {
-                  // Handle Assignment type (empty function for now)
-                  return Container(
-                    // work in future
-
-
-                  ); // Placeholder for Assignment type
+                  return Container(); // Placeholder for Assignment type
                 } else {
-                  // Handle all other lecture types
                   return Padding(
                     padding: const EdgeInsets.all(5),
                     child: Container(
@@ -136,7 +160,6 @@ class NonLiveCourseContent extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Lecture number
                             Container(
                               height: 55.h,
                               width: 33.w,
@@ -156,8 +179,6 @@ class NonLiveCourseContent extends StatelessWidget {
                                 ),
                               ),
                             ),
-
-                            // Lecture title
                             Expanded(
                               child: Padding(
                                 padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 10),
@@ -176,8 +197,6 @@ class NonLiveCourseContent extends StatelessWidget {
                                 ),
                               ),
                             ),
-
-                            // Play or lock icon based on is_locked
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -190,8 +209,11 @@ class NonLiveCourseContent extends StatelessWidget {
                                     size: 26.w,
                                   ),
                                   onTap: () async {
-                                    // Call the API with lecture_id
-                                    await _callClickLectureApi(lecture['lecture_id'].toString());
+                                    await _callClickLectureApi(
+                                      context,
+                                      lecture['lecture_id'].toString(),
+                                      lecture['lecture_title'],
+                                    );
                                   },
                                 )
                                     : GestureDetector(

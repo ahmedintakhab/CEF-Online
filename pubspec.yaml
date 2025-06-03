@@ -63,6 +63,15 @@ dependency_overrides:
   package_info_plus: ^8.2.0
   file_picker: ^8.0.7
   intl: ^0.19.0
+  syncfusion_flutter_pdfviewer: ^24.1.41
+  flutter_html: ^3.0.0
+  just_audio: ^0.10.3
+  cached_network_image: ^3.4.1
+  webview_flutter: ^4.4.4
+  webview_flutter_android: ^3.13.2
+
+
+
 
 
 

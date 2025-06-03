@@ -283,6 +283,7 @@ class _LessonState extends State<Lesson> {
       );
     }
   }
+}
 
 
 
@@ -382,4 +383,4 @@ class _LessonState extends State<Lesson> {
   //     ],
   //   );
   // }
-}
+

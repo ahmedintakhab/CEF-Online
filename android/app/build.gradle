@@ -29,7 +29,7 @@ android {
     // Add the namespace property here
     namespace "com.example.learn_megnagmet" // Use your actual package name
 
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -40,7 +40,7 @@ android {
     defaultConfig {
         applicationId "com.example.learn_megnagmet" // Ensure this matches the namespace
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -54,4 +54,7 @@ android {
 
 flutter {
     source '../..'
+}
+dependencies {
+    implementation 'androidx.webkit:webkit:1.8.0' // Enhanced WebView features
 }

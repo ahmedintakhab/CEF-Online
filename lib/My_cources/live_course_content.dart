@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'content_display_screen.dart';
+
 class LiveCourseContent extends StatelessWidget {
   final List<dynamic> liveCourses;
   final Function? onLectureOpen; // Callback function to trigger refresh
@@ -95,23 +97,27 @@ class LiveCourseContent extends StatelessWidget {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () async {
-                            String url = resource['redirect_preview_src'];
-                            if (await canLaunch(url)) {
-                              await launch(url);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Could not launch $url')),
-                              );
-                            }
+                          onTap: () {
+                            // Navigate to ContentDisplayScreen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ContentDisplayScreen(
+                                  title: resource['resource_name'],
+                                  contentType: resource['resource_type']?.toString().toLowerCase() ?? 'text',
+                                  source: resource['redirect_preview_src'],
+                                ),
+                              ),
+                            ).then((_) {
+                              if (onLectureOpen != null) onLectureOpen!();
+                            });
                           },
                           child: Icon(
                             Icons.open_in_new,
                             color: Color(0XFF8CC13F),
                             size: 26.w,
                           ),
-                        ),
-                      ],
+                        ),                      ],
                     ),
                   ),
                 );
