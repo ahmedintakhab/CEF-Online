@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'content_display_screen.dart';
@@ -10,6 +12,29 @@ class LiveCourseContent extends StatelessWidget {
 
 
   const LiveCourseContent({Key? key, required this.liveCourses,this.onLectureOpen}) : super(key: key);
+  // Function to map resource_type to ContentDisplayScreen contentType
+  String _mapResourceTypeToContentType(String resourceType) {
+    resourceType = resourceType.toLowerCase();
+    if (resourceType == 'slide document') {
+      return 'webview'; // Use webview for Slide Document
+    }
+    switch (resourceType) {
+      case 'pdf':
+        return 'pdf';
+      case 'video':
+        return 'video';
+      case 'youtube':
+        return 'youtube';
+      case 'audio':
+        return 'audio';
+      case 'image':
+        return 'image';
+      case 'text':
+        return 'text';
+      default:
+        return 'text'; // Default to text for unknown types
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,13 +123,16 @@ class LiveCourseContent extends StatelessWidget {
                         ),
                         GestureDetector(
                           onTap: () {
+                            // Map resource_type to contentType
+                            String contentType = _mapResourceTypeToContentType(
+                                resource['resource_type']?.toString() ?? 'text');
                             // Navigate to ContentDisplayScreen
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ContentDisplayScreen(
                                   title: resource['resource_name'],
-                                  contentType: resource['resource_type']?.toString().toLowerCase() ?? 'text',
+                                  contentType: contentType,
                                   source: resource['redirect_preview_src'],
                                 ),
                               ),
@@ -130,6 +158,8 @@ class LiveCourseContent extends StatelessWidget {
   }
 
   bool _isCategoryDisplayed(String categoryName) {
+    // Note: This Set is recreated on every build, which may cause all categories to display.
+    // Consider making it static or state-managed if this is not the intended behavior.
     Set<String> displayedCategories = {};
     if (!displayedCategories.contains(categoryName)) {
       displayedCategories.add(categoryName);

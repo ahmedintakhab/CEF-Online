@@ -283,7 +283,7 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
             widget.title,
             style: TextStyle(
               fontFamily: 'Gilroy',
-              fontSize: 26.sp,
+              fontSize: 22.sp,
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),

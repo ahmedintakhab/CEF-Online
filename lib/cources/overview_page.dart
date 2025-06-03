@@ -6,6 +6,7 @@ import 'package:learn_megnagmet/controller/controller.dart';
 
 import '../models/overview_page_grid_model.dart';
 import '../models/overviewpage_instructur.dart';
+import '../utils/html_utils.dart';
 import '../utils/screen_size.dart';
 import '../utils/slider_page_data_model.dart';
 import '../widget/button.dart';
@@ -26,18 +27,10 @@ class _OverviewState extends State<Overview> {
   List<OverViewGrid> grid = [];
   // List<Instructor> instuctor = [];
   bool activevalue = false;
-  // List<String> categoryList = [
-  //   "Creative",
-  //   "Visual Communication",
-  //   "Design",
-  //   "Color Theory",
-  //   "Typography"
-  // ];
   List<String> selectedCategory = [];
   @override
   void initState() {
     grid = Utils.getOverView();
-    // instuctor = Utils.getInstruter();
     super.initState();
     overviewData = widget.overviewData;  // Assign passed data
     print('check tha overview data on overview page: $overviewData');
@@ -57,6 +50,8 @@ class _OverviewState extends State<Overview> {
     ];
     final List<dynamic> skills = overviewData['skills'] ?? [];
     initializeScreenSize(context);
+    // Convert HTML description to plain text
+    final plainTextDescription = convertHtmlToPlainText(overviewData['description'] ?? '');
     return GetBuilder(
         init: HomeController(),
         builder: (controller) => SingleChildScrollView(
@@ -75,22 +70,23 @@ class _OverviewState extends State<Overview> {
                           fontFamily: 'Gilroy'),
                     ),
                     ExpandableText(
-                      overviewData['description'],
+                      plainTextDescription,
                       expandText: 'Learn more.',
-                      style: TextStyle(
-                          fontSize: 14.sp,
-                          color: const Color(0XFF6E758A),
-                          fontFamily: 'Gilroy',
-                          fontWeight: FontWeight.w400),
                       collapseText: 'Learn less.',
                       maxLines: 3,
                       linkStyle: TextStyle(
-                          color: const Color(0XFF78A03F),
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Gilroy'),
+                        color: const Color(0XFF78A03F),
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Gilroy',
+                      ),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: const Color(0XFF6E758A),
+                        fontFamily: 'Gilroy',
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-
                     OverviewContainer(items: items,fetchedCourseType: widget.fetchedCourseType),
 
                     // SizedBox(

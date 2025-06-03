@@ -1,7 +1,8 @@
-// overview_page.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:learn_megnagmet/Course_details_tabbar/course_footer.dart';
+import '../utils/html_utils.dart'; // Import the utility function
 
 class OverviewPage extends StatelessWidget {
   final Map<String, dynamic> overviewData;
@@ -10,8 +11,7 @@ class OverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // print("Check the new overview data:$overviewData");
-    // Static data for now
+    // Static data for key points
     final String title = 'Overview Page';
     final List<String> keyPoints = [
       'Key Point 1: This is the first key point.',
@@ -19,63 +19,78 @@ class OverviewPage extends StatelessWidget {
       'Key Point 3: This is the third key point.',
     ];
 
+    // Convert HTML description to plain text
+    final plainTextDescription = convertHtmlToPlainText(overviewData['description'] ?? '');
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.all(16.0.sp),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Gilroy',
+                ),
               ),
-            ),
-            SizedBox(height: 10),
+              SizedBox(height: 10.h),
 
-            // Key Points
-            ...keyPoints.map((point) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('• ', style: TextStyle(fontSize: 16)), // Bullet point
-                  Expanded(
-                    child: Text(
-                      point,
-                      style: TextStyle(fontSize: 16),
+              // Key Points
+              ...keyPoints.map((point) => Padding(
+                padding: EdgeInsets.symmetric(vertical: 4.0.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('• ', style: TextStyle(fontSize: 16.sp)),
+                    Expanded(
+                      child: Text(
+                        point,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontFamily: 'Gilroy',
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              )),
+              SizedBox(height: 20.h),
+
+              // Expandable Plain Text Description
+              ExpandableText(
+                plainTextDescription,
+                expandText: 'Learn more',
+                collapseText: 'Learn less',
+                maxLines: 4,
+                linkColor: Colors.green,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.grey[700],
+                  fontFamily: 'Gilroy',
+                ),
               ),
-            )),
-            SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
-            // Expandable Description
-            ExpandableText(
-              overviewData['description'],
-              expandText: 'Learn more',
-              collapseText: 'Learn less',
-              maxLines: 4,
-              linkColor: Colors.green, // Customize the link color
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
+              // Constrain CourseFooter to prevent layout issues
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: 20.h, // Ensure a minimum height
+                  // maxHeight: MediaQuery.of(context).size.height * 0.1, // Limit max height
+                ),
+                child: overviewData.containsKey('footer_section')
+                    ? CourseFooter(footerData: overviewData['footer_section'])
+                    : CourseFooter(),
               ),
-            ),
-            // SizedBox(height: 50),
-            Spacer(),
-
-            // Using the footer with footerData
-            overviewData.containsKey('footer_section')
-                ? CourseFooter(footerData: overviewData['footer_section'])
-                : CourseFooter(), // Fallback to static data if API data not available
-             SizedBox(height: 20),
-
-          ]
-        )
+              SizedBox(height: 20.h),
+            ],
+          ),
+        ),
       ),
     );
   }
