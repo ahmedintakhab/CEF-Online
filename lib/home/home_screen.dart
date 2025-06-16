@@ -158,10 +158,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               mainAxisSize: MainAxisSize.min, // Take only needed space
                               children: [
                                 // In your HomeScreen's build method, add a back button somewhere:
-                                IconButton(
-                                  icon: Icon(Icons.arrow_back),
-                                  onPressed: () => Get.back(),
-                                ),
+                                // IconButton(
+                                //   icon: Icon(Icons.arrow_back),
+                                //   onPressed: () => Get.back(),
+                                // ),
                                 Image(
                                   image: AssetImage(userDetail[0].image),
                                   height: 50.h,
@@ -245,8 +245,8 @@ class _HomeScreenState extends State<HomeScreen> {
                            SizedBox(height: 20.h),
                           indicator(),
                            SizedBox(height: 20.h),
-                          horizontal_disidn(),
-                           SizedBox(height: 22.h),
+                          // horizontal_disidn(),
+                          //  SizedBox(height: 22.h),
                           Padding(
                             padding:  EdgeInsets.symmetric(horizontal: 20.w),
                             child: Row(
@@ -322,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
         initialPage: 0,
         height: 150.0.h,
         enlargeCenterPage: false,
-        viewportFraction: 0.84,
+        viewportFraction: 1,
         onPageChanged: (index, reason) {
           homecontroller.onChange(index.obs);
         },
@@ -342,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Container(
                 height: 150.h,
-                width: 322.w,
+                width: ScreenUtil().screenWidth, // Full screen width
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: isValidImageUrl
@@ -350,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         : AssetImage('assets/person.png') as ImageProvider, // Fallback image
                     fit: BoxFit.cover, // Ensure the image covers the area
                   ),
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -759,7 +759,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return Container(
       color: const Color(0XFFFFFFFF),
-      height: 323.h,
+      height: 343.h,
       width: double.infinity.w,
       child: ListView.builder(
           padding:  EdgeInsets.symmetric(horizontal: 16.w),
@@ -771,9 +771,9 @@ class _HomeScreenState extends State<HomeScreen> {
           itemBuilder: (BuildContext context, index) {
             final latest = newCourses[index]; // Access each course from the list
             return GestureDetector(
-              onTap: (){
-                Get.to(RecentCourceDetail(corcedetail: latest,));
-              },
+              // onTap: (){
+              //   Get.to(RecentCourceDetail(corcedetail: latest,));
+              // },
               child: Padding(
                 padding: EdgeInsets.symmetric(
                  horizontal: 4.w
@@ -797,13 +797,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          height: 158.h,
+                          height: 168.h,
                           width: 276.w,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             image: DecorationImage(
                               image: NetworkImage(latest['image'].toString()),
-                              fit: BoxFit.cover,
+                              fit: BoxFit.fill,
                             ),
                           ),
                           child: Padding(

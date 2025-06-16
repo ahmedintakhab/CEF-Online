@@ -137,98 +137,93 @@ class NonLiveCourseContent extends StatelessWidget {
                   : const SizedBox(),
               ...lessonLectures.map((lecture) {
                 if (lecture['lecture_type'] == 'Assignment') {
-                  return Container(); // Placeholder for Assignment type
+                  return Container();
                 } else {
-                  return Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Container(
-                      height: 80.h,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22.h),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0XFF23408F).withOpacity(0.14),
-                            offset: const Offset(-4, 5),
-                            blurRadius: 16,
-                          ),
-                        ],
-                        color: Colors.white,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              height: 55.h,
-                              width: 33.w,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(22.h),
-                                color: const Color(0XFFEBF2C2),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "${lecture['lecture_no']}",
-                                  style: TextStyle(
-                                    color: Color(0XFF78A02A),
-                                    fontSize: 15.sp,
-                                    fontFamily: 'Gilroy',
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
+                  return GestureDetector(
+                    onTap: lecture['is_locked'] == "No"
+                        ? () async {
+                      await _callClickLectureApi(
+                        context,
+                        lecture['lecture_id'].toString(),
+                        lecture['lecture_title'],
+                      );
+                    }
+                        : () {
+                      Get.snackbar('Error', 'This lecture is locked');
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Container(
+                        height: 80.h,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(22.h),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0XFF23408F).withOpacity(0.14),
+                              offset: const Offset(-4, 5),
+                              blurRadius: 16,
                             ),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 10),
+                          ],
+                          color: Colors.white,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                height: 55.h,
+                                width: 33.w,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(22.h),
+                                  color: const Color(0XFFEBF2C2),
+                                ),
                                 child: Center(
                                   child: Text(
-                                    lecture['lecture_title'],
+                                    "${lecture['lecture_no']}",
                                     style: TextStyle(
-                                      color: Color(0XFF000000),
-                                      fontSize: 16.sp,
+                                      color: Color(0XFF78A02A),
+                                      fontSize: 15.sp,
                                       fontFamily: 'Gilroy',
                                       fontWeight: FontWeight.w700,
                                     ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                lecture['is_locked'] == "No"
-                                    ? GestureDetector(
-                                  child: Icon(
-                                    Icons.open_in_new,
-                                    color: Color(0XFF8CC13F),
-                                    size: 26.w,
-                                  ),
-                                  onTap: () async {
-                                    await _callClickLectureApi(
-                                      context,
-                                      lecture['lecture_id'].toString(),
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 10),
+                                  child: Center(
+                                    child: Text(
                                       lecture['lecture_title'],
-                                    );
-                                  },
-                                )
-                                    : GestureDetector(
-                                  child: Icon(
-                                    Icons.lock,
+                                      style: TextStyle(
+                                        color: Color(0XFF000000),
+                                        fontSize: 16.sp,
+                                        fontFamily: 'Gilroy',
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Icon(
+                                    lecture['is_locked'] == "No"
+                                        ? Icons.file_open
+                                        : Icons.lock,
                                     color: Color(0XFF8CC13F),
                                     size: 26.w,
                                   ),
-                                  onTap: () {
-                                    Get.snackbar('Error', 'This lecture is locked');
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

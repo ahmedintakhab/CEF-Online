@@ -8,6 +8,7 @@ import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../My_cources/content_display_screen.dart';
 import '../models/lesson.dart';
 import '../utils/screen_size.dart';
 import '../widget/button.dart';
@@ -23,6 +24,29 @@ class Lesson extends StatefulWidget {
 
 class _LessonState extends State<Lesson> {
   List<LessonList> lessonLists = Utils.getLesson();
+  // Map lecture_type to ContentDisplayScreen contentType
+  String _mapLectureTypeToContentType(String lectureType) {
+    lectureType = lectureType.toLowerCase();
+    if (lectureType == 'slide document') {
+      return 'webview'; // Use webview for Slide Document
+    }
+    switch (lectureType) {
+      case 'pdf':
+        return 'pdf';
+      case 'video':
+        return 'video';
+      case 'youtube':
+        return 'youtube';
+      case 'audio':
+        return 'audio';
+      case 'image':
+        return 'image';
+      case 'text':
+        return 'text';
+      default:
+        return 'text'; // Default to text for unknown types
+    }
+  }
 
   Widget build(BuildContext context) {
     print('Check lesson Data on lesson Screen: ${widget.lessonsData}');
@@ -155,7 +179,11 @@ class _LessonState extends State<Lesson> {
                   child: Text(
                     lecture['lecture_title'] ?? 'No Title',
                     style: TextStyle(
-                        fontSize: 14.sp, color: const Color(0XFF000000)),
+                      fontSize: 14.sp,
+                      color: const Color(0XFF000000),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 SizedBox(width: 10.w),
@@ -166,38 +194,44 @@ class _LessonState extends State<Lesson> {
                     color: Colors.grey,
                     size: 20.h,
                   )
-                else
-                  if (lecture['lecture_is'] == 'Free')
-                    Container(
-                      width: 70,
-                      height: 20,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final url = lecture['lecture_preview_btn_src'];
-                          if (url != null && url.isNotEmpty) {
-                            launchUrl(Uri.parse(url));
-                          } else {
-                            print('Invalid or missing URL for lecture preview');
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0XFF78A03F),
-                        ),
-                        child: Text(
-                          'Preview',
-                          style: TextStyle(fontSize: 8.sp, color: Colors.white),
-                        ),
-                      ),
+                else if (lecture['lecture_is'] == 'Free')
+                  GestureDetector(
+                    onTap: () {
+                      final url = lecture['lecture_preview_btn_src'];
+                      if (url != null && url.isNotEmpty) {
+                        // Map lecture_type to contentType
+                        String contentType = _mapLectureTypeToContentType(
+                          lecture['lecture_type']?.toString() ?? 'text',
+                        );
+                        // Navigate to ContentDisplayScreen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ContentDisplayScreen(
+                              title: lecture['lecture_title'] ?? 'No Title',
+                              contentType: contentType,
+                              source: url,
+                            ),
+                          ),
+                        );
+                      } else {
+                        Get.snackbar('Error', 'Invalid or missing URL for lecture preview');
+                      }
+                    },
+                    child: Icon(
+                      Icons.remove_red_eye,
+                      color: const Color(0XFF78A03F),
+                      size: 20.h,
                     ),
+                  ),
               ],
             ),
-            SizedBox(height: 5.h),
+            SizedBox(height: 10.h),
           ],
         );
       }),
     );
   }
-
   Future<String> _preprocessSvg(String svgUrl) async {
     try {
       final response = await http.get(Uri.parse(svgUrl));

@@ -187,7 +187,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
           _buildTabBar(),
           Expanded(
             child: isLoading
-                ? Center(child: CircularProgressIndicator()) // Show loader while loading
+                ? Center(child: CircularProgressIndicator(color: Color(0XFF8CC13F),)) // Show loader while loading
                 : _buildTabBarPages(),
           ),
         ],

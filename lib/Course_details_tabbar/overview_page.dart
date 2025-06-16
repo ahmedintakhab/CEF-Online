@@ -11,13 +11,10 @@ class OverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Static data for key points
-    final String title = 'Overview Page';
-    final List<String> keyPoints = [
-      'Key Point 1: This is the first key point.',
-      'Key Point 2: This is the second key point.',
-      'Key Point 3: This is the third key point.',
-    ];
+    final List<dynamic> apiKeyPoints = overviewData['keyPoints'] ?? [];
+    final List<String> keyPoints = apiKeyPoints.isNotEmpty
+        ? apiKeyPoints.map((point) => point['name'] as String).toList()
+        : [];
 
     // Convert HTML description to plain text
     final plainTextDescription = convertHtmlToPlainText(overviewData['description'] ?? '');
@@ -32,7 +29,7 @@ class OverviewPage extends StatelessWidget {
             children: [
               // Title
               Text(
-                title,
+                'Overview Page',
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
@@ -41,8 +38,9 @@ class OverviewPage extends StatelessWidget {
               ),
               SizedBox(height: 10.h),
 
-              // Key Points
-              ...keyPoints.map((point) => Padding(
+            // Key Points (only shown if keyPoints is not empty)
+            if (keyPoints.isNotEmpty) ...[
+          ...keyPoints.map((point) => Padding(
                 padding: EdgeInsets.symmetric(vertical: 4.0.h),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,8 +57,10 @@ class OverviewPage extends StatelessWidget {
                     ),
                   ],
                 ),
+
               )),
               SizedBox(height: 20.h),
+  ],
 
               // Expandable Plain Text Description
               ExpandableText(

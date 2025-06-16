@@ -190,12 +190,16 @@ class _MyCourcesState extends State<MyCources> {
               borderRadius: BorderRadius.circular(22.h),
             ),
           ),
-          indicatorPadding: EdgeInsets.symmetric(horizontal: 7, vertical: 15),
+          indicatorPadding: EdgeInsets.symmetric(
+            horizontal: 7.w,  // Make horizontal padding responsive
+            vertical: 15.h,   // Make vertical padding responsive
+          ),
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: _buildTabs(),
           onTap: (index) {
             courseController.pController.jumpToPage(index);
           },
+          isScrollable: false,  // Allow tabs to scroll if needed
         ),
       ),
     );
@@ -209,17 +213,30 @@ class _MyCourcesState extends State<MyCources> {
         if (courseType == "Live") {
           tabText = index == 0 ? "Overview" : index == 1 ? "Instructors" : "Review";
         } else {
-          tabText = index == 0 ? "Overview" : index == 1 ? "Lessons"
-              : index == 2 ? "Instructors" : "Review";
+          tabText = index == 0 ? "Overview"
+              : index == 1 ? "Lessons"
+              : index == 2 ? "Instructors"
+              : "Review";
         }
 
         return Tab(
           child: SizedBox(
-            width: 75,
-            child: Text(
-              tabText,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13,fontWeight: FontWeight.bold),
+            // Remove fixed width to allow flexible sizing
+            child: FittedBox(  // Use FittedBox to ensure text scales properly
+              fit: BoxFit.scaleDown,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w),  // Add some horizontal padding
+                child: Text(
+                  tabText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,  // Ensure text stays on one line
+                  overflow: TextOverflow.ellipsis,  // Add ellipsis if text overflows
+                ),
+              ),
             ),
           ),
         );

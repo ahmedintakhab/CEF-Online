@@ -133,10 +133,10 @@ class _RecentlyAddedState extends State<RecentlyAdded> {
           itemBuilder: (BuildContext, index) {
             final course = courses[index];
             return GestureDetector(
-              onTap: (){
-
-                Get.to(RecentCourceDetail(corcedetail: course,));
-              },
+              // onTap: (){
+              //
+              //   Get.to(RecentCourceDetail(corcedetail: course,));
+              // },
               child: Padding(
                 padding:  EdgeInsets.only(left: 30.w,right: 30.w,top:index==0?0.h: 10.h,bottom: 10.h),
                 child: Container(

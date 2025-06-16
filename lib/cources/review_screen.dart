@@ -145,7 +145,6 @@ class _ReviewState extends State<Review> {
 
                 ],
               ),
-              //SizedBox(height: 12.h),
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
@@ -157,92 +156,268 @@ class _ReviewState extends State<Review> {
                   final userReview = userReviews[index];
                   if (userReview == null) return const SizedBox.shrink();
 
-                  return Padding(
-                    padding: EdgeInsets.only(left: 15.5.w),
-                    child: SizedBox(
-                      height: 62.h,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: userReview['user_image'] != null
-                                    ? Image.network(
-                                  userReview['user_image'].toString(),
-                                  height: 32.h,
-                                  width: 32.w,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      height: 32.h,
-                                      width: 32.w,
-                                      color: Colors.grey[300],
-                                      child: Icon(Icons.person, color: Colors.grey[600]),
-                                    );
-                                  },
-                                )
-                                    : Container(
-                                  height: 32.h,
-                                  width: 32.w,
-                                  color: Colors.grey[300],
-                                  child: Icon(Icons.person, color: Colors.grey[600]),
-                                ),
-                              ),
-                              SizedBox(width: 15.w),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    if (userReview['user_name'] != null)
-                                      Text(
-                                        userReview['user_name'].toString(),
-                                        style: TextStyle(
-                                          fontSize: 14.sp,
-                                          color: const Color(0XFF292929),
-                                          fontFamily: 'Gilroy',
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    if (userReview['comment'] != null)
-                                      Text(
-                                        userReview['comment'].toString(),
-                                        style: TextStyle(
-                                          fontSize: 14.sp,
-                                          color: const Color(0XFF292929),
-                                          fontFamily: 'Gilroy',
-                                          fontStyle: FontStyle.normal,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              if (userReview['created_at'] != null)
-                                Text(
-                                  userReview['created_at'].toString(),
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Color(0XFF5E8421),
-                                    fontFamily: 'Gilroy',
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  return ReviewListItem(
+                    userReview: userReview,
+                    key: ValueKey(index), // Important for ListView optimization
                   );
                 },
-              )
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
-
 }
+class ReviewListItem extends StatefulWidget {
+  final Map<String, dynamic> userReview;
+
+  const ReviewListItem({
+    Key? key,
+    required this.userReview,
+  }) : super(key: key);
+
+  @override
+  _ReviewListItemState createState() => _ReviewListItemState();
+}
+
+class _ReviewListItemState extends State<ReviewListItem> {
+  bool isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: 15.5.w, bottom: 12.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: widget.userReview['user_image'] != null
+                    ? Image.network(
+                  widget.userReview['user_image'].toString(),
+                  height: 32.h,
+                  width: 32.w,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 32.h,
+                      width: 32.w,
+                      color: Colors.grey[300],
+                      child: Icon(Icons.person, color: Colors.grey[600]),
+                    );
+                  },
+                )
+                    : Container(
+                  height: 32.h,
+                  width: 32.w,
+                  color: Colors.grey[300],
+                  child: Icon(Icons.person, color: Colors.grey[600]),
+                ),
+              ),
+              SizedBox(width: 15.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.userReview['user_name'] != null)
+                      Text(
+                        widget.userReview['user_name'].toString(),
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: const Color(0XFF292929),
+                          fontFamily: 'Gilroy',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    SizedBox(height: 4.h),
+                    if (widget.userReview['comment'] != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.userReview['comment'].toString(),
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: const Color(0XFF292929),
+                              fontFamily: 'Gilroy',
+                              fontStyle: FontStyle.normal,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            maxLines: isExpanded ? null : 2,
+                            overflow: isExpanded
+                                ? TextOverflow.clip
+                                : TextOverflow.ellipsis,
+                          ),
+                          if (_needsReadMore(widget.userReview['comment'].toString()))
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isExpanded = !isExpanded;
+                                });
+                              },
+                              child: Text(
+                                isExpanded ? 'Read less' : 'Read more...',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: Color(0XFF78A03F),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+              if (widget.userReview['created_at'] != null)
+                Padding(
+                  padding: EdgeInsets.only(top: 4.h),
+                  child: Text(
+                    widget.userReview['created_at'].toString(),
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Color(0XFF5E8421),
+                      fontFamily: 'Gilroy',
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          Divider(
+            height: 1.h,
+            color: Colors.grey[300],
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _needsReadMore(String text) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          fontSize: 12.sp,
+          fontFamily: 'Gilroy',
+        ),
+      ),
+      maxLines: 2,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(maxWidth: MediaQuery.of(context).size.width * 0.7);
+    return textPainter.didExceedMaxLines;
+  }
+}
+//SizedBox(height: 12.h),
+//               ListView.builder(
+//                 shrinkWrap: true,
+//                 physics: NeverScrollableScrollPhysics(),
+//                 itemCount: widget.reviewData['user_reviews']?.length ?? 0,
+//                 itemBuilder: (context, index) {
+//                   final userReviews = widget.reviewData['user_reviews'];
+//                   if (userReviews == null) return const SizedBox.shrink();
+//
+//                   final userReview = userReviews[index];
+//                   if (userReview == null) return const SizedBox.shrink();
+//
+//                   return Padding(
+//                     padding: EdgeInsets.only(left: 15.5.w, bottom: 12.h), // Added bottom padding
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         Row(
+//                           crossAxisAlignment: CrossAxisAlignment.start, // Align items at the top
+//                           children: [
+//                             ClipRRect(
+//                               borderRadius: BorderRadius.circular(16),
+//                               child: userReview['user_image'] != null
+//                                   ? Image.network(
+//                                 userReview['user_image'].toString(),
+//                                 height: 32.h,
+//                                 width: 32.w,
+//                                 fit: BoxFit.cover,
+//                                 errorBuilder: (context, error, stackTrace) {
+//                                   return Container(
+//                                     height: 32.h,
+//                                     width: 32.w,
+//                                     color: Colors.grey[300],
+//                                     child: Icon(Icons.person, color: Colors.grey[600]),
+//                                   );
+//                                 },
+//                               )
+//                                   : Container(
+//                                 height: 32.h,
+//                                 width: 32.w,
+//                                 color: Colors.grey[300],
+//                                 child: Icon(Icons.person, color: Colors.grey[600]),
+//                               ),
+//                             ),
+//                             SizedBox(width: 15.w),
+//                             Expanded(
+//                               child: Column(
+//                                 crossAxisAlignment: CrossAxisAlignment.start,
+//                                 children: [
+//                                   if (userReview['user_name'] != null)
+//                                     Text(
+//                                       userReview['user_name'].toString(),
+//                                       style: TextStyle(
+//                                         fontSize: 14.sp,
+//                                         color: const Color(0XFF292929),
+//                                         fontFamily: 'Gilroy',
+//                                         fontWeight: FontWeight.w500,
+//                                       ),
+//                                     ),
+//                                   SizedBox(height: 4.h), // Added spacing between name and comment
+//                                   if (userReview['comment'] != null)
+//                                     Text(
+//                                       userReview['comment'].toString(),
+//                                       style: TextStyle(
+//                                         fontSize: 12.sp,
+//                                         color: const Color(0XFF292929),
+//                                         fontFamily: 'Gilroy',
+//                                         fontStyle: FontStyle.normal,
+//                                         fontWeight: FontWeight.w400,
+//                                       ),
+//                                       maxLines: 3, // Limit to 3 lines
+//                                       overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+//                                     ),
+//                                 ],
+//                               ),
+//                             ),
+//                             if (userReview['created_at'] != null)
+//                               Padding(
+//                                 padding: EdgeInsets.only(top: 4.h), // Add top padding to align with name
+//                                 child: Text(
+//                                   userReview['created_at'].toString(),
+//                                   style: TextStyle(
+//                                     fontSize: 12.sp,
+//                                     color: Color(0XFF5E8421),
+//                                     fontFamily: 'Gilroy',
+//                                   ),
+//                                 ),
+//                               ),
+//                           ],
+//                         ),
+//                         SizedBox(height: 12.h), // Add spacing between items
+//                         Divider( // Add divider between reviews
+//                           height: 1.h,
+//                           color: Colors.grey[300],
+//                         ),
+//                       ],
+//                     ),
+//                   );
+//                 },
+//               )            ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//
+// }

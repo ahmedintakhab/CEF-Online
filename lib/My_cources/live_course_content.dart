@@ -64,88 +64,89 @@ class LiveCourseContent extends StatelessWidget {
                   ),
                 ),
               ...categoryResources.map<Widget>((resource) {
-                return Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Container(
-                    height: 80.h,
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22.h),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0XFF23408F).withOpacity(0.14),
-                          offset: const Offset(-4, 5),
-                          blurRadius: 16,
+                return GestureDetector(
+                  onTap: () {
+                    // Map resource_type to contentType
+                    String contentType = _mapResourceTypeToContentType(
+                        resource['resource_type']?.toString() ?? 'text');
+                    // Navigate to ContentDisplayScreen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ContentDisplayScreen(
+                          title: resource['resource_name'],
+                          contentType: contentType,
+                          source: resource['redirect_preview_src'],
                         ),
-                      ],
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          height: 55.h,
-                          width: 33.w,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(22.h),
-                            color: const Color(0XFFEBF2C2),
+                      ),
+                    ).then((_) {
+                      if (onLectureOpen != null) onLectureOpen!();
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Container(
+                      height: 80.h,
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22.h),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0XFF23408F).withOpacity(0.14),
+                            offset: const Offset(-4, 5),
+                            blurRadius: 16,
                           ),
-                          child: Center(
-                            child: Text(
-                              resource['resource_no'].toString(),
-                              style: TextStyle(
-                                color: Color(0XFF78A02A),
-                                fontSize: 15.sp,
-                                fontFamily: 'Gilroy',
-                                fontWeight: FontWeight.w700,
-                              ),
+                        ],
+                        color: Colors.white,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height: 55.h,
+                            width: 33.w,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(22.h),
+                              color: const Color(0XFFEBF2C2),
                             ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 10),
                             child: Center(
                               child: Text(
-                                resource['resource_name'],
+                                resource['resource_no'].toString(),
                                 style: TextStyle(
-                                  color: Color(0XFF000000),
-                                  fontSize: 17.sp,
+                                  color: Color(0XFF78A02A),
+                                  fontSize: 15.sp,
                                   fontFamily: 'Gilroy',
                                   fontWeight: FontWeight.w700,
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            // Map resource_type to contentType
-                            String contentType = _mapResourceTypeToContentType(
-                                resource['resource_type']?.toString() ?? 'text');
-                            // Navigate to ContentDisplayScreen
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ContentDisplayScreen(
-                                  title: resource['resource_name'],
-                                  contentType: contentType,
-                                  source: resource['redirect_preview_src'],
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 10),
+                              child: Center(
+                                child: Text(
+                                  resource['resource_name'],
+                                  style: TextStyle(
+                                    color: Color(0XFF000000),
+                                    fontSize: 17.sp,
+                                    fontFamily: 'Gilroy',
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                            ).then((_) {
-                              if (onLectureOpen != null) onLectureOpen!();
-                            });
-                          },
-                          child: Icon(
-                            Icons.open_in_new,
+                            ),
+                          ),
+                          Icon(
+                            Icons.file_open,
                             color: Color(0XFF8CC13F),
                             size: 26.w,
                           ),
-                        ),                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
