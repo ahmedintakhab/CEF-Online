@@ -89,7 +89,7 @@ class GroupClassHistory extends StatelessWidget {
           _buildInfoRow('No', classData['sr_no']?.toString() ?? 'N/A'),
           _buildInfoRow('Instructor', classData['instructor'] ?? 'N/A'),
           _buildInfoRow('Type', classData['type'] ?? 'N/A'),
-          _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A',
+          _buildInfoRow('Status', classData['status']?.toString() ?? 'N/A',
               isStatus: true),
           _buildInfoRow('Course', classData['course'] ?? 'N/A'),
           _buildInfoRow('Date', classData['date_time'] ?? 'N/A'),
