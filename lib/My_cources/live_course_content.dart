@@ -35,6 +35,10 @@ class LiveCourseContent extends StatelessWidget {
         return 'text'; // Default to text for unknown types
     }
   }
+  // Function to validate YouTube URL
+  bool _isValidYouTubeUrl(String url) {
+    return url.contains('youtube.com') || url.contains('youtu.be');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +73,12 @@ class LiveCourseContent extends StatelessWidget {
                     // Map resource_type to contentType
                     String contentType = _mapResourceTypeToContentType(
                         resource['resource_type']?.toString() ?? 'text');
+                    // Validate YouTube URL if contentType is 'youtube'
+                    if (contentType == 'youtube' &&
+                        !_isValidYouTubeUrl(resource['redirect_preview_src'] ?? '')) {
+                      Get.snackbar('Error', 'Invalid YouTube URL provided');
+                      return;
+                    }
                     // Navigate to ContentDisplayScreen
                     Navigator.push(
                       context,

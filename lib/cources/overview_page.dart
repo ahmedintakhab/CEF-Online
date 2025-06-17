@@ -76,12 +76,12 @@ class _OverviewState extends State<Overview> {
                       maxLines: 3,
                       linkStyle: TextStyle(
                         color: const Color(0XFF78A03F),
-                        fontSize: 14.sp,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Gilroy',
                       ),
                       style: TextStyle(
-                        fontSize: 14.sp,
+                        fontSize: 18.sp,
                         color: const Color(0XFF6E758A),
                         fontFamily: 'Gilroy',
                         fontWeight: FontWeight.w400,

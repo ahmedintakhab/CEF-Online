@@ -24,6 +24,9 @@ class NonLiveCourseContent extends StatelessWidget {
     if (lectureType == 'resource' && lectureResourceType == 'slide document') {
       return 'webview'; // Use webview for Slide Document
     }
+    if (lectureType == 'resource' && lectureResourceType == 'youtube') {
+      return 'youtube'; // Explicitly handle YouTube resource
+    }
     switch (lectureType) {
       case 'video':
         return 'video';
@@ -40,6 +43,10 @@ class NonLiveCourseContent extends StatelessWidget {
       default:
         return 'text'; // Default to text for unknown types
     }
+  }
+  // Function to validate YouTube URL
+  bool _isValidYouTubeUrl(String url) {
+    return url.contains('youtube.com') || url.contains('youtu.be');
   }
 
   // Function to make the POST API call
@@ -74,7 +81,11 @@ class NonLiveCourseContent extends StatelessWidget {
 
         // Map lecture_type to contentType
         String contentType = _mapLectureTypeToContentType(lectureType, lectureResourceType);
-
+        // Validate YouTube URL if contentType is 'youtube'
+        if (contentType == 'youtube' && !_isValidYouTubeUrl(lecturePreviewSrc)) {
+          Get.snackbar('Error', 'Invalid YouTube URL provided');
+          return;
+        }
         // Navigate to ContentDisplayScreen
         Navigator.push(
           context,
@@ -116,14 +127,13 @@ class NonLiveCourseContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              index == 0
-                  ? Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: 20.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      lessonCategory['lesson_name'],
+                      lessonCategory['lesson_name'] ?? 'Lessons',
                       style: TextStyle(
                         fontFamily: 'Gilroy',
                         color: Color(0XFF6E758A),
@@ -133,8 +143,7 @@ class NonLiveCourseContent extends StatelessWidget {
                     ),
                   ],
                 ),
-              )
-                  : const SizedBox(),
+              ),
               ...lessonLectures.map((lecture) {
                 if (lecture['lecture_type'] == 'Assignment') {
                   return Container();
@@ -194,8 +203,7 @@ class NonLiveCourseContent extends StatelessWidget {
                               Expanded(
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 10),
-                                  child: Center(
-                                    child: Text(
+                                  child:  Text(
                                       lecture['lecture_title'],
                                       style: TextStyle(
                                         color: Color(0XFF000000),
@@ -208,7 +216,6 @@ class NonLiveCourseContent extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                              ),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.end,

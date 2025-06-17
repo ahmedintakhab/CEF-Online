@@ -86,7 +86,7 @@ class _CourseVideoPlayerState extends State<CourseVideoPlayer> {
         aspectRatio: 16 / 9,
             child: Image.network(
                     widget.videoUrl, // Assuming videoUrl is the image URL in this case
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                   ),
           )
           : Container(), // Fallback in case of unexpected previewSrcType

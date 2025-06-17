@@ -59,26 +59,33 @@ class Instructors extends StatelessWidget {
                                   height: 71.h,
                                   width: 71.w),
                               SizedBox(width: 10.w),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    instructor['name'] ?? 'No Name',
-                                    style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: const Color(0XFF000000),
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Gilroy'),
-                                  ),
-                                  Text(
-                                    instructor['professional_title'] ?? '',
-                                    style: TextStyle(
-                                        fontSize: 16.sp,
-                                        color: const Color(0XFF000000),
-                                        fontFamily: 'Gilroy'),
-                                  )
-                                ],
+                              Expanded(
+
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      instructor['name'] ?? 'No Name',
+                                      style: TextStyle(
+                                          fontSize: 16.sp,
+                                          color: const Color(0XFF000000),
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Gilroy'),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      instructor['professional_title'] ?? '',
+                                      style: TextStyle(
+                                          fontSize: 16.sp,
+                                          color: const Color(0XFF000000),
+                                          fontFamily: 'Gilroy'),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    )
+                                  ],
+                                ),
                               )
                             ],
                           ),

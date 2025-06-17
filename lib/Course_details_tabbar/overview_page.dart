@@ -67,10 +67,10 @@ class OverviewPage extends StatelessWidget {
                 plainTextDescription,
                 expandText: 'Learn more',
                 collapseText: 'Learn less',
-                maxLines: 4,
+                maxLines: 5,
                 linkColor: Colors.green,
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 16.sp,
                   color: Colors.grey[700],
                   fontFamily: 'Gilroy',
                 ),

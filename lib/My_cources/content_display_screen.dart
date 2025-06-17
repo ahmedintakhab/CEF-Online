@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:video_player/video_player.dart';
@@ -33,11 +34,18 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
   bool _isInitialized = false;
   String? _errorMessage;
   bool _isLoading = false;
+  bool _isLandscape = false;
+
 
   @override
   void initState() {
     super.initState();
     _initializeContent();
+    // Set initial orientation to portrait
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
   }
 
   Future<void> _initializeContent() async {
@@ -73,7 +81,7 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
             _youtubeController = YoutubePlayerController(
               initialVideoId: videoId,
               flags: const YoutubePlayerFlags(
-                autoPlay: false,
+                autoPlay: true, // Changed to autoPlay: true
                 mute: false,
               ),
             );
@@ -83,7 +91,7 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
             });
           } else {
             setState(() {
-              _errorMessage = 'Invalid YouTube URL';
+              _errorMessage = 'Invalid YouTube URL: ${widget.source}';
               _isLoading = false;
             });
           }
@@ -271,7 +279,29 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
     _youtubeController?.dispose();
     _audioPlayer?.dispose();
     _webViewController = null;
+    // Reset orientation to portrait when disposing
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     super.dispose();
+  }
+  // Toggle screen orientation
+  void _toggleOrientation() {
+    setState(() {
+      _isLandscape = !_isLandscape;
+    });
+    if (_isLandscape) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
   }
 
   @override
@@ -293,7 +323,16 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        // Removed the open in browser action button
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isLandscape ? Icons.screen_lock_portrait : Icons.screen_rotation,
+              color: Colors.white,
+            ),
+            onPressed: _toggleOrientation,
+            tooltip: _isLandscape ? 'Switch to Portrait' : 'Switch to Landscape',
+          ),
+        ],
       ),
       body: _errorMessage != null
           ? Center(
@@ -379,12 +418,19 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
           ],
         );
       case 'youtube':
-        return YoutubePlayer(
+        return _youtubeController != null
+            ? YoutubePlayer(
           controller: _youtubeController!,
           showVideoProgressIndicator: true,
           onReady: () {
             _youtubeController!.play();
           },
+        )
+            : Center(
+          child: Text(
+            'Failed to load YouTube video',
+            style: TextStyle(fontSize: 16.sp, color: Colors.red),
+          ),
         );
       case 'image':
         return Center(

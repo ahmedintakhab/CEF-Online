@@ -398,10 +398,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   highlightColor: Colors.grey[100]!, // Lighter grey
                   child: Container(
                     height: 150.h,
-                    width: 322.w,
+                    width: ScreenUtil().screenWidth, // Full screen width
                     decoration: BoxDecoration(
                       color: Colors.grey[300], // Base grey color
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(5),
                     ),
                   ),
                 ),
