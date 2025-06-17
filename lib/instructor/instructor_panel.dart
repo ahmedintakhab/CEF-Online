@@ -121,8 +121,8 @@ class _InstructorPanelState extends State<InstructorPanel> {
                                   fontWeight: FontWeight.w700, fontSize: 24.sp, fontFamily: 'Gilroy'),
                             ),
                             SizedBox(width: 40.w),
-                            SizedBox(width: 180.w, height: 35.h,
-                                child: CustomButton(onTap: (){}, buttonText: 'Instructor Panel'))
+                            // SizedBox(width: 180.w, height: 35.h,
+                            //     child: CustomButton(onTap: (){}, buttonText: 'Instructor Panel'))
                           ],
                         ),
                       ),

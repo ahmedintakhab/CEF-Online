@@ -119,8 +119,8 @@ class _MyProfileState extends State<MyProfile> {
                                   fontWeight: FontWeight.w700, fontSize: 24.sp, fontFamily: 'Gilroy'),
                             ),
                             SizedBox(width: 40.w),
-                            SizedBox(width: 180.w, height: 35.h,
-                                child: CustomButton(onTap: (){}, buttonText: 'Student Panel'))
+                            // SizedBox(width: 180.w, height: 35.h,
+                            //     child: CustomButton(onTap: (){}, buttonText: 'Student Panel'))
                           ],
                         ),
                       ),

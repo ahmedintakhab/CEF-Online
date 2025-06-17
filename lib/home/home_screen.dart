@@ -580,10 +580,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget trending_cource_list(Map<String, dynamic> apiData) {
-    final trendingCourses = apiData['trendingCourses']; // Fetch trendingCourses from apiData
+    final trendingCourses = apiData['trendingCourses'];
+
+    // Initialize trending courses button status
+    List<Map<String, dynamic>> trendingAdded = List.generate(
+      trendingCourses?.length ?? 0,
+          (index) => {'buttonStatus': false},
+    );
 
     return SizedBox(
-      height: 234.h,
+      height: 480.h,
       width: double.infinity,
       child: trendingCourses == null || trendingCourses.isEmpty
           ? ListView.builder(
@@ -595,44 +601,13 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: 5, // Number of shimmer placeholders
         itemBuilder: (BuildContext context, index) {
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    height: 172.h,
-                    width: 177.w,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 6.h),
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    width: 177.w,
-                    height: 20.h,
-                    color: Colors.grey[300],
-                  ),
-                ),
-                SizedBox(height: 5.h),
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    width: 100.w,
-                    height: 15.h,
-                    color: Colors.grey[300],
-                  ),
-                ),
-              ],
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Container(
+              width: 276.w,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey[300],
+              ),
             ),
           );
         },
@@ -648,7 +623,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final course = trendingCourses[index];
 
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
             child: GestureDetector(
               onTap: () {
                 final slug = course['slug'];
@@ -656,83 +631,240 @@ class _HomeScreenState extends State<HomeScreen> {
                   Get.to(MyCources(slug: slug));
                 }
               },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 172.h,
-                    width: 177.w,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.r),
-                      image: DecorationImage(
-                        image: NetworkImage(course['image'] ?? ''),
-                        fit: BoxFit.cover,
-                      ),
+              child: Container(
+                width: 276.w,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0XFF23408F).withOpacity(0.14),
+                      offset: const Offset(-4, 5),
+                      blurRadius: 16,
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        left: 10.w,
-                        right: 147.w,
-                        bottom: 142.h,
-                      ),
-                      child: Container(
-                        height: 20.h,
-                        width: 20.w,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
+                  ],
+                  color: Colors.white,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(12.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Language Container
+                      Container(
+                        height: 28.h,
+                        width: 60.w,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          color: const Color(0XFFE8F0FF),
                         ),
                         child: Center(
-                          child: GestureDetector(
-                            onTap: () {
-                              toggle(index);
-                            },
-                            child: course['buttonStatus'] == true
-                                ? Image(
-                              image: AssetImage("assets/saveboldblue.png"),
-                              height: 10.h,
-                              width: 9.w,
-                            )
-                                : Image(
-                              image: AssetImage("assets/savebold.png"),
-                              height: 10.h,
-                              width: 9.w,
+                          child: Text(
+                            "English",
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: const Color(0XFF23408F),
+                              fontFamily: 'Gilroy',
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 6.h),
-                  Expanded(
-                    child: SizedBox(
-                      width: 177.w,
-                      child: Text(
-                        course['title'] ?? '',
+
+                      SizedBox(height: 8.h),
+
+                      // Title
+                      Text(
+                        course['title']?.toString() ?? "Course Title",
                         style: TextStyle(
-                          fontFamily: 'Gilroy',
                           fontWeight: FontWeight.w700,
                           fontSize: 16.sp,
                           color: const Color(0XFF000000),
+                          fontFamily: 'Gilroy',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      SizedBox(height: 8.h),
+
+                      // Rating
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star,
+                            color: const Color(0XFFFFC403),
+                            size: 16.sp,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            course['star_rating']?.toString() ?? "3.00",
+                            style: TextStyle(
+                              fontFamily: 'Gilroy',
+                              color: const Color(0XFFFFC403),
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 12.h),
+
+                      // Square Image Container
+                      Container(
+                        height: 230.h,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[100],
+                        ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                height: 230.h,
+                                width: double.infinity,
+                                child: course['image'] != null
+                                    ? Image.network(
+                                  course['image'].toString(),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      child: Icon(
+                                        Icons.image,
+                                        color: Colors.grey[400],
+                                        size: 40.sp,
+                                      ),
+                                    );
+                                  },
+                                )
+                                    : Container(
+                                  color: Colors.grey[200],
+                                  child: Icon(
+                                    Icons.image,
+                                    color: Colors.grey[400],
+                                    size: 40.sp,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Save button
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 12.h),
+
+                      // Subtitle
+                      Text(
+                        "Master Quranic Recitation & Transform Your Life Through",
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: const Color(0XFF666666),
+                          fontFamily: 'Gilroy',
+                          fontWeight: FontWeight.w500,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        softWrap: true,
                       ),
-                    ),
+
+                      SizedBox(height: 12.h),
+
+                      // Price and Lessons Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Price Container - Fixed condition
+                          Flexible(
+                            child: Container(
+                              height: 32.h,
+                              constraints: BoxConstraints(minWidth: 80.w),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: const Color(0XFF23408F),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                                child: Center(
+                                  child: Text(
+                                    course['price']?.toString() ?? "6,500 Rs",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Gilroy',
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(width: 8.w),
+
+                          // Lessons Container
+                          Flexible(
+                            child: Container(
+                              height: 32.h,
+                              constraints: BoxConstraints(minWidth: 80.w),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: const Color(0XFFE0E0E0),
+                                  width: 1,
+                                ),
+                                color: Colors.white,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.play_arrow,
+                                      color: const Color(0XFF666666),
+                                      size: 16.sp,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Flexible(
+                                      child: Text(
+                                        course['lessons_count']?.toString() ?? "0",
+                                        style: TextStyle(
+                                          color: const Color(0XFF666666),
+                                          fontFamily: 'Gilroy',
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Flexible(
+                                      child: Text(
+                                        "classes",
+                                        style: TextStyle(
+                                          color: const Color(0XFF666666),
+                                          fontFamily: 'Gilroy',
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  // SizedBox(height: 5.h),
-                  // Text(
-                  //   course['subtitle'] ?? '',
-                  //   style: TextStyle(
-                  //     fontFamily: 'Gilroy',
-                  //     fontWeight: FontWeight.w700,
-                  //     fontSize: 15.sp,
-                  //     color: const Color(0XFF000000),
-                  //   ),
-                  // ),
-                ],
+                ),
               ),
             ),
           );
@@ -743,12 +875,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Widget recent_added_list(Map<String, dynamic> apiData) {
-    final newCourses = apiData?['latestCourses'] ?? []; // Fetch latestcourses from apiData
-// Initialize recentAdded dynamically with the same length as newCourses
+    final newCourses = apiData?['latestCourses'] ?? [];
+
+    // Initialize recentAdded dynamically with the same length as newCourses
     List<Map<String, dynamic>> recentAdded = List.generate(
       newCourses.length,
-          (index) => {'buttonStatus': false}, // Default buttonStatus to false
+          (index) => {'buttonStatus': false},
     );
+
     if (newCourses == null || newCourses.isEmpty) {
       return Center(
         child: Text(
@@ -757,199 +891,286 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     }
+
     return Container(
       color: const Color(0XFFFFFFFF),
-      height: 343.h,
-      width: double.infinity.w,
+      height: 480.h,
+      width: double.infinity,
       child: ListView.builder(
-          padding:  EdgeInsets.symmetric(horizontal: 16.w),
-          physics: const BouncingScrollPhysics(),
-          primary: false,
-          shrinkWrap: true,
-          itemCount: newCourses.length,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (BuildContext context, index) {
-            final latest = newCourses[index]; // Access each course from the list
-            return GestureDetector(
-              // onTap: (){
-              //   Get.to(RecentCourceDetail(corcedetail: latest,));
-              // },
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                 horizontal: 4.w
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        physics: const BouncingScrollPhysics(),
+        primary: false,
+        shrinkWrap: true,
+        itemCount: newCourses.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (BuildContext context, index) {
+          final latest = newCourses[index];
+          return GestureDetector(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              child: Container(
+                width: 276.w,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0XFF23408F).withOpacity(0.14),
+                      offset: const Offset(-4, 5),
+                      blurRadius: 16,
+                    ),
+                  ],
+                  color: Colors.white,
                 ),
-                child: Container(
-                  //height: 323,
-                  width: 276.w,
-
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                            color: const Color(0XFF23408F).withOpacity(0.14),
-                            offset: const Offset(-4, 5),
-                            blurRadius: 16),
-                      ],
-                      color: Colors.white),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 168.h,
-                          width: 276.w,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            image: DecorationImage(
-                              image: NetworkImage(latest['image'].toString()),
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                          child: Padding(
-                            padding:  EdgeInsets.only(
-                                right: 230.w, bottom: 120.h, top: 10.h,left: 3),
-                            child: Container(
-                                height: 20.h,
-                                width: 20.w,
-                                decoration: const BoxDecoration(
-                                    shape: BoxShape.circle, color: Colors.white),
-                                child: IconButton(
-                                    splashRadius: 10,
-                                    onPressed: () {
-                                      setState(() {
-                                        // Toggle buttonStatus
-                                        recentAdded[index]['buttonStatus'] =
-                                        !recentAdded[index]['buttonStatus'];
-                                      });
-                                    },
-
-                                    icon:  Center(
-                                      child: recentAdded[index]['buttonStatus']
-                                          ? Image.asset(
-                                        "assets/saveboldblue.png",
-                                        height: 10.h,
-                                        width: 9.w,
-                                      )
-                                        :Image(
-                                          image: AssetImage("assets/savebold.png"),
-                                          height: 10.h,
-                                          width: 9.w,
-                                        ),
-                                    )
-                                )
+                child: Padding(
+                  padding: EdgeInsets.all(12.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Language Container
+                      Container(
+                        height: 28.h,
+                        width: 60.w,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          color: const Color(0XFFE8F0FF),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "English",
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: const Color(0XFF23408F),
+                              fontFamily: 'Gilroy',
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ),
+
+                      SizedBox(height: 8.h),
+
+                      // Title
+                      Text(
+                        latest['title']?.toString() ?? "Course Title",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16.sp,
+                          color: const Color(0XFF000000),
+                          fontFamily: 'Gilroy',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      SizedBox(height: 8.h),
+
+                      // Rating
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star,
+                            color: const Color(0XFFFFC403),
+                            size: 16.sp,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            latest['star_rating']?.toString() ?? "3.00",
+                            style: TextStyle(
+                              fontFamily: 'Gilroy',
+                              color: const Color(0XFFFFC403),
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 12.h),
+
+                      // Square Image Container
+                      Container(
+                        height: 230.h,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[100],
+                        ),
+                        child: Stack(
                           children: [
-                            Padding(
-                              padding:  EdgeInsets.only(left: 10.w, top: 10.h),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
                               child: Container(
-                                height: 25.h,
-                                width: 58.w,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: const Color(0XFFFAF4E1),
+                                height: 230.h,
+                                width: double.infinity,
+                                child: latest['image'] != null
+                                    ? Image.network(
+                                  latest['image'].toString(),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      child: Icon(
+                                        Icons.image,
+                                        color: Colors.grey[400],
+                                        size: 40.sp,
+                                      ),
+                                    );
+                                  },
+                                )
+                                    : Container(
+                                  color: Colors.grey[200],
+                                  child: Icon(
+                                    Icons.image,
+                                    color: Colors.grey[400],
+                                    size: 40.sp,
+                                  ),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                     Image(
-                                      image: const AssetImage("assets/staricon.png"),
-                                      height: 17.h,
-                                      width: 17.w,
+                              ),
+                            ),
+                            // Save button
+                            Positioned(
+                              top: 10.h,
+                              left: 10.w,
+                              child: Container(
+                                height: 32.h,
+                                width: 32.w,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
+                                child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  splashRadius: 16,
+                                  onPressed: () {
+                                    setState(() {
+                                      recentAdded[index]['buttonStatus'] =
+                                      !recentAdded[index]['buttonStatus'];
+                                    });
+                                  },
+                                  icon: Center(
+                                    child: recentAdded[index]['buttonStatus']
+                                        ? Image.asset(
+                                      "assets/saveboldblue.png",
+                                      height: 12.h,
+                                      width: 12.w,
+                                    )
+                                        : Image.asset(
+                                      "assets/savebold.png",
+                                      height: 12.h,
+                                      width: 12.w,
                                     ),
-                                    Text(
-                                      latest['star_rating'].toString(),
-                                      style:  TextStyle(
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 12.h),
+
+                      // Subtitle
+                      Text(
+                        "Master Quranic Recitation & Transform Your Life Through",
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: const Color(0XFF666666),
+                          fontFamily: 'Gilroy',
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      SizedBox(height: 12.h),
+
+                      // Price and Lessons Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Price Container
+                          if (latest['price'] != null &&
+                              latest['price'].toString() != "Rs 0.00")
+                            Flexible(
+                              child: Container(
+                                height: 32.h,
+                                constraints: BoxConstraints(minWidth: 80.w),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: const Color(0XFF23408F),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                                  child: Center(
+                                    child: Text(
+                                      latest['price']?.toString() ?? "6,500 Rs",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Gilroy',
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                          SizedBox(width: 8.w),
+
+                          // Lessons Container
+                          Flexible(
+                            child: Container(
+                              height: 32.h,
+                              constraints: BoxConstraints(minWidth: 80.w),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: const Color(0XFFE0E0E0),
+                                  width: 1,
+                                ),
+                                color: Colors.white,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.play_arrow,
+                                      color: const Color(0XFF666666),
+                                      size: 16.sp,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Flexible(
+                                      child: Text(
+                                        "0 classes",
+                                        style: TextStyle(
+                                          color: const Color(0XFF666666),
                                           fontFamily: 'Gilroy',
-                                          color: const Color(0XFFFFC403),
-                                          fontSize: 15.sp),
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                            Padding(
-                              padding: EdgeInsets.only(right: 5.w),
-                              child: latest['duration'] != null && latest['duration'] != 0
-                                  ? Row(
-                                children: [
-                                  Image(
-                                    image: const AssetImage("assets/clock.png"),
-                                    height: 17.h,
-                                    width: 17.w,
-                                    color: Color(0XFF8CC13F),
-                                  ),
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    "${latest['duration']} Day's",
-                                    style: TextStyle(
-                                      fontSize: 15.sp,
-                                      color: Color(0XFF000000),
-                                      fontFamily: 'Gilroy',
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              )
-                                  : SizedBox.shrink(), // If the condition is false, render an empty widget
-                            ),
-                          ],
-                        ),
-                         SizedBox(height: 11.h),
-                        Padding(
-                          padding:  EdgeInsets.only(left: 10.w, right: 10.w),
-                          child: Text(
-                            latest['title'].toString(),
-                            style:  TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18.sp,
-                                color: Color(0XFF000000),
-                                fontFamily: 'Gilroy'),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                         SizedBox(height: 11.h),
-                        Padding(
-                          padding:  EdgeInsets.only(left: 20.w, right: 10.w),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              if (latest['price'] != null && latest['price'].toString() != "Rs 0.00")                              Container(
-                                height: 35.h,
-                                width: 100.w,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: const Color(0XFFEBF2C2),
-                                ),
-                                child: Center(
-                                    child: Text(
-                                  latest['price'].toString(),
-                                  style:  TextStyle(
-                                      color: const Color(0XFF78A03F),
-                                      fontFamily: 'Gilroy',
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.bold),
-                                )),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-            );
-          }),
+            ),
+          );
+        },
+      ),
     );
   }
-
-
-
 }
