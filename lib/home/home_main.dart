@@ -115,28 +115,28 @@ class _HomeMainScreenState extends State<HomeMainScreen> {
                             height: 24,
                             width: 24),
                         label: ''),
-                    BottomNavigationBarItem(
-                        activeIcon: Column(
-                          children: const [
-                            Image(
-                                image:
-                                    AssetImage("assets/bottommessegeblue.png"),
-                                height: 24,
-                                width: 24,
-                              color: const Color(0xFF8CC13F),),
-                            SizedBox(height: 8.79),
-                            Image(
-                                image: AssetImage("assets/line.png"),
-                                height: 1.75,
-                                width: 24,
-                              color: const Color(0xFF8CC13F),),
-                          ],
-                        ),
-                        icon: const Image(
-                            image: AssetImage("assets/bottommessegeblack.png"),
-                            height: 24,
-                            width: 24),
-                        label: ''),
+                    // BottomNavigationBarItem(
+                    //     activeIcon: Column(
+                    //       children: const [
+                    //         Image(
+                    //             image:
+                    //                 AssetImage("assets/bottommessegeblue.png"),
+                    //             height: 24,
+                    //             width: 24,
+                    //           color: const Color(0xFF8CC13F),),
+                    //         SizedBox(height: 8.79),
+                    //         Image(
+                    //             image: AssetImage("assets/line.png"),
+                    //             height: 1.75,
+                    //             width: 24,
+                    //           color: const Color(0xFF8CC13F),),
+                    //       ],
+                    //     ),
+                    //     icon: const Image(
+                    //         image: AssetImage("assets/bottommessegeblack.png"),
+                    //         height: 24,
+                    //         width: 24),
+                    //     label: ''),
                     BottomNavigationBarItem(
                         activeIcon: Column(
                           children: const [
@@ -174,9 +174,9 @@ class _HomeMainScreenState extends State<HomeMainScreen> {
         return HomeScreen();
       case 1:
         return const OngoingCompletedScreen();
+      // case 2:
+      //   return const ChateScreen();
       case 2:
-        return const ChateScreen();
-      case 3:
       // Check the role and navigate accordingly
         if (role == '2') {
           return InstructorPanel(user_detail: userDetail[0],); // Make sure to import InstructorPanel

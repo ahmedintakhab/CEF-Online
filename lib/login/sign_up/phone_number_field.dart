@@ -17,7 +17,7 @@ Widget phone_number_field({
               labelStyle: TextStyle(
                 fontFamily: 'Gilroy',
                 fontWeight: FontWeight.w700,
-                fontSize: 15.0,
+                fontSize: 13.0,
                 color: Color(0XFF9B9B9B),
               ),
               border: OutlineInputBorder(

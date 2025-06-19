@@ -130,6 +130,7 @@ class _ReviewPageState extends State<ReviewPage> {
                       SizedBox(height: 12.h),
 
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           GestureDetector(onTap: (){
                             showDialog(context: context,
@@ -142,8 +143,13 @@ class _ReviewPageState extends State<ReviewPage> {
                               style: TextStyle(
                                   fontFamily: 'Gilroy',
                                   fontSize: 18.sp,
-                                  color: const Color(0XFF000000),
-                                  fontWeight: FontWeight.bold),
+                                  color: const Color(0xFF78A03F),
+                                  fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                                decorationColor: const Color(0xFF78A03F),
+                                decorationThickness: 2,
+                              ),
+
                             ),
                           ),
                         ],

@@ -196,9 +196,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
   }
 
   Widget _buildTabBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Container(
+    return  Container(
         height: 74,
         width: double.infinity,
         decoration: BoxDecoration(
@@ -209,7 +207,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
             ),
           ],
           color: const Color(0XFFFFFFFF),
-          borderRadius: BorderRadius.circular(22),
+          // borderRadius: BorderRadius.circular(22),
         ),
         child: TabBar(
           controller: _tabController,
@@ -235,7 +233,6 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
             _pageController.jumpToPage(index);
           },
         ),
-      ),
     );
   }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:learn_megnagmet/login/sign_up/sign_up_empty_screen.dart';
 import 'instructor_signup_screen.dart';
 
@@ -49,38 +51,50 @@ class _SignupRadioButtonState extends State<SignupRadioButton>
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: Image.asset(
+            'assets/back_arrow.png', // Use same back arrow as in EmptyState/MyProfile
+            height: 24.h,
+            width: 24.w,
+          ),
+          onPressed: () {
+            Get.back(); // Navigate to previous screen
+          },
+        ),
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 15.w),
-        child: Column(
+      body:  Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 20.h),
-            Text(
-              "Let's get your journey started",
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Gilroy',
-                color: const Color(0XFF000000),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Text(
+                "Let's get your journey started",
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Gilroy',
+                  color: const Color(0XFF000000),
+                ),
               ),
             ),
             SizedBox(height: 10.h),
-            Text(
-              "Please enter your credentials",
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: Colors.grey[600],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Text(
+                "Please enter your credentials",
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Colors.grey[600],
+                ),
               ),
             ),
             SizedBox(height: 20.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15.w),
-              child: Container(
+           Container(
                 height: 54,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(22.h),
+                  // borderRadius: BorderRadius.circular(22.h),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0XFF23408F).withOpacity(0.14),
@@ -133,7 +147,6 @@ class _SignupRadioButtonState extends State<SignupRadioButton>
                   ),
                 ),
               ),
-            ),
             SizedBox(height: 20.h),
             Expanded(
               child: PageView(
@@ -149,7 +162,6 @@ class _SignupRadioButtonState extends State<SignupRadioButton>
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }

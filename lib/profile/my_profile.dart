@@ -22,7 +22,6 @@ import '../login/login_empty_state.dart';
 import '../models/new_user_detail.dart';
 import '../models/profile_option.dart';
 import '../utils/slider_page_data_model.dart';
-import '../widget/button.dart';
 import 'classes_history_screen.dart';
 import 'classes_schedule_screen.dart';
 
@@ -71,7 +70,14 @@ class _MyProfileState extends State<MyProfile> {
         // Successfully logged out
         print("Logout successful");
         // Clear user data from SharedPreferences
-        prefs.clear(); // Optionally clear all saved data
+        // Only remove login-related data, not the intro flag
+        await prefs.remove('auth_token');
+        await prefs.remove('user_name');
+        await prefs.remove('email');
+        await prefs.remove('role');
+        await prefs.remove('phone_number');
+        await prefs.remove('avatar');
+        // prefs.clear(); // Optionally clear all saved data
       } else {
         print("Logout failed: ${response.body}");
       }
@@ -139,33 +145,33 @@ class _MyProfileState extends State<MyProfile> {
                             color: const Color(0XFF000000)),
                       ),
                       SizedBox(height: 2.h),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      EditScreen(
-                                        user: widget.user_detail,
-                                      )));
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Edit Profile",
-                                style: TextStyle(
-                                    fontSize: 15.sp,
-                                    fontFamily: 'Gilroy',
-                                    fontWeight: FontWeight.w400,
-                                    color: Color(0XFF000000))),
-                            Image(
-                              image: AssetImage("assets/editsymbol.png"),
-                              height: 16.h,
-                              width: 16.w,
-                            )
-                          ],
-                        ),
-                      ),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //             builder: (context) =>
+                      //                 EditScreen(
+                      //                   user: widget.user_detail,
+                      //                 )));
+                      //   },
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.center,
+                      //     children: [
+                      //       Text("Edit Profile",
+                      //           style: TextStyle(
+                      //               fontSize: 15.sp,
+                      //               fontFamily: 'Gilroy',
+                      //               fontWeight: FontWeight.w400,
+                      //               color: Color(0XFF000000))),
+                      //       Image(
+                      //         image: AssetImage("assets/editsymbol.png"),
+                      //         height: 16.h,
+                      //         width: 16.w,
+                      //       )
+                      //     ],
+                      //   ),
+                      // ),
                       SizedBox(height: 20),
                       Expanded(
                         child: ListView(
@@ -328,9 +334,8 @@ class _MyProfileState extends State<MyProfile> {
                       onTap: () async {
                         // Call logout API
                         await logoutApiCall();
-                        PrefData.setLogin(false);
-                        Get.off(EmptyState());
-                      },
+                       await PrefData.setLogin(false);
+                        Get.offAll(() => const EmptyState());                      },
                       child: Container(
                         height: 56.h,
                         width: double.infinity.w,

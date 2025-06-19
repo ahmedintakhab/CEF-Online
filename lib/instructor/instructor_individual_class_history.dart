@@ -25,19 +25,19 @@ class InstructorIndividualClassHistory extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Individual Class History',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0XFF78A03F)
-
-              ),
-            ),
-          ),
-          const Divider(height: 0),
+          // const Padding(
+          //   padding: EdgeInsets.all(16),
+          //   child: Text(
+          //     'Individual Class History',
+          //     style: TextStyle(
+          //         fontSize: 18,
+          //         fontWeight: FontWeight.bold,
+          //         color: Color(0XFF78A03F)
+          //
+          //     ),
+          //   ),
+          // ),
+          // const Divider(height: 0),
           ...Classes.map((classData) => _buildClassItem(classData)).toList(),
         ],
       ),

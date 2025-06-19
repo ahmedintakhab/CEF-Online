@@ -16,9 +16,11 @@ import 'package:learn_megnagmet/models/trending_cource.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../Course_details_tabbar/tabbar_details.dart';
 import '../utils/api_constants.dart';
 import '../utils/screen_size.dart';
 import 'category_wise_courses.dart';
@@ -240,7 +242,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: EdgeInsets.zero,
                         primary: true,
                         children: [
-                           SizedBox(height: 20.h),
                           generatePage(),
                            SizedBox(height: 20.h),
                           indicator(),
@@ -279,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                 Text("Recently Added Courses",
+                                 Text("My Courses",
                                     style: TextStyle(
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.w700,
@@ -320,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
         autoPlay: false,
         enableInfiniteScroll: true,
         initialPage: 0,
-        height: 150.0.h,
+        height: 170.0.h,
         enlargeCenterPage: false,
         viewportFraction: 1,
         onPageChanged: (index, reason) {
@@ -341,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Stack(
             children: [
               Container(
-                height: 150.h,
+                height: 170.h,
                 width: ScreenUtil().screenWidth, // Full screen width
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -350,7 +351,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         : AssetImage('assets/person.png') as ImageProvider, // Fallback image
                     fit: BoxFit.cover, // Ensure the image covers the area
                   ),
-                  borderRadius: BorderRadius.circular(5),
+                  // borderRadius: BorderRadius.circular(5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,11 +398,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   baseColor: Colors.grey[300]!, // Light grey
                   highlightColor: Colors.grey[100]!, // Lighter grey
                   child: Container(
-                    height: 150.h,
+                    height: 175.h,
                     width: ScreenUtil().screenWidth, // Full screen width
                     decoration: BoxDecoration(
                       color: Colors.grey[300], // Base grey color
-                      borderRadius: BorderRadius.circular(5),
+                      // borderRadius: BorderRadius.circular(5),
                     ),
                   ),
                 ),
@@ -589,7 +590,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     return SizedBox(
-      height: 480.h,
+      height: 450.h,
       width: double.infinity,
       child: trendingCourses == null || trendingCourses.isEmpty
           ? ListView.builder(
@@ -660,7 +661,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            "English",
+                            course['language'] ?? '',
                             style: TextStyle(
                               fontSize: 12.sp,
                               color: const Color(0XFF23408F),
@@ -760,7 +761,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       // Subtitle
                       Text(
-                        "Master Quranic Recitation & Transform Your Life Through",
+                        course['subtitle'] ?? '',
                         style: TextStyle(
                           fontSize: 14.sp,
                           color: const Color(0XFF666666),
@@ -832,7 +833,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     SizedBox(width: 4.w),
                                     Flexible(
                                       child: Text(
-                                        course['lessons_count']?.toString() ?? "0",
+                                        course['no_of_classes']?.toString() ?? "0",
                                         style: TextStyle(
                                           color: const Color(0XFF666666),
                                           fontFamily: 'Gilroy',
@@ -875,7 +876,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Widget recent_added_list(Map<String, dynamic> apiData) {
-    final newCourses = apiData?['latestCourses'] ?? [];
+    final newCourses = apiData?['myCourses'] ?? [];
 
     // Initialize recentAdded dynamically with the same length as newCourses
     List<Map<String, dynamic>> recentAdded = List.generate(
@@ -886,7 +887,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (newCourses == null || newCourses.isEmpty) {
       return Center(
         child: Text(
-          'No latest courses available',
+          'No my courses available',
           style: TextStyle(fontSize: 16.sp, color: Colors.grey),
         ),
       );
@@ -905,7 +906,17 @@ class _HomeScreenState extends State<HomeScreen> {
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, index) {
           final latest = newCourses[index];
+          String courseType = latest['type'].toString(); // Fetch Type from API
+          String slug = latest['slug'].toString();
           return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => TabBarDetails(courseType: courseType, slug: slug,
+                      )
+                  ));
+            },
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 4.w),
               child: Container(
@@ -937,7 +948,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            "English",
+                            latest['language']?.toString() ?? '',
                             style: TextStyle(
                               fontSize: 12.sp,
                               color: const Color(0XFF23408F),
@@ -975,7 +986,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           SizedBox(width: 4.w),
                           Text(
-                            latest['star_rating']?.toString() ?? "3.00",
+                            latest['average_rating']?.toString() ?? "0.00",
                             style: TextStyle(
                               fontFamily: 'Gilroy',
                               color: const Color(0XFFFFC403),
@@ -1028,42 +1039,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            // Save button
-                            Positioned(
-                              top: 10.h,
-                              left: 10.w,
-                              child: Container(
-                                height: 32.h,
-                                width: 32.w,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                ),
-                                child: IconButton(
-                                  padding: EdgeInsets.zero,
-                                  splashRadius: 16,
-                                  onPressed: () {
-                                    setState(() {
-                                      recentAdded[index]['buttonStatus'] =
-                                      !recentAdded[index]['buttonStatus'];
-                                    });
-                                  },
-                                  icon: Center(
-                                    child: recentAdded[index]['buttonStatus']
-                                        ? Image.asset(
-                                      "assets/saveboldblue.png",
-                                      height: 12.h,
-                                      width: 12.w,
-                                    )
-                                        : Image.asset(
-                                      "assets/savebold.png",
-                                      height: 12.h,
-                                      width: 12.w,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -1072,7 +1047,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       // Subtitle
                       Text(
-                        "Master Quranic Recitation & Transform Your Life Through",
+                        latest['subtitle']?.toString() ?? '',
                         style: TextStyle(
                           fontSize: 14.sp,
                           color: const Color(0XFF666666),
@@ -1089,41 +1064,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Price Container
-                          if (latest['price'] != null &&
-                              latest['price'].toString() != "Rs 0.00")
-                            Flexible(
-                              child: Container(
-                                height: 32.h,
-                                constraints: BoxConstraints(minWidth: 80.w),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: const Color(0XFF23408F),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 12.w),
-                                  child: Center(
-                                    child: Text(
-                                      latest['price']?.toString() ?? "6,500 Rs",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Gilroy',
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                          SizedBox(width: 8.w),
-
                           // Lessons Container
                           Flexible(
                             child: Container(
                               height: 32.h,
-                              constraints: BoxConstraints(minWidth: 80.w),
+                              constraints: BoxConstraints(minWidth: 90.w),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
@@ -1146,7 +1091,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     SizedBox(width: 4.w),
                                     Flexible(
                                       child: Text(
-                                        "0 classes",
+                                        latest['no_of_classes']?.toString() ?? '',
                                         style: TextStyle(
                                           color: const Color(0XFF666666),
                                           fontFamily: 'Gilroy',
@@ -1156,13 +1101,51 @@ class _HomeScreenState extends State<HomeScreen> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
+                                    SizedBox(width: 4.w),
+                                    Flexible(
+                                      child: Text(
+                                        "classes",
+                                        style: TextStyle(
+                                          color: const Color(0XFF666666),
+                                          fontFamily: 'Gilroy',
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+
                                   ],
+
                                 ),
+
                               ),
                             ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 10),
+                      if (courseType == 'General') ...[
+                        LinearPercentIndicator(
+                          padding: EdgeInsets.zero,
+                          width: 150.0,
+                          lineHeight: 6.0,
+                          percent: double.parse(latest['progress']) / 100, // Progress dynamic
+                          trailing: Padding(
+                            padding: EdgeInsets.only(left: 4.w),
+                            child: Text(
+                              '${latest['progress']}%', // Dynamic progress
+                              style: TextStyle(
+                                  fontFamily: 'Gilroy',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          ),
+                          backgroundColor: const Color(0XFFDEDEDE),
+                          progressColor: const Color(0XFF8CC13F),
+                          barRadius: const Radius.circular(22),
+                        ),
+                      ],
                     ],
                   ),
                 ),

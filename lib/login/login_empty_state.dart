@@ -80,7 +80,7 @@ class _EmptyStateState extends State<EmptyState> {
       if (response.statusCode == 200) {
         // Parse the JSON response
         final data = jsonDecode(response.body);
-        PrefData.setLogin(true); // Update login state
+        await PrefData.setLogin(true); // Update login state
         print("Login successful!");
         print("Login API response code: ${response.statusCode}");
 
@@ -95,7 +95,7 @@ class _EmptyStateState extends State<EmptyState> {
 
         // Process the response data as needed
       } else {
-        Get.snackbar('Login Failed', 'Invalid email or password', snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar('Login Failed', 'Invalid email or password', snackPosition: SnackPosition.TOP);
         print("Login failed: ${response.body}");
         // Handle errors
       }
@@ -183,14 +183,15 @@ class _EmptyStateState extends State<EmptyState> {
                       // SizedBox(height: 20.h),
                       // login_facebook(),
                       //SizedBox(height: 97.h),
+                      sign_up()
 
                     ],
                   ),
                 ),
-                Padding(
-                  padding:  EdgeInsets.only(bottom: 30.h),
-                  child: sign_up(),
-                ),
+                // Padding(
+                //   padding:  EdgeInsets.only(bottom: 30.h),
+                //   child: sign_up(),
+                // ),
               ],
             ),
           ),
@@ -280,7 +281,8 @@ class _EmptyStateState extends State<EmptyState> {
             SizedBox(width: 10.w),
             Text(
               "Login with Google",
-              style: TextStyle(color: Color(0XFF000000), fontSize: 18.sp,fontWeight: FontWeight.w500),
+              style: TextStyle(color: Color(0XFF000000),
+                  fontSize: 18.sp,fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -304,7 +306,8 @@ class _EmptyStateState extends State<EmptyState> {
             SizedBox(width: 10.w),
             Text(
               "Login with Facebook",
-              style: TextStyle(color: const Color(0XFF000000), fontSize: 18.sp,fontWeight: FontWeight.w500),
+              style: TextStyle(color: const Color(0XFF000000),
+                  fontSize: 18.sp,fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -327,7 +330,7 @@ class _EmptyStateState extends State<EmptyState> {
               text: ' Sign up',
               style:  TextStyle(
                 color: Color(0XFF000000),
-                fontSize: 15.sp,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Gilroy'
               ),
@@ -377,14 +380,17 @@ class _EmptyStateState extends State<EmptyState> {
           customTextFormField(controller: emailController, hintText: "Email",
               validator: (val) {
                 if (val!.isEmpty) {
-                  return 'Enter the  email';
-                } else {
-                  if (!RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$')
-                      .hasMatch(val)) {
-                    return 'Please enter valid email address';
+                  String trimmedVal = val.trim();
+                  if (trimmedVal.isEmpty) {
+                    return 'Enter the  email';
+                  } else {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(trimmedVal)) {
+                      return 'Please enter valid email address';
+                    }
                   }
+                  emailController.text = trimmedVal;
+                  return null;
                 }
-                return null;
               },),
 
            SizedBox(height: 15.h),

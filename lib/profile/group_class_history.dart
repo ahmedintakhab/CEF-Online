@@ -59,19 +59,19 @@ class GroupClassHistory extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Group Class History',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                  color: Color(0XFF78A03F)
-
-              ),
-            ),
-          ),
-          Divider(height: 0),
+          // Padding(
+          //   padding: EdgeInsets.all(16),
+          //   child: Text(
+          //     'Group Class History',
+          //     style: TextStyle(
+          //       fontSize: 18,
+          //       fontWeight: FontWeight.bold,
+          //         color: Color(0XFF78A03F)
+          //
+          //     ),
+          //   ),
+          // ),
+          // Divider(height: 0),
           ...Classes.map((classData) => _buildClassItem(classData)).toList(),
         ],
       ),

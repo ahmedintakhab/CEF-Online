@@ -139,10 +139,9 @@ class _MyCourcesState extends State<MyCources> {
   }
 
   Widget _buildVideoPlayer() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        padding: EdgeInsets.all(12.h),
+    return  Container(
+        // padding: EdgeInsets.all(12.h),
+      width: double.infinity, // Ensure full width
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -151,7 +150,7 @@ class _MyCourcesState extends State<MyCources> {
               blurRadius: 16,
             ),
           ],
-          borderRadius: BorderRadius.circular(22.h),
+          // borderRadius: BorderRadius.circular(22.h),
         ),
         child: Container(
           height: 195.h,
@@ -160,14 +159,11 @@ class _MyCourcesState extends State<MyCources> {
             courseType: courseType, previewSrcType: previewSrcType,
           ),
         ),
-      ),
     );
   }
 
   Widget _buildTabBar() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
+    return  Container(
         height: 74.h,
         width: double.infinity,
         decoration: BoxDecoration(
@@ -178,7 +174,7 @@ class _MyCourcesState extends State<MyCources> {
             ),
           ],
           color: const Color(0XFFFFFFFF),
-          borderRadius: BorderRadius.circular(22),
+          // borderRadius: BorderRadius.circular(22),
         ),
         child: TabBar(
           controller: courseController.tabController,
@@ -201,7 +197,6 @@ class _MyCourcesState extends State<MyCources> {
           },
           isScrollable: false,  // Allow tabs to scroll if needed
         ),
-      ),
     );
   }
 

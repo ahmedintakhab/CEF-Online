@@ -87,7 +87,7 @@ class _OverviewState extends State<Overview> {
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                    OverviewContainer(items: items,fetchedCourseType: widget.fetchedCourseType),
+                    // OverviewContainer(items: items,fetchedCourseType: widget.fetchedCourseType),
 
                     // SizedBox(
                     //   child: GridView.count(

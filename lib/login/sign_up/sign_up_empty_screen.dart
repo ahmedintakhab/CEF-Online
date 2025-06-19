@@ -238,10 +238,7 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         SizedBox(height: 10.h),
 
           customTextFormField(controller: referralcodeController, hintText: "Referral Code",
-            validator: (val) {
-              if (val == null || val.isEmpty) return 'Please enetr Referral code  ';
-              return null;
-            },),
+            validator: (val) {},),
         ],
 
       ),

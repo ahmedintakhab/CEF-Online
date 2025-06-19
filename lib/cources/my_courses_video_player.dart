@@ -75,21 +75,23 @@ class _CourseVideoPlayerState extends State<CourseVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(22),
-      child: widget.previewSrcType == 'course_intro_video'
-          ? (isYouTubeVideo
-          ? YoutubePlayer(controller: youtubeController)
-          : FlickVideoPlayer(flickManager: flickManager))
-          : widget.previewSrcType == 'course_intro_image'
-          ? AspectRatio(
-        aspectRatio: 16 / 9,
-            child: Image.network(
-                    widget.videoUrl, // Assuming videoUrl is the image URL in this case
-                    fit: BoxFit.fill,
-                  ),
-          )
-          : Container(), // Fallback in case of unexpected previewSrcType
+    return Container(
+      child: ClipRRect(
+        // borderRadius: BorderRadius.circular(22),
+        child: widget.previewSrcType == 'course_intro_video'
+            ? (isYouTubeVideo
+            ? YoutubePlayer(controller: youtubeController)
+            : FlickVideoPlayer(flickManager: flickManager))
+            : widget.previewSrcType == 'course_intro_image'
+            ? AspectRatio(
+          aspectRatio: 16 / 9,
+              child: Image.network(
+                      widget.videoUrl, // Assuming videoUrl is the image URL in this case
+                      fit: BoxFit.cover,
+                    ),
+            )
+            : Container(), // Fallback in case of unexpected previewSrcType
+      ),
     );
   }
 }

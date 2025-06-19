@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_megnagmet/widget/custom_text_form_field.dart';
 import 'dart:convert';
 
 import '../utils/api_constants.dart';
@@ -23,13 +25,22 @@ class DropdownButtonWidget extends StatefulWidget {
 
 class _DropdownButtonWidgetState extends State<DropdownButtonWidget> {
   String? selectedValue;
-  List<String> timeZones = []; // To store fetched time zones
-  bool hasError = false; // Track validation state
+  List<String> timeZones = [];
+  List<String> filteredTimeZones = [];
+  bool hasError = false;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _fetchTimeZones(); // Fetch time zones when the widget is initialized
+    _fetchTimeZones();
+    _searchController.addListener(_filterTimeZones);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchTimeZones() async {
@@ -41,7 +52,8 @@ class _DropdownButtonWidgetState extends State<DropdownButtonWidget> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
         setState(() {
-          timeZones = jsonResponse.values.cast<String>().toList(); // Fix for type issue
+          timeZones = jsonResponse.values.cast<String>().toList();
+          filteredTimeZones = timeZones;
         });
       } else {
         print('Failed to fetch time zones: ${response.statusCode}');
@@ -49,6 +61,15 @@ class _DropdownButtonWidgetState extends State<DropdownButtonWidget> {
     } catch (e) {
       print('Error fetching time zones: $e');
     }
+  }
+
+  void _filterTimeZones() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredTimeZones = timeZones
+          .where((zone) => zone.toLowerCase().contains(query))
+          .toList();
+    });
   }
 
   @override
@@ -65,13 +86,13 @@ class _DropdownButtonWidgetState extends State<DropdownButtonWidget> {
                 hint: Text(
                   widget.hintText,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 14,
                     fontFamily: 'Gilroy',
                     color: const Color(0XFF9B9B9B),
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                items: timeZones
+                items: filteredTimeZones
                     .map((String item) => DropdownMenuItem<String>(
                   value: item,
                   child: Text(
@@ -87,13 +108,63 @@ class _DropdownButtonWidgetState extends State<DropdownButtonWidget> {
                   setState(() {
                     selectedValue = value;
                     widget.controller.text = selectedValue ?? '';
-                    hasError = false; // Clear error when a value is selected
+                    hasError = false;
                     state.didChange(value);
+                    _searchController.text = value ?? '';
                   });
                 },
+                dropdownSearchData: DropdownSearchData(
+                  searchController: _searchController,
+                  searchInnerWidgetHeight: 70.h,
+                  searchInnerWidget: Container(
+                    height: 70.h,
+                    padding: const EdgeInsets.only(
+                      top: 8,
+                      bottom: 4,
+                      right: 8,
+                      left: 8,
+                    ),
+                    child: customTextFormField(controller: _searchController,
+                        hintText: 'Search timezone...', validator: (val) {},),
+                    // child: TextFormField(
+                    //   controller: _searchController,
+                    //   decoration: InputDecoration(
+                    //     isDense: true,
+                    //     contentPadding: const EdgeInsets.symmetric(
+                    //       horizontal: 12,
+                    //       vertical: 12,
+                    //     ),
+                    //     hintText: 'Search for timezone...',
+                    //     hintStyle: const TextStyle(fontSize: 14),
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(8),
+                    //       borderSide: BorderSide(
+                    //         color:  Color(0xFF8CC13F), // Green border color
+                    //         width: 1.5, // Slightly thicker border
+                    //       ),
+                    //
+                    //     ),
+                    //     enabledBorder: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(8),
+                    //       borderSide: BorderSide(
+                    //         color:  Color(0XFF8CC13F), // Green border color
+                    //         width: 1.5,
+                    //       ),
+                    //     )
+                    //
+                    //     ),
+                    // ),
+                  ),
+                  searchMatchFn: (item, searchValue) {
+                    return item.value
+                        .toString()
+                        .toLowerCase()
+                        .contains(searchValue.toLowerCase());
+                  },
+                ),
                 buttonStyleData: ButtonStyleData(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  height: 50,
+                  height: 60,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Color(0xFFF5F5F5),

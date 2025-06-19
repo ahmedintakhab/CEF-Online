@@ -36,7 +36,6 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
   bool _isLoading = false;
   bool _isLandscape = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -284,19 +283,29 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    // Show system UI when leaving
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
     super.dispose();
   }
-  // Toggle screen orientation
+
+  // Toggle screen orientation and fullscreen mode
   void _toggleOrientation() {
     setState(() {
       _isLandscape = !_isLandscape;
     });
+
     if (_isLandscape) {
+      // Hide system UI for fullscreen experience
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
     } else {
+      // Show system UI when returning to portrait
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+          overlays: SystemUiOverlay.values);
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
@@ -307,18 +316,19 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      // Conditionally show AppBar - hide in landscape mode
+      appBar: _isLandscape ? null : AppBar(
         backgroundColor: const Color(0XFF78A02A),
         title: Text(
-            widget.title,
-            style: TextStyle(
-              fontFamily: 'Gilroy',
-              fontSize: 22.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-            textDirection: TextDirection.ltr,
+          widget.title,
+          style: TextStyle(
+            fontFamily: 'Gilroy',
+            fontSize: 22.sp,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
           ),
+          textDirection: TextDirection.ltr,
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -334,57 +344,90 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
           ),
         ],
       ),
-      body: _errorMessage != null
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64.w,
-              color: Colors.red,
+      body: Stack(
+        children: [
+          // Main content
+          _errorMessage != null
+              ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64.w,
+                  color: Colors.red,
+                ),
+                SizedBox(height: 16.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Text(
+                    _errorMessage!,
+                    style: TextStyle(fontSize: 16.sp, color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _errorMessage = null;
+                      _isInitialized = false;
+                    });
+                    _initializeContent();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00AFEE),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Retry'),
+                ),
+              ],
             ),
-            SizedBox(height: 16.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Text(
-                _errorMessage!,
-                style: TextStyle(fontSize: 16.sp, color: Colors.red),
-                textAlign: TextAlign.center,
+          )
+              : _isLoading
+              ? const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(color: Color(0xFF8CC13F)),
+                SizedBox(height: 16),
+                Text('Loading content...'),
+              ],
+            ),
+          )
+              : !_isInitialized
+              ? const Center(child: CircularProgressIndicator(color: Color(0xFF8CC13F)))
+              : _buildContent(),
+
+          // Floating action button for landscape mode (to show controls)
+          if (_isLandscape)
+            Positioned(
+              top: 40,
+              right: 16,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                      tooltip: 'Close',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.screen_lock_portrait, color: Colors.white),
+                      onPressed: _toggleOrientation,
+                      tooltip: 'Switch to Portrait',
+                    ),
+                  ],
+                ),
               ),
             ),
-            SizedBox(height: 24.h),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _errorMessage = null;
-                  _isInitialized = false;
-                });
-                _initializeContent();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00AFEE),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      )
-          : _isLoading
-          ? const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: Color(0xFF8CC13F)),
-            SizedBox(height: 16),
-            Text('Loading content...'),
-          ],
-        ),
-      )
-          : !_isInitialized
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF8CC13F)))
-          : _buildContent(),
+        ],
+      ),
     );
   }
 

@@ -54,7 +54,7 @@ class CustomDropdown extends StatelessWidget {
           }).toList(),
           buttonStyleData: ButtonStyleData(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
-            height: 56.h, // Adjust height to match your design
+            height: 65.h, // Adjust height to match your design
             width: double.infinity, // Full width
           ),
           dropdownStyleData: DropdownStyleData(

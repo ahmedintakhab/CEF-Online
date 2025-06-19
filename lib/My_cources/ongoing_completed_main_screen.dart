@@ -54,7 +54,7 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> with Si
           init: OngoingCompletedController(),
           builder: (controller) => Column(
             children: [
-              SizedBox(height: 43.h),
+              SizedBox(height: 53.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.h),
                 child: Row(

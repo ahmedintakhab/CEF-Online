@@ -24,18 +24,18 @@ class InstructorGroupScheduleClass extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.all(16.h),
-            child: Text(
-              'Group Schedule',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: Color(0XFF78A03F),
-              ),
-            ),
-          ),
-          Divider(height: 0),
+          // Padding(
+          //   padding: EdgeInsets.all(16.h),
+          //   child: Text(
+          //     'Group Schedule',
+          //     style: TextStyle(
+          //       fontSize: 18.sp,
+          //       fontWeight: FontWeight.bold,
+          //       color: Color(0XFF78A03F),
+          //     ),
+          //   ),
+          // ),
+          // Divider(height: 0),
           ...Classes.map((classData) => _buildClassItem(classData)).toList(),
         ],
       ),
