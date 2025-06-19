@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/home/home_main.dart';
-import '../My_cources/cources_details.dart';
 import '../utils/api_constants.dart';
 
 class CourseController extends GetxController with SingleGetTickerProviderMixin {
@@ -13,6 +12,7 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
   late PageController pController;
   List<dynamic>? ongoingCourses;
   String coursePreviewSrc = '';
+  String previewSrcType = '';
   String courseType = '';
 
   void initializeController(int length) {
@@ -43,9 +43,19 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        coursePreviewSrc = data['course_preview_src'] ?? '';
+        coursePreviewSrc = data['course_image'] ?? data['course_preview_src'] ?? '';
         courseType = data['course_type'];
+        // Set previewSrcType based on course_image or course_preview_src_type
+        previewSrcType = data['course_image'] != null &&
+            data['course_image'].isNotEmpty &&
+            (data['course_image'].endsWith('.png') ||
+                data['course_image'].endsWith('.jpg') ||
+                data['course_image'].endsWith('.jpeg'))
+            ? 'course_intro_image'
+            : data['course_preview_src_type'] ?? 'course_intro_youtube_video';
         print("check course type for tabs: $courseType");
+        print("check previewSrcType: $previewSrcType");
+        print("check coursePreviewSrc: $coursePreviewSrc");
         return data;
       }
       throw Exception('Failed to load course details');

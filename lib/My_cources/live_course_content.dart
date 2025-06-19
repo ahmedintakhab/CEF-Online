@@ -46,8 +46,8 @@ class LiveCourseContent extends StatelessWidget {
       itemCount: liveCourses.length,
       itemBuilder: (context, index) {
         var courseCategory = liveCourses[index];
-        var categoryResources = courseCategory['category_resources'];
-        var categoryName = courseCategory['category_name'];
+        var categoryResources = courseCategory['category_resources'] ?? [];
+        var categoryName = courseCategory['category_name']?.toString() ?? '';
 
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: index == 0 ? 0.h : 8.h),
@@ -58,7 +58,7 @@ class LiveCourseContent extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(bottom: 10.h),
                   child: Text(
-                    courseCategory['category_name'],
+                    courseCategory['category_name']?? '',
                     style: TextStyle(
                       fontFamily: 'Gilroy',
                       color: Color(0XFF6E758A),
@@ -84,7 +84,7 @@ class LiveCourseContent extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => ContentDisplayScreen(
-                          title: resource['resource_name'],
+                          title: resource['resource_name']?? '',
                           contentType: contentType,
                           source: resource['redirect_preview_src'],
                         ),
@@ -122,7 +122,7 @@ class LiveCourseContent extends StatelessWidget {
                             ),
                             child: Center(
                               child: Text(
-                                resource['resource_no'].toString(),
+                                resource['resource_no']?.toString() ?? '',
                                 style: TextStyle(
                                   color: Color(0XFF78A02A),
                                   fontSize: 15.sp,
@@ -137,7 +137,7 @@ class LiveCourseContent extends StatelessWidget {
                               padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 10),
                               child: Center(
                                 child: Text(
-                                  resource['resource_name'],
+                                  resource['resource_name'] ?? '',
                                   style: TextStyle(
                                     color: Color(0XFF000000),
                                     fontSize: 17.sp,

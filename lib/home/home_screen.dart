@@ -2,6 +2,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:learn_megnagmet/My_cources/ongoing_completed_main_screen.dart';
+import 'package:learn_megnagmet/My_cources/ongoing_screen.dart';
 import 'package:learn_megnagmet/cart/cart_count.dart';
 import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/cources/cources.dart';
@@ -287,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         fontFamily: 'Gilroy')),
                                 TextButton(
                                     onPressed: () {
-                                      Get.to(const RecentlyAdded());
+                                      Get.to(const OngoingCompletedScreen());
                                     },
                                     child:  Text("See All",
                                         style: TextStyle(

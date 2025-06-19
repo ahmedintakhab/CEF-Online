@@ -57,8 +57,15 @@ class _MyCourcesState extends State<MyCources> {
       btnText = courseDetails['btn_text'] ?? '';
       btnApiRoute = courseDetails['btn_api_route'] ?? '';
       courseId = courseDetails['course_id'].toString();
-      previewSrcType = courseDetails['course_preview_src_type'] ?? '';
-
+// Use course_image for previewSrcType if available
+      previewSrcType = courseDetails['course_image'] != null &&
+          courseDetails['course_image'].isNotEmpty &&
+          (courseDetails['course_image'].endsWith('.png') ||
+              courseDetails['course_image'].endsWith('.jpg') ||
+              courseDetails['course_image'].endsWith('.jpeg'))
+          ? 'course_intro_image'
+          : courseDetails['course_preview_src_type'] ?? 'course_intro_youtube_video';
+      // Setup pages based on course type
       // Setup pages based on course type
       setupPages(courseDetails);
       isLoading = false;

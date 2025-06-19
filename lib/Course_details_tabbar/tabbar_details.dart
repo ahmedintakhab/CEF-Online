@@ -59,9 +59,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
         'Overview',
         'Content',
         'Notice',
-        'Live Class',
         'Discussion',
-        // 'Certificate',
         'Review',
       ];
     } else {
@@ -151,9 +149,9 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
           if (widget.courseType != 'Live') QuizPage(),
           if (widget.courseType != 'Live') AssignmentPage(assignmentData: apiData!['course_assignment_tab']),
           NoticePage(noticeData: apiData!['course_notice_tab']),
-          LiveClassPage(),
+          if (widget.courseType != 'Live')LiveClassPage(),
           DiscussionPage(discussionData: apiData!['course_discussion_tab'],courseId:courseId), // Pass the list
-          // CertificatePage(),
+          if (widget.courseType != 'Live')CertificatePage(),
           ReviewPage(reviewData: apiData!['course_review_tab'],courseId :courseId),
         ];
       });

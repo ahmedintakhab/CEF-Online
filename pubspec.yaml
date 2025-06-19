@@ -69,6 +69,7 @@ dependency_overrides:
   cached_network_image: ^3.4.1
   webview_flutter: ^4.4.4
   webview_flutter_android: ^3.13.2
+  flutter_native_splash: ^2.4.1
 
 
 

@@ -18,10 +18,10 @@
        >
         <activity
             android:name=".MainActivity"
+            android:theme="@style/Theme.App.Transparent"
             android:exported="true"
             android:label="@string/CEF_Online"
             android:launchMode="singleTop"
-            android:theme="@style/LaunchTheme"
             android:hardwareAccelerated="true"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
         >

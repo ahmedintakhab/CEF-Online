@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CourseVideoPlayer extends StatefulWidget {
   final String videoUrl;
@@ -20,9 +21,8 @@ class CourseVideoPlayer extends StatefulWidget {
 }
 
 class _CourseVideoPlayerState extends State<CourseVideoPlayer> {
-  // Initialize with temporary URL
   late FlickManager flickManager = FlickManager(
-    videoPlayerController: VideoPlayerController.network(""),  // Temporary URL until API response
+    videoPlayerController: VideoPlayerController.network(""),
     autoPlay: false,
   );
   late YoutubePlayerController youtubeController;
@@ -35,13 +35,16 @@ class _CourseVideoPlayerState extends State<CourseVideoPlayer> {
   }
 
   void _initializeVideoPlayer() {
-    if (widget.previewSrcType == 'course_intro_video' && widget.videoUrl.isNotEmpty) {
-      if (widget.videoUrl.contains('youtube.com')) {
+    if (widget.previewSrcType == 'course_intro_youtube_video' ||
+        widget.previewSrcType == 'course_intro_video') {
+      if (widget.videoUrl.contains('youtube.com') || widget.videoUrl.contains('youtu.be')) {
         String videoId = '';
         if (widget.videoUrl.contains('embed/')) {
           videoId = widget.videoUrl.split('embed/').last;
         } else if (widget.videoUrl.contains('watch?v=')) {
           videoId = Uri.parse(widget.videoUrl).queryParameters['v'] ?? '';
+        } else if (widget.videoUrl.contains('youtu.be')) {
+          videoId = widget.videoUrl.split('youtu.be/').last.split('?').first;
         }
 
         if (videoId.isNotEmpty) {
@@ -76,21 +79,55 @@ class _CourseVideoPlayerState extends State<CourseVideoPlayer> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 295.h,
+      width: double.infinity,
       child: ClipRRect(
-        // borderRadius: BorderRadius.circular(22),
-        child: widget.previewSrcType == 'course_intro_video'
-            ? (isYouTubeVideo
+        // borderRadius: BorderRadius.circular(22.r),
+        child: widget.previewSrcType == 'course_intro_image' && widget.videoUrl.isNotEmpty
+            ? Image.network(
+          widget.videoUrl,
+          fit: BoxFit.fill, // Show full image without stretching
+          width: double.infinity,
+          height: 295.h,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[200],
+              child: Center(
+                child: Icon(
+                  Icons.broken_image,
+                  color: Colors.grey[400],
+                  size: 40.sp,
+                ),
+              ),
+            );
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                    (loadingProgress.expectedTotalBytes ?? 1)
+                    : null,
+                color: Color(0XFF8CC13F),
+              ),
+            );
+          },
+        )
+            : widget.previewSrcType == 'course_intro_youtube_video' && isYouTubeVideo
             ? YoutubePlayer(controller: youtubeController)
-            : FlickVideoPlayer(flickManager: flickManager))
-            : widget.previewSrcType == 'course_intro_image'
-            ? AspectRatio(
-          aspectRatio: 16 / 9,
-              child: Image.network(
-                      widget.videoUrl, // Assuming videoUrl is the image URL in this case
-                      fit: BoxFit.cover,
-                    ),
-            )
-            : Container(), // Fallback in case of unexpected previewSrcType
+            : widget.previewSrcType == 'course_intro_video'
+            ? FlickVideoPlayer(flickManager: flickManager)
+            : Container(
+          color: Colors.grey[200],
+          child: Center(
+            child: Icon(
+              Icons.image,
+              color: Colors.grey[400],
+              size: 40.sp,
+            ),
+          ),
+        ),
       ),
     );
   }

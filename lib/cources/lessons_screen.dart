@@ -63,8 +63,10 @@ class _LessonState extends State<Lesson> {
                       shrinkWrap: true,
                       itemCount: widget.lessonsData.length,
                       itemBuilder: (BuildContext, index) {
-                        var lesson = widget
-                            .lessonsData[index]; // Get each lesson data
+                        var lesson = widget.lessonsData[index]; // Get each lesson data
+                        // Check if lesson_lectures is empty
+                        final lectures = lesson['lesson_lectures'] as List?;
+                        final isLessonEmpty = lectures == null || lectures.isEmpty;
                         return Padding(
                           padding: EdgeInsets.only(top: index == 0 ? 0.h : 8.h,
                               bottom: 8.h,
@@ -86,25 +88,49 @@ class _LessonState extends State<Lesson> {
                               trailing: Padding(
                                 padding: EdgeInsets.only(right: 20.w),
                                 child: Image.asset(
-                                  "assets/down.png", height: 24.h,
+                                  "assets/down.png",
+                                  height: 24.h,
                                   width: 24.w,
-                                  color: Color(0XFF78A03F),),
+                                  color: isLessonEmpty ? Colors.grey : Color(0XFF78A03F), // Grey out if empty
+                                ),
                               ),
-                              animateTrailing: true,
-
-
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 5.h),
+                              animateTrailing: !isLessonEmpty, // Disable animation if empty
+                              contentPadding: EdgeInsets.symmetric(vertical: 5.h),
                               borderRadius: BorderRadius.circular(22.h),
-                              leading: Image.asset(
-                                lessonLists[index].image!,
-                                height: 66.h,
-                                width: 66.w,
-                              ),
+                              initiallyExpanded: false, // Never expand by default
+                              onExpansionChanged: isLessonEmpty
+                                  ? null
+                                  : (value) {}, // Disable expansion if empty
+                              // leading: Image.asset(
+                              //   lessonLists[index].image!,
+                              //   height: 66.h,
+                              //   width: 66.w,
+                              // ),
 
-                              title: Column(
+                              title: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Container(
+                                      height: 20.h,
+                                      width: 63.w,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                              22.h),
+                                          color: const Color(0XFFEBF2C2)),
+                                      child: Center(
+                                          child: Text(
+                                            'Lesson ${lesson['lesson_no']
+                                                .toString()}',
+                                            style: TextStyle(
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color(0XFF78A03F)),
+                                          )),
+                                    ),
+                                  ),
+                                  SizedBox(width: 14.w),
                                   Text(
                                     lesson['lesson_name'] ?? 'No Name',
                                     style: TextStyle(
@@ -113,27 +139,11 @@ class _LessonState extends State<Lesson> {
                                         fontFamily: 'Gilroy',
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(height: 4.h),
-                                  Container(
-                                    height: 20.h,
-                                    width: 63.w,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                            22.h),
-                                        color: const Color(0XFFEBF2C2)),
-                                    child: Center(
-                                        child: Text(
-                                          'Lesson ${lesson['lesson_no']
-                                              .toString()}',
-                                          style: TextStyle(
-                                              fontSize: 12.sp,
-                                              fontWeight: FontWeight.bold,
-                                              color: const Color(0XFF78A03F)),
-                                        )),
-                                  ),
                                 ],
                               ),
-                              children: <Widget>[
+                              children: isLessonEmpty
+                                  ? [] // No children if empty
+                                  : <Widget>[
                                 Divider(
                                   thickness: 1.0,
                                   height: 1.0.h,

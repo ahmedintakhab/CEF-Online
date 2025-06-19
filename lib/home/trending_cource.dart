@@ -95,7 +95,7 @@ class _TrendingCourceState extends State<TrendingCource> {
                       )),
                   SizedBox(width: 16.w),
                   Text(
-                    "Trending Course",
+                    "Latest Courses",
                     style: TextStyle(
                         fontSize: 24.sp,
                         color: const Color(0XFF000000),
