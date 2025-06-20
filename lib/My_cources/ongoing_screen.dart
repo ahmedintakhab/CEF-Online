@@ -192,7 +192,7 @@ class _OngoingScreenState extends State<OngoingScreen> {
                                     '${ongoing['lecturesRemaining']} Lectures to go',
                                     style: const TextStyle(color: Color(0XFF292929)),
                                   ),
-                                  const SizedBox(height: 10),
+                                  // const SizedBox(height: 10),
                                   LinearPercentIndicator(
                                     padding: EdgeInsets.zero,
                                     width: 150.0,

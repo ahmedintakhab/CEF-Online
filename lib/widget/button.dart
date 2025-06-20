@@ -40,27 +40,4 @@ class CustomButton extends StatelessWidget {
     );
   }
 }
-/*
- FDottedLine(
-                          corner: FDottedLineCorner.all(15.h),
-                          color: Colors.blue,
-                          height: 200.0.h,
-                          width: 100.w,
-                          strokeWidth: 1.5.w,
-                          dottedLength: 7.0,
-                          space: 5.0,
-                          child: SizedBox(
-                            height: 40.h,
-                            width: 140.w,
-                            child: Center(
-                              child: Text(
-                                "Dashboard",
-                                style: TextStyle(
-                                    fontSize: 25.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.blue),
-                              ),
-                            ),
-                          ),
-                        ),
- */
+

@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:learn_megnagmet/widget/button.dart';
 
 class AssignmentResult extends StatelessWidget {
-  const AssignmentResult({Key? key}) : super(key: key);
+  final Map<String, dynamic> assignmentResult;
+
+  const AssignmentResult({Key? key, required this.assignmentResult}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Assignment Result',style: TextStyle(color: Color(0xFF78A03F)),),
+        title: const Text(
+          'Assignment Result',
+          style: TextStyle(color: Color(0xFF78A03F)),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
-        titleTextStyle: const TextStyle(color: Colors.blue, fontSize: 20, fontWeight: FontWeight.bold),
+        titleTextStyle: const TextStyle(
+          color: Color(0xFF78A03F),
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20.h,),
+            SizedBox(height: 20.h),
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
@@ -29,45 +39,57 @@ class AssignmentResult extends StatelessWidget {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         'Assignment Topic',
                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                       ),
-                      Text('Module 01', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                      Text(
+                        assignmentResult['assignment_topic'] ?? 'N/A',
+                        style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         'Marks',
                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                       ),
-                      Text('10', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                      Text(
+                        assignmentResult['assignment_total_marks']?.toString() ?? 'N/A',
+                        style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         'Your Marks',
                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                       ),
-                      Text('None', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                      Text(
+                        assignmentResult['your_marks']?.toString() ?? 'None',
+                        style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
                     ],
                   ),
-                   SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         'Notes',
                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                       ),
-                      Text('None', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                      Text(
+                        assignmentResult['notes'] ?? 'None',
+                        style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
                     ],
                   ),
                 ],
@@ -75,13 +97,15 @@ class AssignmentResult extends StatelessWidget {
             ),
             SizedBox(height: 20.h),
             SizedBox(
-              width: double.infinity,height: 55.h,
-              child: ElevatedButton(
-                onPressed: () {
+              width: double.infinity,
+              height: 55.h,
+              child: CustomButton(
+                onTap: () {
                   Navigator.pop(context);
                 },
-                style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF78A03F)),
-                child:  Text('Back',style: TextStyle(color: Colors.white,fontSize: 20.sp),),
+                buttonText: 'BACK',
+                buttonColor: const Color(0xFF78A03F),
+                textColor: Colors.white,
               ),
             ),
           ],
