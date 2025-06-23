@@ -146,7 +146,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
             courseContent: widget.courseType == 'Live' ? liveCourses : nonLiveCourses,
             onLectureOpen: handleLectureOpen,
           ),
-          if (widget.courseType != 'Live') QuizPage(),
+          if (widget.courseType != 'Live') QuizPage(quizData : apiData!['course_quiz_tab']),
           if (widget.courseType != 'Live') AssignmentPage(assignmentData: apiData!['course_assignment_tab'],courseId:courseId),
           NoticePage(noticeData: apiData!['course_notice_tab']),
           if (widget.courseType != 'Live')LiveClassPage(),

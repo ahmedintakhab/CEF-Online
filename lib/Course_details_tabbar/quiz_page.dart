@@ -3,33 +3,27 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:learn_megnagmet/quiz/leaderboard_screen.dart';
 import 'package:learn_megnagmet/quiz/quiz_result.dart';
+import 'package:learn_megnagmet/widget/button.dart';
 
-class QuizPage extends StatelessWidget {
-  final List<Map<String, dynamic>> quizData = [
-    {
-      'name': 'Test Quiz',
-      'type': 'True false',
-      'totalQuestions': 5,
-      'duration': '1 minutes',
-    },
-    {
-      'name': 'Test Quiz 2',
-      'type': 'Multiple choice',
-      'totalQuestions': 5,
-      'duration': '1 minutes',
-    },
-  ];
+class QuizPage extends StatefulWidget {
+  final List<dynamic> quizData;
+   QuizPage({Key? key, required this.quizData}) : super(key: key);
 
-   QuizPage({Key? key}) : super(key: key);
+  @override
+  State<QuizPage> createState() => _QuizPageState();
+}
+
+class _QuizPageState extends State<QuizPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('Check the quiz data on Quiz screen: ${widget.quizData}');
     return Scaffold(
       body: ListView.builder(
         padding: const EdgeInsets.all(16.0),
-        itemCount: quizData.length,
+        itemCount: widget.quizData.length,
         itemBuilder: (context, index) {
-          final quiz = quizData[index];
+          final quiz = widget.quizData[index];
           return Container(
             margin: const EdgeInsets.only(bottom: 16.0),
             padding: const EdgeInsets.all(16.0),
@@ -47,7 +41,7 @@ class QuizPage extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                     Text(
-                      quiz['name'],
+                      quiz['quiz_name']?.toString() ?? '',
                       style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
@@ -61,7 +55,7 @@ class QuizPage extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                     Text(
-                      quiz['type'],
+                      quiz['quiz_type']?.toString() ?? '',
                       style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
@@ -75,7 +69,7 @@ class QuizPage extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                     Text(
-                      '${quiz['totalQuestions']}',
+                      quiz['total_questions']?.toString() ?? '',
                       style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
@@ -89,7 +83,7 @@ class QuizPage extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                     Text(
-                      quiz['duration'],
+                      quiz['time_duration']?.toString() ?? '',
                       style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
@@ -98,27 +92,23 @@ class QuizPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width:160.w,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          navigator?.push(MaterialPageRoute(builder: (context)=>QuizResult()));
+                    Expanded(
 
-                        },
-                        style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF78A03F)),
-                        child: const Text('SEE RESULT',style: TextStyle(color: Colors.white,fontSize: 13),),
+                      child: SizedBox(
+                        height: 50.h,
+                        child: CustomButton(onTap: (){
+                          navigator?.push(MaterialPageRoute(builder: (context)=>QuizResult()));
+                        }, buttonText: 'See Result'),
                       ),
                     ),
                     SizedBox(width: 10.w),
-                    SizedBox(
-                      width: 160.w,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          navigator?.push(MaterialPageRoute(builder: (context)=>LeaderboardScreen()));
-
-                        },
-                        style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF78A03F)),
-                        child: const Text('LEADERBOARD',style: TextStyle(color: Colors.white,fontSize: 13),),
+                    Expanded(
+                      child: SizedBox(
+                        height: 50.h,
+                        child: CustomButton(onTap: (){
+                          navigator?.push(MaterialPageRoute(builder:
+                              (context)=>LeaderboardScreen(quizId : quiz['quiz_id'].toString())));
+                        }, buttonText: 'LeaderBoard'),
                       ),
                     ),
                   ],
