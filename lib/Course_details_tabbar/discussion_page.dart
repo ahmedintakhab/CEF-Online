@@ -18,17 +18,14 @@ class DiscussionPage extends StatefulWidget {
 
 class _DiscussionPageState extends State<DiscussionPage> {
   late List<dynamic> _discussionList;
+  late Map<String, dynamic> _authUserImages;
   final TextEditingController _replyController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
-  late Map<String, dynamic> _authUserImages;
-  // Track the selected discussion for reply
   int? _selectedDiscussionId;
 
   @override
   void initState() {
     super.initState();
-
-    // Extract discussion items and auth_user_images
     _discussionList = [];
     _authUserImages = {};
 
@@ -40,7 +37,6 @@ class _DiscussionPageState extends State<DiscussionPage> {
       }
     }
 
-    // Set the initially selected discussion if any exists
     if (_discussionList.isNotEmpty) {
       _selectedDiscussionId = _discussionList.first['discussion_id'];
     }
@@ -53,36 +49,28 @@ class _DiscussionPageState extends State<DiscussionPage> {
     super.dispose();
   }
 
-  // Method to handle new discussion being posted
-  void _onMessagePosted(Map<String, dynamic> newDiscussion) {
+  // Method to update discussion data
+  void _updateDiscussionData(List<dynamic> newDiscussionData) {
     setState(() {
-      // Add the new discussion to the top of the list
-      _discussionList.insert(0, newDiscussion);
-      // Set this as the selected discussion
-      _selectedDiscussionId = newDiscussion['discussion_id'];
-    });
-  }
+      _discussionList = [];
+      _authUserImages = {};
 
-  // Method to handle new reply being posted
-  void _onReplyPosted(Map<String, dynamic> replyData) {
-    setState(() {
-      // Find the discussion that this reply belongs to
-      for (int i = 0; i < _discussionList.length; i++) {
-        if (_discussionList[i]['discussion_id'] == _selectedDiscussionId) {
-          // Initialize the replies list if it doesn't exist
-          if (_discussionList[i]['discussion_replies_list'] == null) {
-            _discussionList[i]['discussion_replies_list'] = [];
-          }
-
-          // Add the new reply to the discussion's replies list
-          _discussionList[i]['discussion_replies_list'].add(replyData);
-
-          // Update the total replies count
-          _discussionList[i]['discussion_total_replies'] =
-              (_discussionList[i]['discussion_total_replies'] ?? 0) + 1;
-
-          break;
+      for (var item in newDiscussionData) {
+        if (item is Map<String, dynamic> && item.containsKey('auth_user_images')) {
+          _authUserImages = item['auth_user_images'];
+        } else if (item is Map<String, dynamic> && item.containsKey('discussion_id')) {
+          _discussionList.add(item);
         }
+      }
+
+      // Maintain the selected discussion if it still exists
+      if (_discussionList.isNotEmpty) {
+        _selectedDiscussionId = _discussionList.firstWhere(
+              (discussion) => discussion['discussion_id'] == _selectedDiscussionId,
+          orElse: () => _discussionList.first,
+        )['discussion_id'];
+      } else {
+        _selectedDiscussionId = null;
       }
     });
   }
@@ -91,8 +79,6 @@ class _DiscussionPageState extends State<DiscussionPage> {
   void _selectDiscussionForReply(int discussionId) {
     setState(() {
       _selectedDiscussionId = discussionId;
-      // Optionally scroll to the reply container
-      // Or focus the reply text field
       _replyController.clear();
     });
   }
@@ -105,25 +91,27 @@ class _DiscussionPageState extends State<DiscussionPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // First container with Start Conversation
+              // Start Conversation Container
               ConversationContainer(
                 messageController: _messageController,
                 courseId: widget.courseId,
-                onMessagePosted: _onMessagePosted, // Pass the callback
+                onDiscussionUpdated: _updateDiscussionData, // Pass callback
               ),
               const SizedBox(height: 20),
 
-              // Message container (only show if discussionData is not empty)
+              // Discussion list
               if (_discussionList.isNotEmpty)
                 ..._discussionList.map((discussion) {
                   final isSelected = discussion['discussion_id'] == _selectedDiscussionId;
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
-                    decoration: isSelected ? BoxDecoration(
+                    decoration: isSelected
+                        ? BoxDecoration(
                       border: Border.all(color: const Color(0XFF78A03F), width: 1),
                       borderRadius: BorderRadius.circular(12),
                       color: Colors.grey[50],
-                    ) : null,
+                    )
+                        : null,
                     padding: isSelected ? const EdgeInsets.all(8) : EdgeInsets.zero,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +206,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                             ],
                           ),
                         ),
-                        // Reply message (indented) - only show if discussion_replies_list is not empty
+                        // Reply messages
                         if (discussion['discussion_replies_list'] != null &&
                             discussion['discussion_replies_list'].isNotEmpty)
                           ...(discussion['discussion_replies_list'] ?? []).map((reply) {
@@ -253,7 +241,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                                                 ),
                                               ),
                                               const SizedBox(width: 8),
-                                              if (reply['reply_user_type'] == "Student")
+                                              if (reply['reply_user_type'] == "Instructor")
                                                 Container(
                                                   padding: const EdgeInsets.symmetric(
                                                     horizontal: 8,
@@ -296,7 +284,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                   );
                 }).toList(),
 
-              // Leave a reply container
+              // Reply container
               if (_selectedDiscussionId != null)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,7 +303,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                       replyController: _replyController,
                       courseId: widget.courseId,
                       discussionId: _selectedDiscussionId,
-                      onReplyPosted: _onReplyPosted,
+                      onDiscussionUpdated: _updateDiscussionData, // Pass callback
                     ),
                   ],
                 ),
@@ -329,10 +317,8 @@ class _DiscussionPageState extends State<DiscussionPage> {
   // Helper function to handle image URLs
   ImageProvider _getImageProvider(String? imageUrl) {
     if (imageUrl == null || imageUrl.isEmpty || !Uri.parse(imageUrl).isAbsolute) {
-      // Use a local fallback image if the URL is invalid
       return const AssetImage('assets/avatar.png');
     } else {
-      // Use the provided image URL
       return NetworkImage(imageUrl);
     }
   }

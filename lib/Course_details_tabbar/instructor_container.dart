@@ -9,14 +9,14 @@ class InstructorContainer extends StatefulWidget {
   final TextEditingController replyController;
   final String courseId;
   final int? discussionId;
-  final Function(Map<String, dynamic>)? onReplyPosted;
+  final Function(List<dynamic>)? onDiscussionUpdated;
 
   const InstructorContainer({
     Key? key,
     required this.replyController,
     required this.courseId,
     required this.discussionId,
-    this.onReplyPosted,
+    this.onDiscussionUpdated,
   }) : super(key: key);
 
   @override
@@ -30,47 +30,62 @@ class _InstructorContainerState extends State<InstructorContainer> {
   @override
   void initState() {
     super.initState();
-
-    // Add listener to the controller to keep track of text changes
     widget.replyController.addListener(_updateReplyText);
   }
 
   @override
   void dispose() {
-    // Remove listener when widget is disposed
     widget.replyController.removeListener(_updateReplyText);
     super.dispose();
   }
 
-  // Keep track of text changes
   void _updateReplyText() {
     _replyText = widget.replyController.text;
   }
 
-  // Clear text field with multiple safety measures
   void _clearTextField() {
-    // Method 1: Set empty text directly
     widget.replyController.text = '';
-
-    // Method 2: Use the clear method
     widget.replyController.clear();
-
-    // Method 3: Update the UI
     setState(() {
       _replyText = '';
     });
-
-    // Method 4: Force a rebuild with post-frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
-          // Double-check it's cleared
           if (widget.replyController.text.isNotEmpty) {
             widget.replyController.clear();
           }
         });
       }
     });
+  }
+
+  Future<List<dynamic>?> _fetchDiscussionList() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token') ?? '';
+
+      final url = '${ApiConstants.baseUrl}student/course/discussion-list/${widget.courseId}';
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        print('Discussion list fetched successfully: ${response.body}');
+        return responseData as List<dynamic>;
+      } else {
+        print('Failed to fetch discussion list: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching discussion list: $e');
+      return null;
+    }
   }
 
   Future<void> _postReply() async {
@@ -81,7 +96,6 @@ class _InstructorContainerState extends State<InstructorContainer> {
       return;
     }
 
-    // Capture the text input before any operations
     final String replyText = _replyText.trim();
 
     if (replyText.isEmpty) {
@@ -96,10 +110,8 @@ class _InstructorContainerState extends State<InstructorContainer> {
     });
 
     try {
-      // Clear the text field immediately - IMPORTANT: This happens BEFORE the API call
       _clearTextField();
 
-      // Get auth token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('auth_token');
 
@@ -113,7 +125,6 @@ class _InstructorContainerState extends State<InstructorContainer> {
         return;
       }
 
-      // Prepare API request
       final url = Uri.parse('${ApiConstants.baseUrl}student/course/create-discussion-reply');
 
       final response = await http.post(
@@ -130,43 +141,41 @@ class _InstructorContainerState extends State<InstructorContainer> {
       );
 
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final responseData = jsonDecode(response.body);
 
         if (responseData['status'] == true) {
-          // Clear text field again (for extra safety)
           _clearTextField();
-
-          // Notify parent widget about the new reply if callback is provided
-          if (widget.onReplyPosted != null && responseData['data'] != null) {
-            widget.onReplyPosted!(responseData['data']);
+      print('Call the discussion list api after leave reply');
+          // Fetch updated discussion list
+          final newDiscussionData = await _fetchDiscussionList();
+          if (newDiscussionData != null && widget.onDiscussionUpdated != null) {
+            widget.onDiscussionUpdated!(newDiscussionData);
           }
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Reply posted successfully'),backgroundColor: Colors.green,),
+            const SnackBar(
+              content: Text('Reply posted successfully'),
+              backgroundColor: Colors.green,
+            ),
           );
         } else {
-          // API returned success status code but with error in response body
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(responseData['message'] ?? 'Failed to post reply')),
           );
         }
       } else {
-        // Failed to post reply
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to post reply. Please try again.')),
         );
       }
     } catch (e) {
-      // Handle any exceptions
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
+        SnackBar(content: Text('Error: $e')),
       );
     } finally {
       setState(() {
         _isLoading = false;
       });
-
-      // One final attempt to clear the text
       _clearTextField();
     }
   }
@@ -210,8 +219,9 @@ class _InstructorContainerState extends State<InstructorContainer> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              onPressed: _isLoading ? null : () {
-                // First check if there's text to submit
+              onPressed: _isLoading
+                  ? null
+                  : () {
                 if (widget.replyController.text.trim().isNotEmpty) {
                   _postReply();
                 } else {
