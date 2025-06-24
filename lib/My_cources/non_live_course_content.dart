@@ -119,8 +119,8 @@ class NonLiveCourseContent extends StatelessWidget {
 
         return Padding(
           padding: EdgeInsets.only(
-            left: 20.w,
-            right: 20.w,
+            left: 15.w,
+            right: 15.w,
             top: index == 0 ? 0.h : 8.h,
             bottom: 8.h,
           ),
@@ -128,7 +128,7 @@ class NonLiveCourseContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(bottom: 20.h),
+                padding: EdgeInsets.only(bottom: 20.h,top: 20.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -137,7 +137,7 @@ class NonLiveCourseContent extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Gilroy',
                         color: Color(0XFF6E758A),
-                        fontSize: 15.sp,
+                        fontSize: 18.sp,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

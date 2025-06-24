@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // Add this import
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/login/login_empty_state.dart';
 import 'package:learn_megnagmet/models/slider.dart';
@@ -171,11 +172,25 @@ class _SlidePageState extends State<SlidePage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image(
-              image: AssetImage(pages[index].image!),
+            // Replace Image widget with SvgPicture for SVG files
+            SvgPicture.asset(
+              pages[index].image!,
               height: 520.h,
               width: double.infinity,
               fit: BoxFit.cover,
+              // Add error handling for missing SVG files
+              placeholderBuilder: (BuildContext context) => Container(
+                height: 520.h,
+                width: double.infinity,
+                color: Colors.grey[300],
+                child: const Center(
+                  child: Icon(
+                    Icons.image_not_supported,
+                    size: 50,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
             ),
             SizedBox(height: 50.h),
             Text(

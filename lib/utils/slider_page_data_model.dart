@@ -34,23 +34,23 @@ class Utils {
   static List<Sliders> getSliderPages() {
     return [
       Sliders(
-        image: 'assets/intro1.png',
+        image: 'assets/1.1.svg',
         name: 'Learn new skills every day!',
         title: 'We provide the best learning couerses & great mentors for you.',
       ),
       Sliders(
-        image: 'assets/intro2.png',
+        image: 'assets/1.2.svg',
         name: 'Easy enroll in class !',
         title: 'Learn anytime and anywhere easily and conveniently.',
       ),
       Sliders(
-        image: 'assets/intro3.png',
+        image: 'assets/1.3.svg',
         name: 'Get online certificate !',
         title:
             'Complete the full course with full dedication to get certificate.',
       ),
       Sliders(
-        image: 'assets/intro4.png',
+        image: 'assets/1.4.svg',
         name: 'Explore new reasources !',
         title:
             'Find best course for your career that will help you to develop your skill.',

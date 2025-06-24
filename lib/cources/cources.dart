@@ -120,7 +120,7 @@ class _MyCourcesState extends State<MyCources> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.only(top: 20, left: 10),
       child: Row(
         children: [
           GestureDetector(
@@ -131,9 +131,9 @@ class _MyCourcesState extends State<MyCources> {
               width: 24.w,
             ),
           ),
-          SizedBox(width: 15.w),
+          SizedBox(width: 15.w,),
           Text(
-            "Courses",
+            "Course Details",
             style: TextStyle(
               fontFamily: 'Gilroy',
               fontWeight: FontWeight.w700,

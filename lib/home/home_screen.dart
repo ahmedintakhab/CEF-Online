@@ -258,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                  Text("Latest Courses",
                                     style: TextStyle(
-                                        fontSize: 18.sp,
+                                        fontSize: 20.sp,
                                         fontWeight: FontWeight.w700,
                                         fontFamily: 'Gilroy')),
                                 TextButton(
@@ -285,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                  Text("My Courses",
                                     style: TextStyle(
-                                        fontSize: 18.sp,
+                                        fontSize: 20.sp,
                                         fontWeight: FontWeight.w700,
                                         fontFamily: 'Gilroy')),
                                 TextButton(
@@ -324,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
         autoPlay: false,
         enableInfiniteScroll: true,
         initialPage: 0,
-        height: 170.0.h,
+        height: 180.0.h,
         enlargeCenterPage: false,
         viewportFraction: 1,
         onPageChanged: (index, reason) {
@@ -345,14 +345,16 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Stack(
             children: [
               Container(
-                height: 170.h,
+                height: 180.h,
                 width: ScreenUtil().screenWidth, // Full screen width
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: isValidImageUrl
                         ? NetworkImage(imageUrl) // Use image from API
                         : AssetImage('assets/person.png') as ImageProvider, // Fallback image
-                    fit: BoxFit.cover, // Ensure the image covers the area
+                    fit: BoxFit.fill, // Ensure the image covers the area
+                    alignment: Alignment.center, // Center the image
+
                   ),
                   // borderRadius: BorderRadius.circular(5),
                 ),
@@ -401,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   baseColor: Colors.grey[300]!, // Light grey
                   highlightColor: Colors.grey[100]!, // Lighter grey
                   child: Container(
-                    height: 175.h,
+                    height: 180.h,
                     width: ScreenUtil().screenWidth, // Full screen width
                     decoration: BoxDecoration(
                       color: Colors.grey[300], // Base grey color
