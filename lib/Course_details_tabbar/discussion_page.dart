@@ -31,7 +31,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
 
     for (var item in widget.discussionData) {
       if (item is Map<String, dynamic> && item.containsKey('auth_user_images')) {
-        _authUserImages = item['auth_user_images'];
+        _authUserImages = item['auth_user_images'] ?? {};
       } else if (item is Map<String, dynamic> && item.containsKey('discussion_id')) {
         _discussionList.add(item);
       }
@@ -51,24 +51,34 @@ class _DiscussionPageState extends State<DiscussionPage> {
 
   // Method to update discussion data
   void _updateDiscussionData(List<dynamic> newDiscussionData) {
+    print('Updating discussion data: $newDiscussionData');
     setState(() {
       _discussionList = [];
       _authUserImages = {};
 
       for (var item in newDiscussionData) {
         if (item is Map<String, dynamic> && item.containsKey('auth_user_images')) {
-          _authUserImages = item['auth_user_images'];
+          _authUserImages = item['auth_user_images'] ?? {};
         } else if (item is Map<String, dynamic> && item.containsKey('discussion_id')) {
-          _discussionList.add(item);
+          _discussionList.add({
+            ...item,
+            'discussion_replies_list': item['discussion_replies_list'] ?? [],
+          });
         }
       }
 
-      // Maintain the selected discussion if it still exists
+      // Maintain or update selected discussion
       if (_discussionList.isNotEmpty) {
-        _selectedDiscussionId = _discussionList.firstWhere(
-              (discussion) => discussion['discussion_id'] == _selectedDiscussionId,
-          orElse: () => _discussionList.first,
-        )['discussion_id'];
+        if (_selectedDiscussionId != null) {
+          final selectedExists = _discussionList.any(
+                (discussion) => discussion['discussion_id'] == _selectedDiscussionId,
+          );
+          _selectedDiscussionId = selectedExists
+              ? _selectedDiscussionId
+              : _discussionList.first['discussion_id'];
+        } else {
+          _selectedDiscussionId = _discussionList.first['discussion_id'];
+        }
       } else {
         _selectedDiscussionId = null;
       }
@@ -95,7 +105,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
               ConversationContainer(
                 messageController: _messageController,
                 courseId: widget.courseId,
-                onDiscussionUpdated: _updateDiscussionData, // Pass callback
+                onDiscussionUpdated: _updateDiscussionData,
               ),
               const SizedBox(height: 20),
 
@@ -124,9 +134,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               CircleAvatar(
-                                backgroundImage: _getImageProvider(
-                                  discussion['discussion_user_image'],
-                                ),
+                                backgroundImage: _getImageProvider(discussion['discussion_user_image']),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -208,17 +216,15 @@ class _DiscussionPageState extends State<DiscussionPage> {
                         ),
                         // Reply messages
                         if (discussion['discussion_replies_list'] != null &&
-                            discussion['discussion_replies_list'].isNotEmpty)
-                          ...(discussion['discussion_replies_list'] ?? []).map((reply) {
+                            (discussion['discussion_replies_list'] as List<dynamic>).isNotEmpty)
+                          ...(discussion['discussion_replies_list'] as List<dynamic>).map((reply) {
                             return Container(
                               margin: const EdgeInsets.only(left: 40, top: 16, bottom: 8),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   CircleAvatar(
-                                    backgroundImage: _getImageProvider(
-                                      reply['reply_user_image'],
-                                    ),
+                                    backgroundImage: _getImageProvider(reply['reply_user_image']),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -303,7 +309,7 @@ class _DiscussionPageState extends State<DiscussionPage> {
                       replyController: _replyController,
                       courseId: widget.courseId,
                       discussionId: _selectedDiscussionId,
-                      onDiscussionUpdated: _updateDiscussionData, // Pass callback
+                      onDiscussionUpdated: _updateDiscussionData,
                     ),
                   ],
                 ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,10 +46,16 @@ class _ConversationContainerState extends State<ConversationContainer> {
         return responseData as List<dynamic>;
       } else {
         print('Failed to fetch discussion list: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to fetch discussions: ${response.reasonPhrase}')),
+        );
         return null;
       }
     } catch (e) {
       print('Error fetching discussion list: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching discussions: $e')),
+      );
       return null;
     }
   }
@@ -92,12 +100,11 @@ class _ConversationContainerState extends State<ConversationContainer> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
-        print("API successfully post data: ${response.statusCode}");
-
+        print("API successfully posted discussion: ${response.statusCode}");
         widget.messageController.clear();
         setState(() {
           isExpanded = false;
+          isLoading = false;
         });
 
         // Fetch updated discussion list
@@ -106,23 +113,35 @@ class _ConversationContainerState extends State<ConversationContainer> {
           widget.onDiscussionUpdated!(newDiscussionData);
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Discussion posted successfully'),
-            backgroundColor: Colors.green,
-          ),
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('Discussion posted successfully'),
+        //     backgroundColor: Colors.green,
+        //   ),
+        // );
+        Get.snackbar(
+          'Success',
+          'Discussion posted successfully',
+          snackPosition: SnackPosition.TOP,
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post discussion: ${response.reasonPhrase}')),
+        print('Failed to post discussion: ${response.body}');
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('Failed to post discussion: ${response.reasonPhrase}')),
+        // );
+        Get.snackbar(
+          'Failed',
+          'Failed to post discussion',
+          snackPosition: SnackPosition.TOP,
         );
+
+        setState(() {
+          isLoading = false;
+        });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    } finally {
-      setState((){
+      print('Error posting discussion: $e');
+      setState(() {
         isLoading = false;
       });
     }

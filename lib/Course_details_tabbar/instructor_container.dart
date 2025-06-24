@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,40 +27,6 @@ class InstructorContainer extends StatefulWidget {
 
 class _InstructorContainerState extends State<InstructorContainer> {
   bool _isLoading = false;
-  String _replyText = '';
-
-  @override
-  void initState() {
-    super.initState();
-    widget.replyController.addListener(_updateReplyText);
-  }
-
-  @override
-  void dispose() {
-    widget.replyController.removeListener(_updateReplyText);
-    super.dispose();
-  }
-
-  void _updateReplyText() {
-    _replyText = widget.replyController.text;
-  }
-
-  void _clearTextField() {
-    widget.replyController.text = '';
-    widget.replyController.clear();
-    setState(() {
-      _replyText = '';
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          if (widget.replyController.text.isNotEmpty) {
-            widget.replyController.clear();
-          }
-        });
-      }
-    });
-  }
 
   Future<List<dynamic>?> _fetchDiscussionList() async {
     try {
@@ -76,14 +44,20 @@ class _InstructorContainerState extends State<InstructorContainer> {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print('Discussion list fetched successfully: ${response.body}');
+        print('Discussion list fetched successfully for reply: ${response.body}');
         return responseData as List<dynamic>;
       } else {
         print('Failed to fetch discussion list: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to fetch discussions: ${response.reasonPhrase}')),
+        );
         return null;
       }
     } catch (e) {
       print('Error fetching discussion list: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching discussions: $e')),
+      );
       return null;
     }
   }
@@ -96,7 +70,7 @@ class _InstructorContainerState extends State<InstructorContainer> {
       return;
     }
 
-    final String replyText = _replyText.trim();
+    final String replyText = widget.replyController.text.trim();
 
     if (replyText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -110,8 +84,6 @@ class _InstructorContainerState extends State<InstructorContainer> {
     });
 
     try {
-      _clearTextField();
-
       final prefs = await SharedPreferences.getInstance();
       final authToken = prefs.getString('auth_token');
 
@@ -140,43 +112,52 @@ class _InstructorContainerState extends State<InstructorContainer> {
         }),
       );
 
+      print('Reply POST response: ${response.statusCode} - ${response.body}');
+
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
-        if (responseData['status'] == true) {
-          _clearTextField();
-      print('Call the discussion list api after leave reply');
+        // Check for numeric status 200 instead of boolean true
+        if (responseData['status'] == 200) {
           // Fetch updated discussion list
           final newDiscussionData = await _fetchDiscussionList();
           if (newDiscussionData != null && widget.onDiscussionUpdated != null) {
+            print('Calling onDiscussionUpdated with new data: $newDiscussionData');
             widget.onDiscussionUpdated!(newDiscussionData);
           }
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Reply posted successfully'),
-              backgroundColor: Colors.green,
-            ),
+          widget.replyController.clear();
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   const SnackBar(
+          //     content: Text('Reply posted successfully'),
+          //     backgroundColor: Colors.green,
+          //   ),
+          // );
+          Get.snackbar(
+            'Success',
+            'Reply posted successfully',
+            snackPosition: SnackPosition.TOP,
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(responseData['message'] ?? 'Failed to post reply')),
+          print('Reply failed with message: ${responseData['message']}');
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(content: Text(responseData['message'] ?? 'Failed to post reply')),
+          // );
+          Get.snackbar(
+            'Failed',
+            'Failed to post reply',
+            snackPosition: SnackPosition.TOP,
           );
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to post reply. Please try again.')),
-        );
+        print('Reply POST failed: ${response.reasonPhrase}');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      print('Error posting reply: $e');
     } finally {
       setState(() {
         _isLoading = false;
       });
-      _clearTextField();
     }
   }
 

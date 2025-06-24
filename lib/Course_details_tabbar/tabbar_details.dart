@@ -170,7 +170,7 @@ class _TabBarDetailsState extends State<TabBarDetails> with SingleTickerProvider
     return Scaffold(
       body: Column(
         children: [
-          const SizedBox(height: 50),
+          const SizedBox(height: 20),
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(

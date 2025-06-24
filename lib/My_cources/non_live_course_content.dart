@@ -44,6 +44,30 @@ class NonLiveCourseContent extends StatelessWidget {
         return 'text'; // Default to text for unknown types
     }
   }
+
+  // Function to map resource_type to IconData
+  IconData _getIconForResourceType(String resourceType) {
+    resourceType = resourceType.toLowerCase();
+    switch (resourceType) {
+      case 'slide document':
+        return Icons.slideshow;
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'video':
+        return Icons.videocam;
+      case 'youtube':
+        return Icons.play_circle_fill;
+      case 'audio':
+        return Icons.audiotrack;
+      case 'image':
+        return Icons.image;
+      case 'text':
+        return Icons.text_fields;
+      default:
+        return Icons.file_open; // Default icon for unknown types
+    }
+  }
+
   // Function to validate YouTube URL
   bool _isValidYouTubeUrl(String url) {
     return url.contains('youtube.com') || url.contains('youtu.be');
@@ -75,7 +99,7 @@ class NonLiveCourseContent extends StatelessWidget {
         print("On Icon click API Data: $data");
 
         // Extract the lecture_preview_src, lecture_type, and lecture_resource_type from the response
-        String lecturePreviewSrc = data['data']['lecture_preview_src'];
+        String lecturePreviewSrc = data['data']['lecture_preview_src'] ?? '';
         String lectureType = data['data']['lecture_type']?.toString().toLowerCase() ?? 'text';
         String lectureResourceType = data['data']['lecture_resource_type']?.toString().toLowerCase() ?? '';
 
@@ -128,7 +152,7 @@ class NonLiveCourseContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(bottom: 20.h,top: 20.h),
+                padding: EdgeInsets.only(bottom: 20.h, top: 20.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -148,6 +172,7 @@ class NonLiveCourseContent extends StatelessWidget {
                 if (lecture['lecture_type'] == 'Assignment') {
                   return Container();
                 } else {
+                  String resourceType = lecture['type']?.toString() ?? 'text';
                   return GestureDetector(
                     onTap: lecture['is_locked'] == "No"
                         ? () async {
@@ -203,26 +228,26 @@ class NonLiveCourseContent extends StatelessWidget {
                               Expanded(
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 10),
-                                  child:  Text(
-                                      lecture['lecture_title'],
-                                      style: TextStyle(
-                                        color: Color(0XFF000000),
-                                        fontSize: 16.sp,
-                                        fontFamily: 'Gilroy',
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
+                                  child: Text(
+                                    lecture['lecture_title'],
+                                    style: TextStyle(
+                                      color: Color(0XFF000000),
+                                      fontSize: 16.sp,
+                                      fontFamily: 'Gilroy',
+                                      fontWeight: FontWeight.w700,
                                     ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
+                              ),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Icon(
                                     lecture['is_locked'] == "No"
-                                        ? Icons.file_open
+                                        ? _getIconForResourceType(resourceType)
                                         : Icons.lock,
                                     color: Color(0XFF8CC13F),
                                     size: 26.w,
