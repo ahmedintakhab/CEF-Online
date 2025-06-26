@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'instructor_zoom_meeting.dart';
 
 class InstructorIndividualScheduleClass extends StatelessWidget {
   final List<dynamic> classes;
-  InstructorIndividualScheduleClass({required this.classes});
+  const InstructorIndividualScheduleClass({required this.classes, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,32 +19,23 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
             color: Colors.grey.withOpacity(0.3),
             spreadRadius: 2,
             blurRadius: 5,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Padding(
-          //   padding: EdgeInsets.all(16.h),
-          //   child: Text(
-          //     'Individual Schedule',
-          //     style: TextStyle(
-          //       fontSize: 18.sp,
-          //       fontWeight: FontWeight.bold,
-          //       color: Color(0XFF78A03F),
-          //     ),
-          //   ),
-          // ),
-          // Divider(height: 0),
-          ...classes.map((classData) => _buildClassItem(classData)).toList(),
+          if (classes.isEmpty)
+            const Center(child: Text('No classes scheduled'))
+          else
+            ...classes.map((classData) => _buildClassItem(context, classData)).toList(),
         ],
       ),
     );
   }
 
-  Widget _buildClassItem(Map<String, dynamic> classData) {
+  Widget _buildClassItem(BuildContext context, Map<String, dynamic> classData) {
     return Container(
       padding: EdgeInsets.all(16.h),
       decoration: BoxDecoration(
@@ -55,18 +47,32 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
           _buildInfoRow('Student', classData['student_name'] ?? 'N/A'),
           _buildInfoRow('Course', classData['course_title'] ?? 'N/A'),
           _buildInfoRow('Date', classData['class_date'] ?? 'N/A'),
+          _buildInfoRow('Time', classData['class_time'] ?? 'N/A'),
           _buildInfoRow(
             'Status',
             classData['status']?['btnText'] ?? 'N/A',
             isStatus: true,
-            btnHref: classData['btnHref']?['btnHref'], // Use btnHref if provided in API
+            btnHref: classData['status']?['btnHref'],
+            learningTool: classData['learning_tool'],
+            lessonId: classData['status']?['classDetails']?['lesson_id']?.toString(),
+            meetingId: classData['status']?['classDetails']?['meeting_id'],
+            context: context, // Pass context only for Status row
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool isStatus = false, String? btnHref}) {
+  Widget _buildInfoRow(
+      String label,
+      String value, {
+        bool isStatus = false,
+        String? btnHref,
+        String? learningTool,
+        String? lessonId,
+        String? meetingId,
+        BuildContext? context, // Make context optional
+      }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
@@ -86,44 +92,64 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
           Expanded(
             flex: 3,
             child: isStatus
-                ? value == 'Start Class' && btnHref != null
-                ? ElevatedButton(
-              onPressed: () async {
-                final url = Uri.parse(btnHref);
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url);
-                } else {
-                  throw 'Could not launch $btnHref';
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _getStatusColor(value).withOpacity(0.2),
-                foregroundColor: _getStatusColor(value),
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                elevation: 0, // Remove shadow to match Container
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                textStyle: TextStyle(
-                  color: _getStatusColor(value),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 17.sp,
-                ),
-              ),
-              child: Text(value),
-            )
-                :Container(
+                ? value == 'Join Class' && btnHref != null
+                ? SizedBox(height: 40.h,
+                  child: ElevatedButton(
+                                onPressed: () async {
+                  if (learningTool == 'Zoom' && context != null) {
+                    // Navigate to InstructorZoomMeeting for Zoom classes
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>  InstructorZoomMeeting(lessonId: lessonId ?? 'N/A',
+                          meetingId: meetingId ?? 'N/A',),
+                      ),
+                    );
+                  } else if (learningTool == 'Google_Meet' &&
+                      btnHref != 'javascript:void(0);' &&
+                      context != null) {
+                    // Launch URL for Google Meet classes
+                    final url = Uri.parse(btnHref);
+                    if (await canLaunchUrl(url)) {
+                      await launchUrl(url);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Could not launch $btnHref')),
+                      );
+                    }
+                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                  backgroundColor: _getStatusColor(value).withOpacity(0.2),
+                  foregroundColor: _getStatusColor(value),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: TextStyle(
+                    color: _getStatusColor(value),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 17.sp,
+                  ),
+                                ),
+                                child: Text(value),
+                              ),
+                )
+                : Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: _getStatusColor(value).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
-                value,
-                style: TextStyle(
-                  color: _getStatusColor(value),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 17.sp,
+              child: Center(
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: _getStatusColor(value),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 17.sp,
+                  ),
                 ),
               ),
             )
@@ -150,13 +176,8 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
         return Colors.orange;
       case 'Scheduled':
         return Colors.blue;
-
-      case 'Start Class':
+      case 'Join Class':
         return Colors.green;
-
-        case 'Join Class':
-        return Colors.green;
-
       default:
         return Colors.grey;
     }

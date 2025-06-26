@@ -6,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/home/home_main.dart';
 import 'package:learn_megnagmet/login/forgot_password.dart';
-import 'package:learn_megnagmet/login/sign_up/sign_up_empty_screen.dart';
 import 'package:learn_megnagmet/login/sign_up/signup_radio_button.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
 import 'dart:convert';

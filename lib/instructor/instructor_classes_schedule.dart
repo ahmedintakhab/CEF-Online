@@ -104,13 +104,11 @@ class _InstructorClassesScheduleState extends State<InstructorClassesSchedule>
           preferredSize: Size.fromHeight(90.h),
           child: Column(
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Container(
+              Container(
                   height: 64.h,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(22.h),
+                    // borderRadius: BorderRadius.circular(22.h),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0XFF23408F).withOpacity(0.14),
@@ -163,7 +161,6 @@ class _InstructorClassesScheduleState extends State<InstructorClassesSchedule>
                     ),
                   ),
                 ),
-              ),
               SizedBox(height: 16.h),
             ],
           ),
