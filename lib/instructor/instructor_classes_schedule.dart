@@ -6,10 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/api_constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-
-
-
 class InstructorClassesSchedule extends StatefulWidget {
   @override
   _InstructorClassesScheduleState createState() => _InstructorClassesScheduleState();
@@ -204,7 +200,7 @@ class _InstructorClassesScheduleState extends State<InstructorClassesSchedule>
         SingleChildScrollView(
           child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: InstructorIndividualScheduleClass(Classes: individualClasses)),
+              child: InstructorIndividualScheduleClass(classes: individualClasses)),
         ),
 
 

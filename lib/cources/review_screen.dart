@@ -124,7 +124,7 @@ class _ReviewState extends State<Review> {
                   ),
                   alignment: Alignment.centerRight),
               SizedBox(height: 12.h),
-
+              if (widget.reviewData['can_review'] == true) // Conditional display
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

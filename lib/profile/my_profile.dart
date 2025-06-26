@@ -36,6 +36,7 @@ class MyProfile extends StatefulWidget {
 class _MyProfileState extends State<MyProfile> {
   String userName = "User Name"; // Default placeholder
   String email = "Email"; // Default placeholder
+  String userImage = "";
   @override
   void initState() {
     super.initState();
@@ -47,6 +48,7 @@ class _MyProfileState extends State<MyProfile> {
     setState(() {
       userName = prefs.getString('user_name') ?? "User Name";
       email = prefs.getString('email') ?? "Email";
+      userImage = prefs.getString('userImage') ?? '';
     });
   }
   Future<void> logoutApiCall() async {
@@ -76,7 +78,7 @@ class _MyProfileState extends State<MyProfile> {
         await prefs.remove('email');
         await prefs.remove('role');
         await prefs.remove('phone_number');
-        await prefs.remove('avatar');
+        await prefs.remove('userImage');
         // prefs.clear(); // Optionally clear all saved data
       } else {
         print("Logout failed: ${response.body}");
@@ -132,7 +134,7 @@ class _MyProfileState extends State<MyProfile> {
                       ),
                       SizedBox(height: 20.h),
                       Image(
-                        image: AssetImage(widget.user_detail.image!), height: 100.h,
+                        image: NetworkImage(userImage), height: 100.h,
                         width: 100.w,
                       ),
                       SizedBox(height: 12.h),

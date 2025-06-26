@@ -173,24 +173,28 @@ class _SlidePageState extends State<SlidePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Replace Image widget with SvgPicture for SVG files
-            SvgPicture.asset(
+            // SvgPicture.asset(
+            Image.asset(
               pages[index].image!,
               height: 520.h,
               width: double.infinity,
               fit: BoxFit.cover,
               // Add error handling for missing SVG files
-              placeholderBuilder: (BuildContext context) => Container(
-                height: 520.h,
-                width: double.infinity,
-                color: Colors.grey[300],
-                child: const Center(
-                  child: Icon(
-                    Icons.image_not_supported,
-                    size: 50,
-                    color: Colors.grey,
-                  ),
+              // placeholderBuilder: (BuildContext context) => Container(
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              height: 520.h,
+              width: double.infinity,
+              color: Colors.grey[300],
+              child: const Center(
+                child: Icon(
+                  Icons.image_not_supported,
+                  size: 50,
+                  color: Colors.grey,
                 ),
               ),
+            );
+          }
             ),
             SizedBox(height: 50.h),
             Text(

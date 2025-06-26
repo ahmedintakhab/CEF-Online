@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InstructorIndividualScheduleClass extends StatelessWidget {
-  final List<dynamic> Classes;
-  InstructorIndividualScheduleClass({required this.Classes});
+  final List<dynamic> classes;
+  InstructorIndividualScheduleClass({required this.classes});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
           //   ),
           // ),
           // Divider(height: 0),
-          ...Classes.map((classData) => _buildClassItem(classData)).toList(),
+          ...classes.map((classData) => _buildClassItem(classData)).toList(),
         ],
       ),
     );
@@ -57,9 +57,9 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
           _buildInfoRow('Date', classData['class_date'] ?? 'N/A'),
           _buildInfoRow(
             'Status',
-            classData['status'] ?? 'N/A',
+            classData['status']?['btnText'] ?? 'N/A',
             isStatus: true,
-            btnHref: classData['btnHref'], // Use btnHref if provided in API
+            btnHref: classData['btnHref']?['btnHref'], // Use btnHref if provided in API
           ),
         ],
       ),
@@ -152,6 +152,9 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
         return Colors.blue;
 
       case 'Start Class':
+        return Colors.green;
+
+        case 'Join Class':
         return Colors.green;
 
       default:

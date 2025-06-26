@@ -146,7 +146,8 @@ class _ReviewPageState extends State<ReviewPage> {
                         alignment: Alignment.centerRight,
                       ),
                       SizedBox(height: 12.h),
-                      Row(
+                      if (_reviewData['can_review'] == true) // Conditional display
+                        Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           GestureDetector(

@@ -40,6 +40,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String userName = "User Name"; // Default placeholder
+  String userImage = ""; // Default placeholder
   List<HomeSlider> pages = [];
   List<Design> design = Utils.getDesign();
   List<Trending> trendingCource = Utils.getTrending();
@@ -70,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       userName = prefs.getString('user_name') ?? "User Name";
+      userImage = prefs.getString('userImage') ?? '';
+
     });
   }
   toggle(int index){
@@ -129,6 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     initializeScreenSize(context);
@@ -138,175 +142,207 @@ class _HomeScreenState extends State<HomeScreen> {
     //   },
     //   child:
 
-      return Scaffold(
-        body: SafeArea(
-          child: SizedBox(
-            height: double.infinity,
-            width: double.infinity,
-            child: GetBuilder<HomeController>(
-              init: HomeController(),
-              builder: (controller) => SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                     SizedBox(height: 16.h),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute space evenly
-                        crossAxisAlignment: CrossAxisAlignment.center, // Center items vertically
-                        children: [
-                          // Left side with image and welcome text
-                          Flexible(
-                            flex: 4, // Give more space to this part
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min, // Take only needed space
-                              children: [
-                                // In your HomeScreen's build method, add a back button somewhere:
-                                // IconButton(
-                                //   icon: Icon(Icons.arrow_back),
-                                //   onPressed: () => Get.back(),
-                                // ),
-                                Image(
-                                  image: AssetImage(userDetail[0].image),
-                                  height: 50.h,
-                                  width: 50.w, // Made equal for better aspect ratio
-                                ),
-                                SizedBox(width: 10.w),
-                                Flexible( // Make text flexible to avoid overflow
-                                  child: Text(
-                                    "Hi, $userName",
-                                    style: TextStyle(
-                                      fontFamily: 'Gilroy',
-                                      color: const Color(0XFF000000),
-                                      fontSize: 20.sp,
-                                      fontWeight: FontWeight.w700,
+      return WillPopScope(
+        onWillPop: () async => false, // Prevent back navigation
+        child: Scaffold(
+          body: SafeArea(
+            child: SizedBox(
+              height: double.infinity,
+              width: double.infinity,
+              child: GetBuilder<HomeController>(
+                init: HomeController(),
+                builder: (controller) => SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                       SizedBox(height: 16.h),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute space evenly
+                          crossAxisAlignment: CrossAxisAlignment.center, // Center items vertically
+                          children: [
+                            // Left side with image and welcome text
+                            Flexible(
+                              flex: 4, // Give more space to this part
+                              child:
+                            // In the Row where the user image is displayed
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // User Profile Image
+                                  Container(
+                                    height: 50.h,
+                                    width: 50.w,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle, // Optional: Make the image circular
+                                      color: Colors.grey[200], // Background color for placeholder
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Right side with icons
-                          Flexible(
-                            flex: 2, // Give less space to icons
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min, // Take only needed space
-                              children: [
-                                // Search Button
-                                Container(
-                                  height: 40.h,
-                                  width: 40.h, // Made square
-                                  margin: EdgeInsets.only(right: 8.w), // Reduced spacing
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF8CC13F),
-                                    borderRadius: BorderRadius.circular(22),
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      if (courseSlug != null) {
-                                        Get.to(() => SearchScreen(slug: courseSlug!));
-                                      } else {
-                                        print("No slug available");
-                                      }
-                                    },
-                                    child: Center(
-                                      child: ColorFiltered(
-                                        colorFilter: const ColorFilter.mode(
-                                          Colors.white,
-                                          BlendMode.srcIn,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(25.r), // Circular clip
+                                      child: isLoading
+                                          ? Shimmer.fromColors(
+                                        baseColor: Colors.grey[300]!,
+                                        highlightColor: Colors.grey[100]!,
+                                        child: Container(
+                                          color: Colors.grey[300],
                                         ),
-                                        child: Image(
-                                          image: const AssetImage('assets/search.png'),
-                                          height: 24.h,
-                                          width: 24.w,
+                                      )
+                                          : Image(
+                                        image: userImage.isNotEmpty &&
+                                            Uri.tryParse(userImage)?.hasAbsolutePath == true
+                                            ? NetworkImage(userImage)
+                                            : const AssetImage('assets/person.png') as ImageProvider,
+                                        height: 50.h,
+                                        width: 50.w,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Container(
+                                            color: Colors.grey[200],
+                                            child: Icon(
+                                              Icons.person,
+                                              color: Colors.grey[400],
+                                              size: 30.sp,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Flexible(
+                                    child: Text(
+                                      "Hi, $userName",
+                                      style: TextStyle(
+                                        fontFamily: 'Gilroy',
+                                        color: const Color(0xFF000000),
+                                        fontSize: 20.sp,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),                            ),
+        
+                            // Right side with icons
+                            Flexible(
+                              flex: 2, // Give less space to icons
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min, // Take only needed space
+                                children: [
+                                  // Search Button
+                                  Container(
+                                    height: 40.h,
+                                    width: 40.h, // Made square
+                                    margin: EdgeInsets.only(right: 8.w), // Reduced spacing
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF8CC13F),
+                                      borderRadius: BorderRadius.circular(22),
+                                    ),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        if (courseSlug != null) {
+                                          Get.to(() => SearchScreen(slug: courseSlug!));
+                                        } else {
+                                        }
+                                      },
+                                      child: Center(
+                                        child: ColorFiltered(
+                                          colorFilter: const ColorFilter.mode(
+                                            Colors.white,
+                                            BlendMode.srcIn,
+                                          ),
+                                          child: Image(
+                                            image: const AssetImage('assets/search.png'),
+                                            height: 24.h,
+                                            width: 24.w,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-
-                                // Cart Icon
-                                CartCount(),
-                              ],
+        
+                                  // Cart Icon
+                                  CartCount(),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 30.h),
-                    Expanded(
-                      child: ListView(
-                        // physics: BouncingScrollPhysics(),
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        primary: true,
-                        children: [
-                          generatePage(),
-                           SizedBox(height: 20.h),
-                          indicator(),
-                           SizedBox(height: 20.h),
-                          // horizontal_disidn(),
-                          //  SizedBox(height: 22.h),
-                          Padding(
-                            padding:  EdgeInsets.symmetric(horizontal: 20.w),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                 Text("Latest Courses",
-                                    style: TextStyle(
-                                        fontSize: 20.sp,
-                                        fontWeight: FontWeight.w700,
-                                        fontFamily: 'Gilroy')),
-                                TextButton(
-                                    onPressed: () {
-                                      Get.to(()=> TrendingCource());
-                                    },
-                                    child:  Text("See All",
-                                        style: TextStyle(
-                                            fontSize: 18.sp,
-                                            fontFamily: 'Gilroy',
-                                            color: const Color(0XFF78A03F),
-                                            fontWeight: FontWeight.bold)))
-                              ],
+                      SizedBox(height: 30.h),
+                      Expanded(
+                        child: ListView(
+                          // physics: BouncingScrollPhysics(),
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          primary: true,
+                          children: [
+                            generatePage(),
+                             SizedBox(height: 20.h),
+                            indicator(),
+                             SizedBox(height: 20.h),
+                            // horizontal_disidn(),
+                            //  SizedBox(height: 22.h),
+                            Padding(
+                              padding:  EdgeInsets.symmetric(horizontal: 20.w),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                   Text("Latest Courses",
+                                      style: TextStyle(
+                                          fontSize: 20.sp,
+                                          fontWeight: FontWeight.w700,
+                                          fontFamily: 'Gilroy')),
+                                  TextButton(
+                                      onPressed: () {
+                                        Get.to(()=> TrendingCource());
+                                      },
+                                      child:  Text("See All",
+                                          style: TextStyle(
+                                              fontSize: 18.sp,
+                                              fontFamily: 'Gilroy',
+                                              color: const Color(0XFF78A03F),
+                                              fontWeight: FontWeight.bold)))
+                                ],
+                              ),
                             ),
-                          ),
-
-                          trending_cource_list(apiData ??{}),
-                          SizedBox(height: 22.h),
-
-                          Padding(
-                            padding:  EdgeInsets.symmetric(horizontal: 20.w),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                 Text("My Courses",
-                                    style: TextStyle(
-                                        fontSize: 20.sp,
-                                        fontWeight: FontWeight.w700,
-                                        fontFamily: 'Gilroy')),
-                                TextButton(
-                                    onPressed: () {
-                                      Get.to(const OngoingCompletedScreen());
-                                    },
-                                    child:  Text("See All",
-                                        style: TextStyle(
-                                            fontFamily: 'Gilroy',
-                                            fontSize: 18.sp,
-                                            color: const Color(0XFF78A03F),
-                                            fontWeight: FontWeight.w700)))
-                              ],
+        
+                            trending_cource_list(apiData ??{}),
+                            SizedBox(height: 22.h),
+        
+                            Padding(
+                              padding:  EdgeInsets.symmetric(horizontal: 20.w),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                   Text("My Courses",
+                                      style: TextStyle(
+                                          fontSize: 20.sp,
+                                          fontWeight: FontWeight.w700,
+                                          fontFamily: 'Gilroy')),
+                                  TextButton(
+                                      onPressed: () {
+                                        Get.to(const OngoingCompletedScreen());
+                                      },
+                                      child:  Text("See All",
+                                          style: TextStyle(
+                                              fontFamily: 'Gilroy',
+                                              fontSize: 18.sp,
+                                              color: const Color(0XFF78A03F),
+                                              fontWeight: FontWeight.w700)))
+                                ],
+                              ),
                             ),
-                          ),
-                          RecentAddedCourses(apiData: apiData ?? {}),
-
-                        ],
-                      ),
-                    )
-                  ],
+                            RecentAddedCourses(apiData: apiData ?? {}),
+        
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -595,7 +631,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     return SizedBox(
-      height: 470.h,
+      height: 500.h,
       width: double.infinity,
       child: trendingCourses == null || trendingCourses.isEmpty
           ? ListView.builder(

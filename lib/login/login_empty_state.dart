@@ -45,14 +45,8 @@ class _EmptyStateState extends State<EmptyState> {
     prefs.setString('email', userDetails['email'] ?? '');
     prefs.setString('role', userDetails['role']?.toString() ?? '');
     prefs.setString('phone_number', userDetails['mobile_number'] ?? '');
-    prefs.setString('avatar', userDetails['avatar'] ?? '');
+    prefs.setString('userImage', userDetails['image_url'] ?? '');
     prefs.setString('auth_token', userDetails['auth_token'] ?? ''); // Save the token
-    // prefs.setString('first_name', userDetails['instructor']['first_name'] ?? '');
-    // prefs.setString('last_name', userDetails['instructor']['last_name'] ?? '');
-    // prefs.setString('professional_title', userDetails['instructor']['professional_title'] ?? '');
-    // prefs.setString('about_me', userDetails['instructor']['about_me'] ?? '');
-
-
     // Save any additional fields you need
   }
 
@@ -91,7 +85,7 @@ class _EmptyStateState extends State<EmptyState> {
         await saveUserData(userDetails);
 
         print("User details and token saved successfully!");
-        Get.to(const HomeMainScreen());
+        Get.off(const HomeMainScreen());
 
         // Process the response data as needed
       } else {
