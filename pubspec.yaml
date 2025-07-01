@@ -70,13 +70,8 @@ dependency_overrides:
   webview_flutter: ^4.4.4
   webview_flutter_android: ^3.13.2
   flutter_native_splash: ^2.4.1
-
-
-
-
-
-
-
+  flutter_zoom_videosdk: ^1.12.10
+  events_emitter: ^0.6.0
 
 
 dev_dependencies:

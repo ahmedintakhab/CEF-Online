@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/api_constants.dart';
 import 'dart:convert';
+import 'package:flutter_zoom_videosdk/native/zoom_videosdk.dart';
 
 class InstructorZoomMeeting extends StatefulWidget {
   final String lessonId;
@@ -27,11 +28,18 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
   String errorMessage = '';
   Map<String, dynamic> apiResponse = {};
   Map<String, dynamic> updateSignatureResponse = {};
+  var zoom = ZoomVideoSdk();
+
 
   @override
   void initState() {
     super.initState();
     _fetchZoomMeetingDetails();
+    InitConfig initConfig = InitConfig(
+      domain: "zoom.us",
+      enableLog: true,
+    );
+    zoom.initSdk(initConfig);
   }
 
   Future<void> _fetchZoomMeetingDetails() async {

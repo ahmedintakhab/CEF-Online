@@ -39,7 +39,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.learn_megnagmet" // Ensure this matches the namespace
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 26
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -58,5 +58,8 @@ flutter {
 dependencies {
     implementation 'androidx.webkit:webkit:1.8.0' // Enhanced WebView features
     implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation "us.zoom.videosdk:zoomvideosdk-core:2.1.5"
+    implementation "us.zoom.videosdk:zoomvideosdk-videoeffects:2.1.5"
+    implementation "us.zoom.videosdk:zoomvideosdk-annotation:2.1.5"
 
 }

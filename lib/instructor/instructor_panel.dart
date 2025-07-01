@@ -43,6 +43,8 @@ class _InstructorPanelState extends State<InstructorPanel> {
   void initState() {
     super.initState();
     _loadUserData();
+    StartClassFunction();
+
   }
   Future<void> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -52,6 +54,33 @@ class _InstructorPanelState extends State<InstructorPanel> {
       email = prefs.getString('email') ?? "Email";
     });
   }
+  Future<void> StartClassFunction() async {
+    final String apiUrl = "${ApiConstants.baseUrl}instructor/checkLessonStartTime";
+
+    try {
+      // Assuming the token is saved in shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Include token in the header
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Successfully logged out
+        print("Check start lesson function api response: ${response.statusCode}");
+
+      } else {
+        print("Start lesson function api failed: ${response.body}");
+      }
+    } catch (e) {
+      print("Start lesson function api error: $e");
+    }
+  }
+
   Future<void> logoutApiCall() async {
     final String apiUrl = "${ApiConstants.baseUrl}logoutApi";
 
