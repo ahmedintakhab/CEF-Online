@@ -492,10 +492,10 @@ packages:
     dependency: "direct overridden"
     description:
       name: flutter_zoom_videosdk
-      sha256: "7e7ab56bed8dc1c5f928f498394a73fcb27b1edc39156cd25781c3dec872d10d"
+      sha256: "46a4dea664b1c969099328a499c198a1755adf9ac333dea28bea5187910b3bf9"
       url: "https://pub.dev"
     source: hosted
-    version: "1.14.0"
+    version: "2.1.10"
   fluttertoast:
     dependency: "direct main"
     description:

@@ -5,6 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/api_constants.dart';
 import 'dart:convert';
 import 'package:flutter_zoom_videosdk/native/zoom_videosdk.dart';
+import 'package:flutter_zoom_videosdk/native/zoom_videosdk_event_listener.dart';
+import 'package:flutter_zoom_videosdk/flutter_zoom_view.dart' as flutter_zoom_view;
+import 'package:permission_handler/permission_handler.dart';
 
 class InstructorZoomMeeting extends StatefulWidget {
   final String lessonId;
@@ -25,21 +28,136 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
   String? sessionName;
   String? sdkKey;
   String? signature;
+  String? meetingPassword;
   String errorMessage = '';
   Map<String, dynamic> apiResponse = {};
   Map<String, dynamic> updateSignatureResponse = {};
   var zoom = ZoomVideoSdk();
+  var eventListener = ZoomVideoSdkEventListener();
 
+  final isInSession = ValueNotifier<bool>(false);
+  String sessionNameNotifier = '';
+  String sessionPassword = '';
+  final users = ValueNotifier<List<dynamic>>([]);
+  final isMuted = ValueNotifier<bool>(false);
+  final isSpeakerOn = ValueNotifier<bool>(false);
+  final isVideoOn = ValueNotifier<bool>(false);
+  String? localUserId;
 
   @override
   void initState() {
     super.initState();
-    _fetchZoomMeetingDetails();
-    InitConfig initConfig = InitConfig(
-      domain: "zoom.us",
-      enableLog: true,
-    );
-    zoom.initSdk(initConfig);
+    _startZoomFlow();
+  }
+
+  Future<void> _startZoomFlow() async {
+    await _requestPermissions(); // Wait for permission before continuing
+  }
+
+  Future<void> _requestPermissions() async {
+    print("Requesting permissions...");
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.microphone,
+    ].request();
+
+    if (statuses[Permission.camera]!.isGranted && statuses[Permission.microphone]!.isGranted) {
+      await _initializeZoomSdk();
+      await _fetchZoomMeetingDetails();
+    } else {
+      setState(() {
+        errorMessage = 'Permissions are required to proceed.';
+        isLoading = false;
+      });
+      if (statuses[Permission.camera]!.isPermanentlyDenied || statuses[Permission.microphone]!.isPermanentlyDenied) {
+        await openAppSettings();
+      }
+    }
+  }
+
+  Future<void> _initializeZoomSdk() async {
+    print("Enter in initialize zoom sdk function:");
+    try {
+      InitConfig initConfig = InitConfig(
+        domain: "zoom.us",
+        enableLog: true,
+      );
+
+      // You do NOT need to call setZoomVideoSdkEventListener
+      await zoom.initSdk(initConfig);
+      print('SDK initialized');
+
+      _setupEventListeners();
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Failed to initialize Zoom SDK: $e';
+        isLoading = false;
+      });
+    }
+  }
+
+  void _setupEventListeners() {
+    eventListener.addListener('onSessionJoin', (data) async {
+      print('✅ onSessionJoin triggered');
+      try {
+        final mySelf = await zoom.session.getMySelf();
+        final userId = mySelf?.userId.toString();
+        final sessionName = await zoom.session.getSessionName() ?? '';
+        final sessionPassword = await zoom.session.getSessionPassword() ?? '';
+        final remoteUsers = await zoom.session.getRemoteUsers() ?? [];
+
+        final muted = mySelf != null ? await mySelf.audioStatus?.isMuted() : false;
+        final videoOn = mySelf != null ? await mySelf.videoStatus?.isOn() : false;
+        final speakerOn = await zoom.audioHelper.getSpeakerStatus();
+
+        setState(() {
+          isInSession.value = true;
+          localUserId = userId;
+          sessionNameNotifier = sessionName;
+          this.sessionPassword = sessionPassword;
+
+          users.value = [if (mySelf != null) mySelf, ...remoteUsers];
+          isMuted.value = muted ?? false;
+          isSpeakerOn.value = speakerOn;
+          isVideoOn.value = videoOn ?? false;
+        });
+      } catch (e) {
+        setState(() {
+          errorMessage = 'Error in onSessionJoin listener: $e';
+          isLoading = false;
+        });
+      }
+    });
+
+    eventListener.addListener('onUserJoin', (data) async {
+      print('👥 onUserJoin: $data');
+      final newUsers = (await zoom.session.getRemoteUsers()) ?? [];
+      final mySelf = await zoom.session.getMySelf();
+
+      // Combine current users
+      users.value = [if (mySelf != null) mySelf, ...newUsers];
+    });
+
+    eventListener.addListener('onUserLeave', (data) async {
+      print('🚪 onUserLeave: $data');
+      final remainingUsers = (await zoom.session.getRemoteUsers()) ?? [];
+      final mySelf = await zoom.session.getMySelf();
+
+      users.value = [if (mySelf != null) mySelf, ...remainingUsers];
+    });
+
+    eventListener.addListener('onSessionLeave', (data) async {
+      print('❌ onSessionLeave triggered');
+      setState(() {
+        isInSession.value = false;
+        users.value = [];
+        localUserId = null;
+      });
+    });
+
+    eventListener.addListener('*', (dynamic data) {
+      print('🔥 [Zoom Event] => $data');
+    });
   }
 
   Future<void> _fetchZoomMeetingDetails() async {
@@ -64,19 +182,35 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
         final responseData = json.decode(response.body);
         print('Zoom Meeting API Response: $responseData');
 
+        if (responseData['session_name'] == null || responseData['meeting_password'] == null || responseData['sdkKey'] == null) {
+          setState(() {
+            errorMessage = 'Invalid meeting details';
+            isLoading = false;
+          });
+          return;
+        }
+
         setState(() {
           apiResponse = responseData;
-          sessionName = responseData['session_name'];
-          sdkKey = responseData['sdkKey'];
+          sessionName = responseData['session_name'].toString();
+          meetingPassword = responseData['meeting_password'].toString();
+          sdkKey = responseData['sdkKey'].toString();
         });
 
-        // Call the generate zoom token API after fetching meeting details
         await _generateZoomToken(token);
       } else {
         print('API Error: ${response.statusCode} - ${response.body}');
+        setState(() {
+          errorMessage = 'Failed to fetch meeting details: ${response.body}';
+          isLoading = false;
+        });
       }
     } catch (e) {
       print('Exception: $e');
+      setState(() {
+        errorMessage = 'Error fetching meeting details: $e';
+        isLoading = false;
+      });
     }
   }
 
@@ -99,18 +233,32 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
         final responseData = json.decode(response.body);
         print('Generate Zoom Token API Response: $responseData');
 
+        if (responseData['signature'] == null) {
+          setState(() {
+            errorMessage = 'Invalid token response: signature is missing';
+            isLoading = false;
+          });
+          return;
+        }
+
         setState(() {
-          signature = responseData['signature'];
+          signature = responseData['signature'].toString();
         });
 
-        // Call the update zoom signature API after generating the token
         await _updateZoomSignature(token);
       } else {
         print('Generate Zoom Token API Error: ${response.statusCode} - ${response.body}');
+        setState(() {
+          errorMessage = 'Failed to generate Zoom token: ${response.body}';
+          isLoading = false;
+        });
       }
     } catch (e) {
       print('Generate Zoom Token Exception: $e');
-
+      setState(() {
+        errorMessage = 'Error generating Zoom token: $e';
+        isLoading = false;
+      });
     }
   }
 
@@ -137,13 +285,64 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
           updateSignatureResponse = responseData;
           isLoading = false;
         });
+
+        await _joinZoomSession();
       } else {
         print('Update Zoom Signature API Error: ${response.statusCode} - ${response.body}');
-
+        setState(() {
+          errorMessage = 'Failed to update Zoom signature: ${response.body}';
+          isLoading = false;
+        });
       }
     } catch (e) {
       print('Update Zoom Signature Exception: $e');
+      setState(() {
+        errorMessage = 'Error updating Zoom signature: $e';
+        isLoading = false;
+      });
     }
+  }
+
+  Future<void> _joinZoomSession() async {
+    print('Enter in joinsession function:');
+    try {
+      if (sessionName == null || sessionName!.isEmpty || signature == null || signature!.isEmpty || meetingPassword == null) {
+        setState(() {
+          errorMessage = 'Session name, signature, or meeting password is missing or empty';
+          isLoading = false;
+        });
+        return;
+      }
+
+      Map<String, bool> audioOptions = {'connect': true, 'mute': false};
+      Map<String, bool> videoOptions = {'localVideoOn': true};
+      JoinSessionConfig joinConfig = JoinSessionConfig(
+        sessionName: sessionName!,
+        sessionPassword: meetingPassword!,
+        token: signature!,
+        userName: 'Instructor',
+        audioOptions: audioOptions,
+        videoOptions: videoOptions,
+      );
+      print('Joining Zoom session with: sessionName=$sessionName, signature=$signature');
+      await zoom.joinSession(joinConfig);
+    } catch (e) {
+      print('Join Zoom Session Exception: $e');
+      setState(() {
+        errorMessage = 'Error joining Zoom session: $e';
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    isInSession.dispose();
+    users.dispose();
+    isMuted.dispose();
+    isSpeakerOn.dispose();
+    isVideoOn.dispose();
+    super.dispose();
   }
 
   @override
@@ -151,31 +350,61 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
     if (isLoading) {
       return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(
-            color: const Color(0xFF8CC13F),
+          child: CircularProgressIndicator(color: Color(0xFF8CC13F)),
+        ),
+      );
+    }
+
+    if (errorMessage.isNotEmpty) {
+      return Scaffold(
+        body: Center(
+          child: Text(
+            errorMessage,
+            style: TextStyle(fontSize: 16.sp, color: Colors.red),
+            textAlign: TextAlign.center,
           ),
         ),
       );
     }
 
     return Scaffold(
+      backgroundColor: Colors.black,
+      body: ValueListenableBuilder<bool>(
+        valueListenable: isInSession,
+        builder: (context, inSession, child) {
+          print('Check inSession: $inSession, localUserId: $localUserId');
+          if (inSession && localUserId != null) {
+            return ValueListenableBuilder<List<dynamic>>(
+              valueListenable: users,
+              builder: (context, userList, _) {
+                return Stack(
+                  children: userList.map((user) {
+                    final userId = user.userId.toString();
+                    final isLocal = userId == localUserId;
 
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Zoom Meeting Details',
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
-              ),
+                    return Positioned.fill(
+                      child: flutter_zoom_view.View(
+                        creationParams: {
+                          'userId': userId,
+                          'isLocal': isLocal,
+                          'width': MediaQuery.of(context).size.width.toInt(),
+                          'height': MediaQuery.of(context).size.height.toInt(),
+                        },
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            );
+
+          }
+          return Center(
+            child: Text(
+              "Joining Zoom session...",
+              style: TextStyle(color: Colors.white, fontSize: 18.sp),
             ),
-
-
-          ],
-        ),
+          );
+        },
       ),
     );
   }
