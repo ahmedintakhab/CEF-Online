@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
-import 'package:learn_megnagmet/instructor/zoom_buttons_controllbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../instructor/zoom_buttons_controllbar.dart';
 import '../utils/api_constants.dart';
 import 'dart:convert';
 import 'package:flutter_zoom_videosdk/native/zoom_videosdk.dart';
@@ -12,21 +12,21 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../zoom/zoom_event_handler.dart';
 
-class InstructorZoomMeeting extends StatefulWidget {
+class StudentZoomMeeting extends StatefulWidget {
   final String lessonId;
   final String meetingId;
 
-  const InstructorZoomMeeting({
+  const StudentZoomMeeting({
     required this.lessonId,
     required this.meetingId,
     super.key,
   });
 
   @override
-  State<InstructorZoomMeeting> createState() => _InstructorZoomMeetingState();
+  State<StudentZoomMeeting> createState() => _StudentZoomMeetingState();
 }
 
-class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
+class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
   bool isLoading = true;
   String? sessionName;
   String? sdkKey;
@@ -323,7 +323,7 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
         sessionName: sessionName!,
         sessionPassword: meetingPassword!,
         token: signature!,
-        userName: 'Instructor',
+        userName: 'Student',
         audioOptions: audioOptions,
         videoOptions: videoOptions,
       );
@@ -359,7 +359,6 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
     }
 
     if (errorMessage.isNotEmpty) {
-      print('Check the sdk error: $errorMessage');
       return Scaffold(
         body: Center(
           child: Text(

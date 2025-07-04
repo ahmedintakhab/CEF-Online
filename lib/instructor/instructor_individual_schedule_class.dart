@@ -1,11 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'instructor_zoom_meeting.dart';
+import '../utils/api_constants.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class InstructorIndividualScheduleClass extends StatelessWidget {
   final List<dynamic> classes;
   const InstructorIndividualScheduleClass({required this.classes, super.key});
+
+  // POST API function to update class status
+  Future<void> updateClassStatus(String lessonId, String meetingId) async {
+    final url = Uri.parse("${ApiConstants.baseUrl}instructor/update-class-status");
+    try {
+      // Retrieve the token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'lesson_id': lessonId,
+          'meeting_id': meetingId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        print('Class status updated successfully: $responseData');
+      } else {
+        print('Failed to update class status: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Error updating class status: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,10 +127,16 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
           Expanded(
             flex: 3,
             child: isStatus
-                ? value == 'Join Class' && btnHref != null
+                ? value == 'In Progress' && btnHref != null
                 ? SizedBox(height: 40.h,
                   child: ElevatedButton(
-                                onPressed: () async {
+                    onPressed: () async {
+                      // Call the POST API for updating class status
+                      if (lessonId != null && meetingId != null) {
+                        await updateClassStatus(lessonId, meetingId);
+                      } else {
+                        print('Lesson ID or Meeting ID is missing');
+                      }
                   if (learningTool == 'Zoom' && context != null) {
                     // Navigate to InstructorZoomMeeting for Zoom classes
                     Navigator.push(
@@ -118,8 +159,8 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
                       );
                     }
                   }
-                                },
-                                style: ElevatedButton.styleFrom(
+                  },
+                    style: ElevatedButton.styleFrom(
                   backgroundColor: _getStatusColor(value).withOpacity(0.2),
                   foregroundColor: _getStatusColor(value),
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
@@ -172,11 +213,11 @@ class InstructorIndividualScheduleClass extends StatelessWidget {
         return Colors.green;
       case 'Missed':
         return Colors.red;
-      case 'Waiting':
+      case 'Pending':
         return Colors.orange;
       case 'Scheduled':
         return Colors.blue;
-      case 'Join Class':
+      case 'In Progress':
         return Colors.green;
       default:
         return Colors.grey;

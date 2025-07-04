@@ -19,6 +19,7 @@ import 'package:learn_megnagmet/profile/edit_screen.dart';
 import 'package:learn_megnagmet/utils/api_constants.dart';
 import 'package:learn_megnagmet/utils/screen_size.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../controller/controller.dart';
 import '../login/login_empty_state.dart';
@@ -39,6 +40,8 @@ class InstructorPanel extends StatefulWidget {
 class _InstructorPanelState extends State<InstructorPanel> {
   String userName = "User Name"; // Default placeholder
   String email = "Email"; // Default placeholder
+  String userImage = "";
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +55,8 @@ class _InstructorPanelState extends State<InstructorPanel> {
     setState(() {
       userName = prefs.getString('user_name') ?? "User Name";
       email = prefs.getString('email') ?? "Email";
+      userImage = prefs.getString('userImage') ?? '';
+
     });
   }
   Future<void> StartClassFunction() async {
@@ -142,7 +147,8 @@ class _InstructorPanelState extends State<InstructorPanel> {
                                   image: AssetImage("assets/back_arrow.png"),
                                   height: 24.h,
                                   width: 24.w,
-                                )),
+                                )
+                            ),
                             SizedBox(width: 15.w),
                             Text(
                               "My Profile",
@@ -156,9 +162,49 @@ class _InstructorPanelState extends State<InstructorPanel> {
                         ),
                       ),
                       SizedBox(height: 20.h),
-                      Image(
-                        image: AssetImage(widget.user_detail.image!), height: 100.h,
-                        width: 100.w,
+                      // Shimmer effect for NetworkImage
+                      ClipOval(
+                        child: Image(
+                          image: NetworkImage(userImage),
+                          height: 100.h,
+                          width: 100.w,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            }
+                            // Show shimmer while loading
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                height: 100.h,
+                                width: 100.w,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            // Log error and show fallback
+                            print('Error loading image: $error');
+                            return Container(
+                              height: 100.h,
+                              width: 100.w,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey,
+                              ),
+                              child: const Icon(
+                                Icons.error,
+                                color: Colors.red,
+                                size: 40,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                       SizedBox(height: 12.h),
                       Text(

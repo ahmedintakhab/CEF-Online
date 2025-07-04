@@ -15,6 +15,7 @@ import 'package:learn_megnagmet/profile/edit_screen.dart';
 import 'package:learn_megnagmet/utils/api_constants.dart';
 import 'package:learn_megnagmet/utils/screen_size.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../My_cources/ongoing_completed_main_screen.dart';
 import '../controller/controller.dart';
@@ -51,6 +52,7 @@ class _MyProfileState extends State<MyProfile> {
       userImage = prefs.getString('userImage') ?? '';
     });
   }
+
   Future<void> logoutApiCall() async {
     final String apiUrl = "${ApiConstants.baseUrl}logoutApi";
 
@@ -133,9 +135,47 @@ class _MyProfileState extends State<MyProfile> {
                         ),
                       ),
                       SizedBox(height: 20.h),
-                      Image(
-                        image: NetworkImage(userImage), height: 100.h,
-                        width: 100.w,
+                      // Shimmer effect for NetworkImage
+                      ClipOval(
+                        child: Image(
+                          image: NetworkImage(userImage),
+                          height: 100.h,
+                          width: 100.w,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            }
+                            // Show shimmer while loading
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                height: 100.h,
+                                width: 100.w,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 100.h,
+                              width: 100.w,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey,
+                              ),
+                              child: const Icon(
+                                Icons.error,
+                                color: Colors.red,
+                                size: 40,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                       SizedBox(height: 12.h),
                       Text(

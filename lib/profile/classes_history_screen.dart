@@ -97,13 +97,10 @@ class _ClassHistoryScreenState extends State<ClassHistoryScreen>
           preferredSize: Size.fromHeight(90.h),
           child: Column(
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Container(
+             Container(
                   height: 64.h,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(22.h),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0XFF23408F).withOpacity(0.14),
@@ -154,7 +151,6 @@ class _ClassHistoryScreenState extends State<ClassHistoryScreen>
                     ),
                   ),
                 ),
-              ),
               SizedBox(height: 16.h),
             ],
           ),

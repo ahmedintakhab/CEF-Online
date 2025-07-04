@@ -117,7 +117,7 @@ class InstructorGroupScheduleClass extends StatelessWidget {
         return Colors.green;
       case 'Missed':
         return Colors.red;
-      case 'Waiting':
+      case 'Pending':
         return Colors.orange;
       case 'Scheduled':
         return Colors.blue;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:learn_megnagmet/profile/student_zoom_meeting.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class IndividualSchedule extends StatelessWidget {
@@ -37,13 +38,13 @@ class IndividualSchedule extends StatelessWidget {
           //   ),
           // ),
           // Divider(height: 0),
-          ...Classes.map((classData) => _buildClassItem(classData)).toList(),
+          ...Classes.map((classData) => _buildClassItem(classData,context)).toList(),
         ],
       ),
     );
   }
 
-  Widget _buildClassItem(Map<String, dynamic> classData) {
+  Widget _buildClassItem(Map<String, dynamic> classData,BuildContext? context) {
     return Container(
       padding: EdgeInsets.all(16.h),
       decoration: BoxDecoration(
@@ -57,14 +58,21 @@ class IndividualSchedule extends StatelessWidget {
           _buildInfoRow('Date', classData['date_time'] ?? 'N/A'),
           _buildInfoRow('Status', classData['status']['btnText'] ?? 'N/A',
               isStatus: true,
-              btnHref: classData['status']['btnHref']),
-
+              btnHref: classData['status']['btnHref'],
+          learningTool: classData['learning_tool'],
+          lessonId: classData['status']?['classDetails']?['lesson_id']?.toString(),
+          meetingId: classData['status']?['classDetails']?['meeting_id'],
+            context: context, // Pass context only for Status row
+          )
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool isStatus = false, String? btnHref}) {
+  Widget _buildInfoRow(String label, String value, {bool isStatus = false,
+    String? btnHref,String? lessonId, String? learningTool,
+    String? meetingId,BuildContext? context, })
+  {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
@@ -84,44 +92,64 @@ class IndividualSchedule extends StatelessWidget {
           Expanded(
             flex: 3,
             child: isStatus
-                ? value == 'Start Class' && btnHref != null
-                ? ElevatedButton(
-              onPressed: () async {
-                final url = Uri.parse(btnHref);
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url);
-                } else {
-                  throw 'Could not launch $btnHref';
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _getStatusColor(value).withOpacity(0.2),
-                foregroundColor: _getStatusColor(value),
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                elevation: 0, // Remove shadow to match Container
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                ? value == 'In Progress' && btnHref != null
+                ? SizedBox(height: 40.h,
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (learningTool == 'Zoom' && context != null) {
+                    // Navigate to InstructorZoomMeeting for Zoom classes
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>  StudentZoomMeeting(lessonId: lessonId ?? 'N/A',
+                          meetingId: meetingId ?? 'N/A',),
+                      ),
+                    );
+                  } else if (learningTool == 'Google_Meet' &&
+                      btnHref != 'javascript:void(0);' &&
+                      context != null) {
+                    // Launch URL for Google Meet classes
+                    final url = Uri.parse(btnHref);
+                    if (await canLaunchUrl(url)) {
+                      await launchUrl(url);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Could not launch $btnHref')),
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _getStatusColor(value).withOpacity(0.2),
+                  foregroundColor: _getStatusColor(value),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: TextStyle(
+                    color: _getStatusColor(value),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 17.sp,
+                  ),
                 ),
-                textStyle: TextStyle(
-                  color: _getStatusColor(value),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 17.sp,
-                ),
+                child: Text(value),
               ),
-              child: Text(value),
             )
-                :Container(
+                : Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: _getStatusColor(value).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
-                value,
-                style: TextStyle(
-                  color: _getStatusColor(value),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 17.sp,
+              child: Center(
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: _getStatusColor(value),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 17.sp,
+                  ),
                 ),
               ),
             )
@@ -144,12 +172,14 @@ class IndividualSchedule extends StatelessWidget {
         return Colors.green;
       case 'Missed':
         return Colors.red;
-      case 'Waiting':
+      case 'Pending':
         return Colors.orange;
       case 'Scheduled':
         return Colors.blue;
 
         case 'Start Class':
+        return Colors.green;
+        case 'In Progress':
         return Colors.green;
 
       default:
