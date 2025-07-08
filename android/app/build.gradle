@@ -1,3 +1,12 @@
+// Define keystoreProperties at the top
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withReader('UTF-8') { reader ->
+        keystoreProperties.load(reader)
+    }
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -27,7 +36,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     // Add the namespace property here
-    namespace "com.example.learn_megnagmet" // Use your actual package name
+    namespace "com.codiro.cef_online"
 
     compileSdkVersion 35
     ndkVersion flutter.ndkVersion
@@ -37,8 +46,17 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     defaultConfig {
-        applicationId "com.example.learn_megnagmet" // Ensure this matches the namespace
+        applicationId "com.codiro.cef_online"
         minSdkVersion 26
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
@@ -47,7 +65,7 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -55,11 +73,11 @@ android {
 flutter {
     source '../..'
 }
+
 dependencies {
-    implementation 'androidx.webkit:webkit:1.8.0' // Enhanced WebView features
+    implementation 'androidx.webkit:webkit:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation "us.zoom.videosdk:zoomvideosdk-core:2.1.5"
     implementation "us.zoom.videosdk:zoomvideosdk-videoeffects:2.1.5"
     implementation "us.zoom.videosdk:zoomvideosdk-annotation:2.1.5"
-
 }

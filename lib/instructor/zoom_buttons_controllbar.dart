@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_zoom_videosdk/native/zoom_videosdk.dart';
 
 class ZoomButtonsControllbar extends StatelessWidget {
-  final bool isMuted;
-  final bool isVideoOn;
+  final ValueNotifier<bool> isMuted;
+  final ValueNotifier<bool> isVideoOn;
   final VoidCallback onLeaveSession;
 
   final double circleButtonSize = 40.0;
@@ -23,8 +23,10 @@ class ZoomButtonsControllbar extends StatelessWidget {
     final muted = await mySelf!.audioStatus!.isMuted();
     if (muted) {
       await zoom.audioHelper.unMuteAudio(mySelf.userId);
+      isMuted.value = false; // Update notifier
     } else {
       await zoom.audioHelper.muteAudio(mySelf.userId);
+      isMuted.value = true; // Update notifier
     }
   }
 
@@ -35,8 +37,10 @@ class ZoomButtonsControllbar extends StatelessWidget {
     final isOn = await mySelf!.videoStatus!.isOn();
     if (isOn) {
       await zoom.videoHelper.stopVideo();
+      isVideoOn.value = false; // Update notifier
     } else {
       await zoom.videoHelper.startVideo();
+      isVideoOn.value = true; // Update notifier
     }
   }
 
@@ -60,22 +64,32 @@ class ZoomButtonsControllbar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              IconButton(
-                onPressed: toggleAudio,
-                icon: Icon(
-                  isMuted ? Icons.mic_off : Icons.mic,
-                  color: Colors.white,
-                ),
-                iconSize: circleButtonSize,
-                tooltip: isMuted ? "Unmute" : "Mute",
+              ValueListenableBuilder<bool>(
+                valueListenable: isMuted,
+                builder: (context, muted, child) {
+                  return IconButton(
+                    onPressed: toggleAudio,
+                    icon: Icon(
+                      muted ? Icons.mic_off : Icons.mic,
+                      color: Colors.white,
+                    ),
+                    iconSize: circleButtonSize,
+                    tooltip: muted ? "Unmute" : "Mute",
+                  );
+                },
               ),
-              IconButton(
-                onPressed: toggleVideo,
-                icon: Icon(
-                  isVideoOn ? Icons.videocam : Icons.videocam_off,
-                  color: Colors.white,
-                ),
-                iconSize: circleButtonSize,
+              ValueListenableBuilder<bool>(
+                valueListenable: isVideoOn,
+                builder: (context, videoOn, child) {
+                  return IconButton(
+                    onPressed: toggleVideo,
+                    icon: Icon(
+                      videoOn ? Icons.videocam : Icons.videocam_off,
+                      color: Colors.white,
+                    ),
+                    iconSize: circleButtonSize,
+                  );
+                },
               ),
               IconButton(
                 onPressed: leaveSession,

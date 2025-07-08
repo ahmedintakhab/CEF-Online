@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_megnagmet/instructor/zoom_buttons_controllbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../instructor/zoom_buttons_controllbar.dart';
 import '../utils/api_constants.dart';
 import 'dart:convert';
 import 'package:flutter_zoom_videosdk/native/zoom_videosdk.dart';
 import 'package:flutter_zoom_videosdk/native/zoom_videosdk_event_listener.dart';
 import 'package:flutter_zoom_videosdk/flutter_zoom_view.dart' as flutter_zoom_view;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_zoom_videosdk/native/zoom_videosdk_user.dart';
 
+
+import '../zoom/video_grid.dart';
 import '../zoom/zoom_event_handler.dart';
+import '../zoom/zoom_screen_share.dart';
+
 
 class StudentZoomMeeting extends StatefulWidget {
   final String lessonId;
@@ -37,11 +42,13 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
   Map<String, dynamic> updateSignatureResponse = {};
   var zoom = ZoomVideoSdk();
   var eventListener = ZoomVideoSdkEventListener();
+  final isSharing = ValueNotifier<bool>(false); // New notifier for screen sharing
+  final sharingUser = ValueNotifier<ZoomVideoSdkUser?>(null); // New notifier for sharing user
 
   final isInSession = ValueNotifier<bool>(false);
   String sessionNameNotifier = '';
   String sessionPassword = '';
-  final users = ValueNotifier<List<dynamic>>([]);
+  final users = ValueNotifier<List<ZoomVideoSdkUser>>([]);
   final isMuted = ValueNotifier<bool>(false);
   final isSpeakerOn = ValueNotifier<bool>(false);
   final isVideoOn = ValueNotifier<bool>(false);
@@ -54,11 +61,10 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
   }
 
   Future<void> _startZoomFlow() async {
-    await _requestPermissions(); // Wait for permission before continuing
+    await _requestPermissions();
   }
 
   Future<void> _requestPermissions() async {
-    print("Requesting permissions...");
     Map<Permission, PermissionStatus> statuses = await [
       Permission.camera,
       Permission.microphone,
@@ -79,17 +85,12 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
   }
 
   Future<void> _initializeZoomSdk() async {
-    print("Enter in initialize zoom sdk function:");
     try {
       InitConfig initConfig = InitConfig(
         domain: "zoom.us",
         enableLog: true,
       );
-
-      // You do NOT need to call setZoomVideoSdkEventListener
       await zoom.initSdk(initConfig);
-      print('SDK initialized');
-
       _setupEventListeners();
     } catch (e) {
       setState(() {
@@ -101,7 +102,6 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
 
   void _setupEventListeners() {
     eventListener.addListener('onSessionJoin', (data) async {
-      print('✅ onSessionJoin triggered');
       try {
         final mySelf = await zoom.session.getMySelf();
         final userId = mySelf?.userId.toString();
@@ -133,35 +133,45 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
     });
 
     eventListener.addListener('onUserJoin', (data) async {
-      print('👥 onUserJoin: $data');
       final newUsers = (await zoom.session.getRemoteUsers()) ?? [];
       final mySelf = await zoom.session.getMySelf();
-
-      // Combine current users
       users.value = [if (mySelf != null) mySelf, ...newUsers];
     });
 
     eventListener.addListener('onUserLeave', (data) async {
-      print('🚪 onUserLeave: $data');
       final remainingUsers = (await zoom.session.getRemoteUsers()) ?? [];
       final mySelf = await zoom.session.getMySelf();
-
       users.value = [if (mySelf != null) mySelf, ...remainingUsers];
     });
 
     eventListener.addListener('onSessionLeave', (data) async {
-      print('❌ onSessionLeave triggered');
       setState(() {
         isInSession.value = false;
         users.value = [];
         localUserId = null;
+        isSharing.value = false;
+        sharingUser.value = null;
       });
     });
+    // Add screen sharing status listener
+    eventListener.addListener('onUserShareStatusChanged', (data) async {
+      data = data as Map;
+      ZoomVideoSdkUser? mySelf = await zoom.session.getMySelf();
+      ZoomVideoSdkUser shareUser = ZoomVideoSdkUser.fromJson(jsonDecode(data['user'].toString()));
+      dynamic shareAction = jsonDecode(data['shareAction'].toString());
 
-    eventListener.addListener('*', (dynamic data) {
-      print('🔥 [Zoom Event] => $data');
+      if (shareAction.shareStatus == ShareStatus.Start || shareAction.shareStatus == ShareStatus.Resume) {
+        sharingUser.value = shareUser;
+        isSharing.value = (shareUser.userId == mySelf?.userId);
+      } else {
+        sharingUser.value = null;
+        isSharing.value = false;
+      }
+      setState(() {});
     });
   }
+
+
 
   Future<void> _fetchZoomMeetingDetails() async {
     try {
@@ -183,9 +193,8 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        print('Zoom Meeting API Response: $responseData');
-
         if (responseData['session_name'] == null || responseData['meeting_password'] == null || responseData['sdkKey'] == null) {
+          if (!mounted) return;
           setState(() {
             errorMessage = 'Invalid meeting details';
             isLoading = false;
@@ -193,6 +202,7 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
           return;
         }
 
+        if (!mounted) return;
         setState(() {
           apiResponse = responseData;
           sessionName = responseData['session_name'].toString();
@@ -202,18 +212,19 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
 
         await _generateZoomToken(token);
       } else {
-        print('API Error: ${response.statusCode} - ${response.body}');
+        if (!mounted) return;
         setState(() {
           errorMessage = 'Failed to fetch meeting details: ${response.body}';
           isLoading = false;
         });
       }
     } catch (e) {
-      print('Exception: $e');
+      if (!mounted) return;
       setState(() {
         errorMessage = 'Error fetching meeting details: $e';
         isLoading = false;
       });
+
     }
   }
 
@@ -234,8 +245,6 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        print('Generate Zoom Token API Response: $responseData');
-
         if (responseData['signature'] == null) {
           setState(() {
             errorMessage = 'Invalid token response: signature is missing';
@@ -250,14 +259,12 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
 
         await _updateZoomSignature(token);
       } else {
-        print('Generate Zoom Token API Error: ${response.statusCode} - ${response.body}');
         setState(() {
           errorMessage = 'Failed to generate Zoom token: ${response.body}';
           isLoading = false;
         });
       }
     } catch (e) {
-      print('Generate Zoom Token Exception: $e');
       setState(() {
         errorMessage = 'Error generating Zoom token: $e';
         isLoading = false;
@@ -282,8 +289,6 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        print('Update Zoom Signature API Response: $responseData');
-
         setState(() {
           updateSignatureResponse = responseData;
           isLoading = false;
@@ -291,14 +296,12 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
 
         await _joinZoomSession();
       } else {
-        print('Update Zoom Signature API Error: ${response.statusCode} - ${response.body}');
         setState(() {
           errorMessage = 'Failed to update Zoom signature: ${response.body}';
           isLoading = false;
         });
       }
     } catch (e) {
-      print('Update Zoom Signature Exception: $e');
       setState(() {
         errorMessage = 'Error updating Zoom signature: $e';
         isLoading = false;
@@ -307,7 +310,6 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
   }
 
   Future<void> _joinZoomSession() async {
-    print('Enter in joinsession function:');
     try {
       if (sessionName == null || sessionName!.isEmpty || signature == null || signature!.isEmpty || meetingPassword == null) {
         setState(() {
@@ -317,7 +319,7 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
         return;
       }
 
-      Map<String, bool> audioOptions = {'connect': true, 'mute': false};
+      Map<String, bool> audioOptions = {'connect': true, 'mute': false,'noLocalFeedback': true,};
       Map<String, bool> videoOptions = {'localVideoOn': true};
       JoinSessionConfig joinConfig = JoinSessionConfig(
         sessionName: sessionName!,
@@ -327,10 +329,8 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
         audioOptions: audioOptions,
         videoOptions: videoOptions,
       );
-      print('Joining Zoom session with: sessionName=$sessionName, signature=$signature');
       await zoom.joinSession(joinConfig);
     } catch (e) {
-      print('Join Zoom Session Exception: $e');
       setState(() {
         errorMessage = 'Error joining Zoom session: $e';
         isLoading = false;
@@ -345,6 +345,8 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
     isMuted.dispose();
     isSpeakerOn.dispose();
     isVideoOn.dispose();
+    isSharing.dispose();
+    sharingUser.dispose();
     super.dispose();
   }
 
@@ -375,65 +377,22 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
       body: ValueListenableBuilder<bool>(
         valueListenable: isInSession,
         builder: (context, inSession, child) {
-          print('Check inSession: $inSession, localUserId: $localUserId');
           if (inSession && localUserId != null) {
-            return ValueListenableBuilder<List<dynamic>>(
+            return ValueListenableBuilder<List<ZoomVideoSdkUser>>(
               valueListenable: users,
               builder: (context, userList, _) {
                 return Stack(
                   children: [
-                    // Full screen for selected user
-                    AnimatedOpacity(
-                      opacity: 1.0,
-                      duration: const Duration(milliseconds: 500),
-                      child: VideoView(
-                        user: users.value.firstWhere((u) => u.userId.toString() == localUserId),
-                        hasMultiCamera: false,
-                        sharing: false,
-                        preview: false,
-                        focused: true,
-                        multiCameraIndex: "0",
-                        videoAspect: null,
-                        fullScreen: true,
+                    Positioned.fill(
+                      child: VideoGrid(
+                        users: users.value,
+                        localUserId: localUserId,
                       ),
-                    ),
 
-                    // Scrollable bottom thumbnails
-                    Positioned(
-                      bottom: 10,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 110,
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: users.value.length,
-                          itemBuilder: (context, index) {
-                            final user = users.value[index];
-                            return InkWell(
-                              onTap: () {
-                                // Optional: Add logic to change fullScreenUser.value
-                              },
-                              child: VideoView(
-                                user: user,
-                                hasMultiCamera: false,
-                                sharing: false,
-                                preview: false,
-                                focused: false,
-                                multiCameraIndex: "0",
-                                videoAspect: null,
-                                fullScreen: false,
-                              ),
-                            );
-                          },
-                          separatorBuilder: (_, __) => const SizedBox(width: 10),
-                        ),
-                      ),
                     ),
                     ZoomButtonsControllbar(
-                      isMuted: isMuted.value,
-                      isVideoOn: isVideoOn.value,
+                      isMuted: isMuted,
+                      isVideoOn: isVideoOn,
                       onLeaveSession: () {
                         setState(() {
                           isInSession.value = false;
@@ -442,11 +401,16 @@ class _StudentZoomMeetingState extends State<StudentZoomMeeting> {
                         });
                       },
                     ),
+                    ZoomScreenShareWidget(
+                      zoom: zoom,
+                      isSharing: isSharing,
+                      sharingUser: sharingUser,
+                      isInstructor: false, // Default, can omit
+                    ),
                   ],
                 );
               },
             );
-
           }
           return Center(
             child: Text(
