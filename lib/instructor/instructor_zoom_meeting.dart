@@ -81,7 +81,8 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
       Permission.microphone,
     ].request();
 
-    if (statuses[Permission.camera]!.isGranted && statuses[Permission.microphone]!.isGranted) {
+    if (statuses[Permission.camera]!.isGranted &&
+        statuses[Permission.microphone]!.isGranted) {
       await _initializeZoomSdk();
       await _fetchZoomMeetingDetails();
     } else {
@@ -89,7 +90,8 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
         errorMessage = 'Permissions are required to proceed.';
         isLoading = false;
       });
-      if (statuses[Permission.camera]!.isPermanentlyDenied || statuses[Permission.microphone]!.isPermanentlyDenied) {
+      if (statuses[Permission.camera]!.isPermanentlyDenied ||
+          statuses[Permission.microphone]!.isPermanentlyDenied) {
         await openAppSettings();
       }
     }
@@ -113,29 +115,38 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
     }
   }
 
+  Future<List<ZoomVideoSdkUser>> _fetchRemoteUsersWithRetry({int retries = 3, Duration delay = const Duration(seconds: 1)}) async {
+    for (int i = 0; i < retries; i++) {
+      final remoteUsers = await zoom.session.getRemoteUsers() ?? [];
+      print('� Bellamy FetchRemoteUsers attempt ${i + 1}: ${remoteUsers.length} users');
+      if (remoteUsers.isNotEmpty) return remoteUsers;
+      await Future.delayed(delay);
+    }
+    print('� Bellamy Failed to fetch remote users after $retries attempts');
+    return [];
+  }
+
   void _setupEventListeners() {
     eventListener.addListener('onSessionJoin', (data) async {
       try {
         final mySelf = await zoom.session.getMySelf();
-        final userId = mySelf?.userId.toString();
+        final remoteUsers = await _fetchRemoteUsersWithRetry();
         final sessionName = await zoom.session.getSessionName() ?? '';
         final sessionPassword = await zoom.session.getSessionPassword() ?? '';
-        final remoteUsers = await zoom.session.getRemoteUsers() ?? [];
-
         final muted = mySelf != null ? await mySelf.audioStatus?.isMuted() : false;
         final videoOn = mySelf != null ? await mySelf.videoStatus?.isOn() : false;
         final speakerOn = await zoom.audioHelper.getSpeakerStatus();
 
         setState(() {
           isInSession.value = true;
-          localUserId = userId;
+          localUserId = mySelf?.userId.toString();
           sessionNameNotifier = sessionName;
           this.sessionPassword = sessionPassword;
-
           users.value = [if (mySelf != null) mySelf, ...remoteUsers];
           isMuted.value = muted ?? false;
           isSpeakerOn.value = speakerOn;
           isVideoOn.value = videoOn ?? false;
+          print('� Bellamy onSessionJoin: Users updated to ${users.value.length}');
         });
       } catch (e) {
         setState(() {
@@ -146,15 +157,25 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
     });
 
     eventListener.addListener('onUserJoin', (data) async {
-      final newUsers = (await zoom.session.getRemoteUsers()) ?? [];
-      final mySelf = await zoom.session.getMySelf();
-      users.value = [if (mySelf != null) mySelf, ...newUsers];
+      try {
+        final newUsers = await _fetchRemoteUsersWithRetry();
+        final mySelf = await zoom.session.getMySelf();
+        users.value = [if (mySelf != null) mySelf, ...newUsers];
+        print('� Bellamy onUserJoin: Users updated to ${users.value.length}');
+      } catch (e) {
+        print('� Bellamy Error in onUserJoin: $e');
+      }
     });
 
     eventListener.addListener('onUserLeave', (data) async {
-      final remainingUsers = (await zoom.session.getRemoteUsers()) ?? [];
-      final mySelf = await zoom.session.getMySelf();
-      users.value = [if (mySelf != null) mySelf, ...remainingUsers];
+      try {
+        final remainingUsers = await _fetchRemoteUsersWithRetry();
+        final mySelf = await zoom.session.getMySelf();
+        users.value = [if (mySelf != null) mySelf, ...remainingUsers];
+        print('� Bellamy onUserLeave: Users updated to ${users.value.length}');
+      } catch (e) {
+        print('� Bellamy Error in onUserLeave: $e');
+      }
     });
 
     eventListener.addListener('onSessionLeave', (data) async {
@@ -166,22 +187,6 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
         isSharing.value = false;
         sharingUser.value = null;
       });
-    });
-
-    eventListener.addListener('onUserShareStatusChanged', (data) async {
-      data = data as Map;
-      ZoomVideoSdkUser? mySelf = await zoom.session.getMySelf();
-      ZoomVideoSdkUser shareUser = ZoomVideoSdkUser.fromJson(jsonDecode(data['user'].toString()));
-      dynamic shareAction = jsonDecode(data['shareAction'].toString());
-
-      if (shareAction.shareStatus == ShareStatus.Start || shareAction.shareStatus == ShareStatus.Resume) {
-        sharingUser.value = shareUser;
-        isSharing.value = (shareUser.userId == mySelf?.userId);
-      } else {
-        sharingUser.value = null;
-        isSharing.value = false;
-      }
-      setState(() {});
     });
   }
 
@@ -203,14 +208,38 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
         }),
       );
 
+      print('� Bellamy Fetch meeting response status: ${response.statusCode}');
+      print('� Bellamy Fetch meeting response body: ${response.body}');
+
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        final Map<String, dynamic> responseData = json.decode(response.body) as Map<String, dynamic>;
+        print('� Bellamy Parsed meeting data: $responseData');
+
+        if (responseData.isEmpty) {
+          setState(() {
+            errorMessage = 'Invalid meeting details: Empty response';
+            isLoading = false;
+          });
+          return;
+        }
+
         setState(() {
           apiResponse = responseData;
-          sessionName = responseData['session_name'].toString();
-          meetingPassword = responseData['meeting_password'].toString();
-          sdkKey = responseData['sdkKey'].toString();
+          sessionName = responseData['session_name']?.toString();
+          meetingPassword = responseData['meeting_password']?.toString();
+          sdkKey = responseData['sdkKey']?.toString();
         });
+
+        if (sessionName == null || meetingPassword == null || sdkKey == null) {
+          setState(() {
+            errorMessage = 'Missing required fields: session_name, meeting_password, or sdkKey';
+            isLoading = false;
+          });
+          return;
+        }
+
+        print('� Bellamy Screen sharing enabled: ${responseData['screen_sharing_enabled']}');
+        print('� Bellamy Screen sharing locked: ${responseData['lock_screen_sharing']}');
 
         await _generateZoomToken(token);
       } else {
@@ -301,7 +330,11 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
 
   Future<void> _joinZoomSession() async {
     try {
-      Map<String, bool> audioOptions = {'connect': true, 'mute': false, 'noLocalFeedback': true};
+      Map<String, bool> audioOptions = {
+        'connect': true,
+        'mute': false,
+        'noLocalFeedback': true
+      };
       Map<String, bool> videoOptions = {'localVideoOn': true};
 
       JoinSessionConfig joinConfig = JoinSessionConfig(
@@ -346,7 +379,7 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
     }
 
     if (errorMessage.isNotEmpty) {
-      print('Check the sdk error: $errorMessage');
+      print('� Bellamy Check the sdk error: $errorMessage');
       return Scaffold(
         body: Center(
           child: Text(
@@ -367,12 +400,25 @@ class _InstructorZoomMeetingState extends State<InstructorZoomMeeting> {
             return ValueListenableBuilder<List<ZoomVideoSdkUser>>(
               valueListenable: users,
               builder: (context, userList, _) {
+                print('� Bellamy Building VideoGrid with ${userList.length} users');
                 return Stack(
                   children: [
                     Positioned.fill(
-                      child: VideoGrid(
-                        users: users.value,
-                        localUserId: localUserId,
+                      child: ValueListenableBuilder<ZoomVideoSdkUser?>(
+                        valueListenable: sharingUser,
+                        builder: (context, sharingUserValue, _) {
+                          return ValueListenableBuilder<bool>(
+                            valueListenable: isSharing,
+                            builder: (context, isSharingValue, _) {
+                              return VideoGrid(
+                                users: userList,
+                                localUserId: localUserId,
+                                sharingUser: sharingUserValue,
+                                isSharing: isSharingValue,
+                              );
+                            },
+                          );
+                        },
                       ),
                     ),
                     ZoomButtonsControllbar(

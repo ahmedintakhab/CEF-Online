@@ -4,23 +4,21 @@ import 'package:flutter_zoom_videosdk/native/zoom_videosdk_event_listener.dart';
 import 'package:flutter_zoom_videosdk/native/zoom_videosdk_share_helper.dart';
 import 'dart:convert';
 import 'package:flutter_zoom_videosdk/native/zoom_videosdk_user.dart';
-
+import 'package:flutter/services.dart';
+import 'dart:io';
 
 class ZoomScreenShareWidget extends StatefulWidget {
   final ZoomVideoSdk zoom;
   final ValueNotifier<bool> isSharing;
   final ValueNotifier<ZoomVideoSdkUser?> sharingUser;
-  final bool isInstructor; // Add this parameter
-
+  final bool isInstructor;
 
   const ZoomScreenShareWidget({
     super.key,
     required this.zoom,
     required this.isSharing,
     required this.sharingUser,
-    this.isInstructor = false, // Default to false
-
-
+    this.isInstructor = false,
   });
 
   @override
@@ -30,6 +28,7 @@ class ZoomScreenShareWidget extends StatefulWidget {
 class _ZoomScreenShareWidgetState extends State<ZoomScreenShareWidget> {
   late ZoomVideoSdkShareHelper shareHelper;
   late ZoomVideoSdkEventListener eventListener;
+  static const MethodChannel _platform = MethodChannel('com.codiro.cef_online/zoom');
 
   @override
   void initState() {
@@ -41,50 +40,101 @@ class _ZoomScreenShareWidgetState extends State<ZoomScreenShareWidget> {
 
   void _setupEventListeners() {
     eventListener.addListener('onUserShareStatusChanged', (data) async {
-      data = data as Map;
-      ZoomVideoSdkUser? mySelf = await widget.zoom.session.getMySelf();
-      ZoomVideoSdkUser shareUser = ZoomVideoSdkUser.fromJson(jsonDecode(data['user'].toString()));
-      var shareAction = jsonDecode(data['shareAction'].toString());
+      try {
+        data = data as Map;
+        ZoomVideoSdkUser? mySelf = await widget.zoom.session.getMySelf();
+        ZoomVideoSdkUser shareUser = ZoomVideoSdkUser.fromJson(jsonDecode(data['user'].toString()));
+        var shareAction = jsonDecode(data['shareAction'].toString());
 
-      if (shareAction['shareStatus'] == 'Start' || shareAction['shareStatus'] == 'Resume') {
-        widget.sharingUser.value = shareUser;
-        widget.isSharing.value = (shareUser.userId == mySelf?.userId);
-      } else {
-        widget.sharingUser.value = null;
-        widget.isSharing.value = false;
+        print('onUserShareStatusChanged: user=${shareUser.userId}, shareStatus=${shareAction['shareStatus']}');
+        if (shareAction['shareStatus'] == 'Start' || shareAction['shareStatus'] == 'Resume') {
+          widget.sharingUser.value = shareUser;
+          widget.isSharing.value = (shareUser.userId == mySelf?.userId);
+        } else {
+          widget.sharingUser.value = null;
+          widget.isSharing.value = false;
+        }
+      } catch (e, stackTrace) {
+        print('Error in onUserShareStatusChanged: $e\n$stackTrace');
       }
-      setState(() {});
+    });
+    // Add listener for share errors
+    eventListener.addListener('onError', (data) async {
+      print(' Zoom SDK Error: $data');
     });
   }
 
-  Future<void> _toggleScreenShare() async {
-    final isOtherSharing = await shareHelper.isOtherSharing();
-    final isShareLocked = await shareHelper.isShareLocked();
-
-    if (isOtherSharing) {
-      _showAlert("Other is sharing");
-      return;
-    }
-    // If current user is student and someone else is sharing, prevent takeover
-    if (!widget.isInstructor && isOtherSharing) {
-      _showAlert("The instructor is currently sharing. Please wait.");
-      return;
-    }
-
-    if (isShareLocked) {
-      _showAlert("Screen sharing is locked by host");
-      return;
-    }
-
-    if (widget.isSharing.value) {
-      await shareHelper.stopShare();
-    } else {
-      // For instructor, can override others' sharing
-      if (widget.isInstructor && isOtherSharing) {
-        await shareHelper.stopShare(); // Stop current share first
+  Future<bool> _requestScreenSharePermission() async {
+    if (Platform.isAndroid) {
+      try {
+        print('Requesting media projection permission');
+        final result = await _platform.invokeMethod('requestMediaProjection');
+        print('Media projection permission result: $result');
+        return result == true;
+      } on PlatformException catch (e, stackTrace) {
+        print('Failed to request media projection: code=${e.code}, message=${e.message}\n$stackTrace');
+        return false;
       }
-      await shareHelper.shareScreen();
-      print('🔔 shareScreen() called');
+    }
+    return true;
+  }
+
+  Future<void> _toggleScreenShare() async {
+    try {
+      final isOtherSharing = await shareHelper.isOtherSharing();
+      final isShareLocked = await shareHelper.isShareLocked();
+      print('isOtherSharing: $isOtherSharing, isShareLocked: $isShareLocked');
+
+      if (isOtherSharing && !widget.isInstructor) {
+        _showAlert("Another user is currently sharing. Please wait.");
+        return;
+      }
+
+      if (isShareLocked) {
+        _showAlert("Screen sharing is locked by the host.");
+        return;
+      }
+
+      if (widget.isSharing.value) {
+        print('Attempting to stop screen sharing');
+        await shareHelper.stopShare();
+        final isSharingOut = await shareHelper.isSharingOut();
+        print('isSharingOut after stop: $isSharingOut');
+        if (!isSharingOut) {
+          _showSuccess("Screen sharing stopped successfully");
+          print('Screen sharing stopped successfully');
+        } else {
+          _showAlert("Failed to stop screen sharing.");
+          print('Failed to stop screen sharing');
+        }
+      } else {
+        print('Requesting screen share permission');
+        final permissionGranted = await _requestScreenSharePermission();
+        if (!permissionGranted) {
+          _showAlert("Screen sharing permission denied.");
+          print('Screen sharing permission denied');
+          return;
+        }
+        if (widget.isInstructor && isOtherSharing) {
+          print('Instructor stopping other user’s share');
+          await shareHelper.stopShare();
+          print(' Stopped other user’s share');
+        }
+        print(' Starting screen share');
+        await shareHelper.shareScreen();
+        final isSharingOut = await shareHelper.isSharingOut();
+        print('isSharingOut after start: $isSharingOut');
+        if (isSharingOut) {
+          _showSuccess("Screen sharing started successfully");
+          print(' Screen sharing started successfully');
+        } else {
+          _showAlert("Failed to start screen sharing.");
+          print('Failed to start screen sharing');
+        }
+      }
+    } catch (e, stackTrace) {
+      _showAlert("Error toggling screen share: $e");
+      print('Screen share error: $e\n$stackTrace');
     }
   }
 
@@ -104,6 +154,12 @@ class _ZoomScreenShareWidgetState extends State<ZoomScreenShareWidget> {
     );
   }
 
+  void _showSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -117,7 +173,6 @@ class _ZoomScreenShareWidgetState extends State<ZoomScreenShareWidget> {
         return ValueListenableBuilder<ZoomVideoSdkUser?>(
           valueListenable: widget.sharingUser,
           builder: (context, sharingUser, _) {
-            // Hide button if someone else is sharing and current user is student
             if (!widget.isInstructor && sharingUser != null && !isSharing) {
               return const SizedBox.shrink();
             }
