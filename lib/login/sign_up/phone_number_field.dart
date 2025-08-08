@@ -13,7 +13,7 @@ Widget phone_number_field({
         children: [
           IntlPhoneField(
             decoration: InputDecoration(
-              labelText: 'Phone Number',
+              labelText: 'WhatsApp Number',
               labelStyle: TextStyle(
                 fontFamily: 'Gilroy',
                 fontWeight: FontWeight.w700,

@@ -20,6 +20,8 @@ class _CartScreenState extends State<CartScreen> {
   String errorMessage = '';
   Map<String, dynamic> orderSummary = {};
   final String cartID = '';
+  int? paymentId;
+  int? paymentType;
 
   TextEditingController couponController = TextEditingController();
 
@@ -49,6 +51,11 @@ class _CartScreenState extends State<CartScreen> {
         if (data['success'] == true) {
           setState(() {
             cartItems = List<Map<String, dynamic>>.from(data['data']['courses']);
+            if (cartItems.isNotEmpty) {
+              paymentId = cartItems[0]['payment_id'];
+              paymentType = cartItems[0]['payment_type'];
+            }
+            print('check id and type:$paymentType $paymentId');
             orderSummary = data['data']['order_summary'];
             isLoading = false;
           });
@@ -467,7 +474,8 @@ class _CartScreenState extends State<CartScreen> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => BillingAddress()),
+                                MaterialPageRoute(builder: (context) => BillingAddress( paymentId: paymentId!,
+                                  paymentType: paymentType!,)),
                               );
                             },
                             child: Container(
@@ -492,21 +500,26 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         SizedBox(width: 10.w),
                         Expanded(
-                          child: Container(
-                            height: 50.h,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r),
-                              border: Border.all(color: Color(0XFF78A03F)),
-                              color: Colors.white,
-                            ),
-                            child: Center(
-                              child: Text(
-                                "CANCEL ORDER",
-                                style: TextStyle(
-                                  fontFamily: 'Gilroy',
-                                  fontSize: 16.sp,
-                                  color: Color(0XFF78A03F),
-                                  fontWeight: FontWeight.w600,
+                          child: GestureDetector(
+                            onTap: (){
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              height: 50.h,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.r),
+                                border: Border.all(color: Color(0XFF78A03F)),
+                                color: Colors.white,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "CANCEL ORDER",
+                                  style: TextStyle(
+                                    fontFamily: 'Gilroy',
+                                    fontSize: 14.sp,
+                                    color: Color(0XFF78A03F),
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),

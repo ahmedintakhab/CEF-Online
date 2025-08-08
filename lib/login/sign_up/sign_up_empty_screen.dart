@@ -1,20 +1,34 @@
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/login/login_empty_state.dart';
 import 'package:learn_megnagmet/login/sign_up/phone_number_field.dart';
-import 'package:learn_megnagmet/login/sign_up/sign_in_phonenumber.dart';
-import 'package:learn_megnagmet/login/sign_up/term_and_condition.dart';
-import 'package:learn_megnagmet/widget/custom_text_form_field.dart'; // Update the import path if necessary
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:learn_megnagmet/widget/button.dart';
+import 'package:learn_megnagmet/widget/custom_text_form_field.dart';
+import '../../cart/custom_dropdown.dart';
 import '../../utils/api_constants.dart';
 import '../../utils/screen_size.dart';
-import '../../widget/dropdown_button.dart';
+import 'countries_dropdown.dart';
 
 class StudentSignupScreen extends StatefulWidget {
-  const StudentSignupScreen({Key? key}) : super(key: key);
+  final Function(Map<String, dynamic>) onNext;
+  final VoidCallback onBack;
+  final int courseTypeId;
+  final String courseName;
+  final int courseId;
+
+  const StudentSignupScreen({
+    Key? key,
+    required this.onNext,
+    required this.onBack,
+    required this.courseTypeId,
+    required this.courseName,
+    required this.courseId,
+  }) : super(key: key);
 
   @override
   State<StudentSignupScreen> createState() => _StudentSignupScreenState();
@@ -25,23 +39,35 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   bool ischeaked = false;
   bool ispassHiden = true;
   bool ispassHiden1 = true;
-
   String passworderror = '';
+
   final formkey = GlobalKey<FormState>();
-  TextEditingController firstnameController = TextEditingController();
-  TextEditingController lastnameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmpassController = TextEditingController();
-  TextEditingController timezoneController = TextEditingController();
-  TextEditingController referralcodeController = TextEditingController();
+  TextEditingController fullnameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController cityController = TextEditingController();
+  TextEditingController countryController = TextEditingController();
+  TextEditingController ageController = TextEditingController();
+  TextEditingController schoolController = TextEditingController();
+  TextEditingController parentController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmpasswordController = TextEditingController();
+  TextEditingController studentsController = TextEditingController();
+  TextEditingController trialDateController = TextEditingController();
+  TextEditingController trialTimeController = TextEditingController();
+
+
+
   String phoneNumber = "";
-
-
-
   bool isPasswordHidden = true;
   bool isConfirmPasswordHidden = true;
+  int? selectedCountryId; // To store the selected country ID
+  String? _selectedGender;
+  final List<String> _gender = ['Male', 'Female', 'Either'];
+  List<Map<String, dynamic>> timeSlots = [];
+  bool isDateSelected = false;
+  int? selectedSlotId; // To store the selected slot_id
+
 
   void togglePasswordVisibility() {
     setState(() {
@@ -53,45 +79,92 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       isConfirmPasswordHidden = !isConfirmPasswordHidden;
     });
   }
-  Future<void> registerUser() async {
-    final url = '${ApiConstants.baseUrl}register';
+  @override
+  void initState() {
+    super.initState();
+    // Set initial trial date to today if needed
+    // final today = DateTime.now();
+    // trialDateController.text = "${today.day}/${today.month}/${today.year}";
+  }
 
-    // Prepare the data for the API
-    final data = {
-      'first_name': firstnameController.text,
-      'last_name': lastnameController.text,
-      'email': emailController.text,
-      'password': passwordController.text,
-      'time_zone': timezoneController.text,
-      'phone_number': phoneNumber,
-      'referral_code': referralcodeController.text,
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
-      );
-
-      if (response.statusCode == 200) {
-        // Successfully registered
-        final responseData = json.decode(response.body);
-        // Handle the response data as needed
-        print('Signup successful: $responseData');
-        Get.to(const EmptyState()); // Redirect to phone number screen
-      } else {
-        // Error handling
-        print('Signup failed: ${response.body}');
-        // Show error message to the user
-      }
-    } catch (e) {
-      // Handle network errors
-      print('Error: $e');
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime today = DateTime.now();
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: today, // Disable past dates
+      lastDate: DateTime(2035), // Set a reasonable future limit
+      selectableDayPredicate: (DateTime date) {
+        return date.isAfter(today.subtract(Duration(days: 1))); // Enable today and future
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        trialDateController.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-"
+            "${picked.day.toString().padLeft(2, '0')}";
+        isDateSelected = true;
+        _fetchTimeSlots(picked);
+      });
     }
   }
 
+  Future<void> _fetchTimeSlots(DateTime selectedDate) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}frontend/get-time-slots'),
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonResponse = json.decode(response.body);
+        setState(() {
+          timeSlots = jsonResponse.cast<Map<String, dynamic>>();
+        });
+      } else {
+        print('Failed to fetch time slots: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching time slots: $e');
+    }
+  }
 
+  void _selectTimeSlot(int slotId, String slotTime) {
+    setState(() {
+      selectedSlotId = slotId;
+      trialTimeController.text = slotTime;
+    });
+  }
+
+  void _submitForm() {
+    if (formkey.currentState!.validate()) {
+      if (passwordController.text != confirmpasswordController.text) {
+        setState(() {
+          passworderror = 'Passwords do not match';
+        });
+        return;
+      }
+      if (selectedSlotId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please select a time slot')),
+        );
+        return;
+      }
+      final formData = {
+        'fullname': fullnameController.text,
+        'phone': phoneNumber,
+        'email': emailController.text,
+        'city': cityController.text,
+        'country': selectedCountryId?.toString(),
+        'age': ageController.text,
+        'school_grade': schoolController.text,
+        'parent_name': parentController.text,
+        'password': passwordController.text,
+        'gender': _selectedGender,
+        'how_many_students': studentsController.text,
+        'preferDate': trialDateController.text,
+        'preferSlot': selectedSlotId.toString(),
+      };
+      widget.onNext(formData);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,37 +180,37 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //  SizedBox(height: 60.h),
-              // back_button(),
-              //  SizedBox(height: 20.h),
-              //  Center(
-              //   child: Text(
-              //     "Create an account",
-              //     style: TextStyle(
-              //         fontWeight: FontWeight.bold,
-              //         fontSize: 24.sp,
-              //         fontFamily: 'Gilroy',
-              //         color: const Color(0XFF000000)),
-              //     textAlign: TextAlign.center,
-              //   ),
-              // ),
-             //  SizedBox(height: 20.h),
               Expanded(
                 child:ListView(
                   children: [
                     detailform(),
                     SizedBox(height: 25.h),
-                    term_condition_cheakbox(),
-                    SizedBox(height: 25.h),
-                    sign_up_button(),
+                    // term_condition_cheakbox(),
+                    // SizedBox(height: 25.h),
+                    // sign_up_button(),
                   ],
                 ),
               ),
               Padding(
-                padding:  EdgeInsets.only(bottom: 30.h),
-                child: already_login_button(),
+                padding: EdgeInsets.only(bottom: 30.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(child: CustomButton(onTap: widget.onBack, buttonText: 'BACK')),
+                    SizedBox(width: 20.w),
+                    Expanded(
+                      child: CustomButton(
+                        onTap: _submitForm,
+                        buttonText: 'NEXT',
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              //Checkbox
+              // Padding(
+              //   padding: EdgeInsets.only(bottom: 20.h),
+              //   child: already_login_button(),
+              // ),
             ],
           ),
         ),
@@ -161,33 +234,82 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       key: formkey,
       child: Column(
         children: [
-          customTextFormField(controller: firstnameController, hintText: "First Name",
+          customTextFormField(controller: fullnameController, hintText: "Full Name",
               validator: (val) {
-                     if (val!.isEmpty) return 'Enter the First Name';
+                     if (val!.isEmpty) return 'Enter the Full Name';
                     return null;
                   },),
+          SizedBox(height: 20.h),
+          phone_number_field(
+            onPhoneNumberChanged: (String phone) {
+              setState(() {
+                phoneNumber = phone; // Store the phone number
+              });
+            },
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter whatsapp number';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20.h),
+          customTextFormField(controller: emailController, hintText: "Email",
+            validator: (val) {
+              if (val!.isEmpty)
+                return 'Enter the  email';
+              else {
+                if (!RegExp(
+                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                    .hasMatch(val)) {
+                  return "Please enter valid email address";
+                }
+              }
+              return null;
+            },),
 
           SizedBox(height: 20.h),
-          customTextFormField(controller:lastnameController, hintText: "Last Name",
+          customTextFormField(controller:cityController, hintText: "City",
               validator: (val){
-                   if (val!.isEmpty) return 'Enter the Last Name';
+                   if (val!.isEmpty) return 'Enter the City';
                    return null;
                  },),
 
           SizedBox(height: 20.h),
-          customTextFormField(controller: emailController, hintText: "Email",
-              validator: (val) {
-                if (val!.isEmpty)
-                  return 'Enter the  email';
-                else {
-                  if (!RegExp(
-                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                      .hasMatch(val)) {
-                    return "Please enter valid email address";
-                  }
-                }
-                return null;
-              },),
+          CountriesDropdown(
+            controller: countryController,
+            hintText: "Select Country",
+            validator: (val) {
+              // if (val == null || val.isEmpty) return 'Please select a country';
+              // return null;
+            },
+            onCountryIdChanged: (int? countryId) {
+              setState(() {
+                selectedCountryId = countryId; // Store the selected country ID
+                print('Selected Country ID: $selectedCountryId'); // For debugging
+              });
+            },
+          ),
+          SizedBox(height: 20.h),
+          customTextFormField(controller:ageController, hintText: "Age",
+            validator: (val){
+              if (val!.isEmpty) return 'Enter the Age';
+              return null;
+            },),
+          SizedBox(height: 20.h),
+          customTextFormField(controller:schoolController, hintText: "School Grade",
+            validator: (val){
+              // if (val!.isEmpty) return 'Enter the school grade';
+              // return null;
+            },),
+          SizedBox(height: 20.h),
+          customTextFormField(controller:parentController, hintText: "Parent's Name",
+            validator: (val){
+              // if (val!.isEmpty) return 'Enter the parent name';
+              // return null;
+            },),
+
+
 
            SizedBox(height: 20.h),
         customTextFormField(
@@ -212,102 +334,129 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           ),
         ),
 
-           SizedBox(height: 20.h),
-          DropdownButtonWidget(controller: timezoneController, hintText: "Select Time Zone",
-              validator: (val) {
-                if (val == null || val.isEmpty) return 'Please select time zone ';
-                return null;
-              },),
-
-
           SizedBox(height: 20.h),
-        phone_number_field(
-          onPhoneNumberChanged: (String phone) {
-            setState(() {
-              phoneNumber = phone; // Store the phone number
-            });
-          },
-          validator: (String? value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter phone number';
-            }
+        customTextFormField(
+          controller: confirmpasswordController,
+          hintText: "Confirm Password",
+          isPasswordField: true,
+          obscureText: isConfirmPasswordHidden, // Dynamically updating with state
+          validator: (val) {
+            if (val == null || val.isEmpty) return 'Enter the confirm password';
             return null;
           },
+          suffixIcon: GestureDetector(
+            onTap: toggleConfirmPasswordVisibility,
+            child: Image(
+              image: AssetImage(isConfirmPasswordHidden
+                  ? "assets/notvisible_eye.png"
+                  : "assets/visible_eye.png"),
+              height: 20.h,
+              width: 20.w,
+              color: isConfirmPasswordHidden ? null : const Color(0XFF8CC13F),
+            ),
+          ),
         ),
-
-        SizedBox(height: 10.h),
-
-          customTextFormField(controller: referralcodeController, hintText: "Referral Code",
+          SizedBox(height: 20.h),
+          CustomDropdown(
+            hint: "Gender",
+            value: _selectedGender,
+            items: _gender,
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedGender = newValue;
+              });
+            },
+          ),
+        SizedBox(height: 20.h),
+          customTextFormField(controller: studentsController, hintText: "Number of Students Join",
             validator: (val) {},),
+          SizedBox(height: 20.h),
+          Text(
+            "Pick a date and time for 1 hour free trial lesson",
+            style: TextStyle(fontSize: 16.sp, fontFamily: 'Gilroy'),
+          ),
+          SizedBox(height: 10.h),
+          GestureDetector(
+            onTap: () => _selectDate(context),
+            child: AbsorbPointer(
+              child: customTextFormField(
+                controller: trialDateController,
+                hintText: "Select Date and Time",
+                validator: (val) {
+                  if (val == null || val.isEmpty) return 'Please select a trial date';
+                  return null;
+                },
+                suffixIcon: Icon(Icons.calendar_today, color: Color(0xFF8CC13F)),              ),
+            ),
+          ),
+          if (isDateSelected) ...[
+            SizedBox(height: 20.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.wb_sunny, color: Colors.orange, size: 20.sp),
+                SizedBox(width: 5.w),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Available Time Slots",
+                      style: TextStyle(fontSize: 16.sp, fontFamily: 'Gilroy', color: Colors.blue, fontWeight: FontWeight.w500),
+                    ),
+                    SizedBox(height: 5.h), // Space between lines
+                    Text(
+                      "Select your preferred time",
+                      style: TextStyle(fontSize: 16.sp, fontFamily: 'Gilroy'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 20.h),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: (timeSlots.length / 4).ceil(),
+              itemBuilder: (context, index) {
+                final start = index * 4;
+                final end = start + 4;
+                final rowSlots = timeSlots.sublist(start, end > timeSlots.length ? timeSlots.length : end);
+                return Padding(
+                  padding: EdgeInsets.only(bottom: 10.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: rowSlots.map((slot) {
+                      final isSelected = selectedSlotId == slot['slot_id'];
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => _selectTimeSlot(slot['slot_id'], slot['slot_time']),
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 5.w),
+                            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
+                            decoration: BoxDecoration(
+                              color: isSelected ? Colors.blue : Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: Text(
+                              slot['slot_time'],
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.black,
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+          ],
         ],
 
-      ),
-    );
-  }
-
-  Widget term_condition_cheakbox() {
-    return Row(
-      children: [
-        Checkbox(
-
-          activeColor: const Color(0XFF78A03F),
-          side: const BorderSide(color: Color(0XFFDEDEDE)),
-          value: ischeaked,
-          onChanged: (value) {
-            setState(() {
-              ischeaked = value!;
-            });
-          },
-        ),
-        RichText(
-            text: TextSpan(
-                text: 'I Agree with ',
-                style:  TextStyle(color: Colors.black, fontSize: 15.sp, fontFamily: 'Gilroy',fontWeight: FontWeight.w400),
-                children: [
-              TextSpan(
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () {
-
-                    Get.to(const TermCondition());
-                  },
-                text: 'Terms and condition',
-                style: const TextStyle(
-                    color: Color(0XFF78A03F),
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Gilroy'),
-              )
-            ])),
-      ],
-    );
-  }
-
-  Widget sign_up_button() {
-    return Container(
-      height: 56.h,
-      width: 374.w,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: const Color(0XFF78A03F),
-      ),
-      child: TextButton(
-        onPressed: ischeaked
-            ? () {
-                if (formkey.currentState!.validate()) {
-                  // if (confirmpassController.value == passwordController.value) {
-                  //   Get.to(const SignInPhonenumber());
-                    registerUser(); // Call your register function here
-
-                  }
-                }
-
-            : null,
-        child:  Text("Sign Up",
-            style: TextStyle(
-                color: Color(0XFFFFFFFF),
-                fontSize: 22.sp,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Gilroy')),
       ),
     );
   }
@@ -347,15 +496,4 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
           width: 24.w,
         ));
   }
-
-  @override
-  void dispose() {
-    firstnameController.dispose();
-    lastnameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    confirmpassController.dispose();
-    super.dispose();
-  }
 }
-

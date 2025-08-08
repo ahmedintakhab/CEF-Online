@@ -1,5 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:learn_megnagmet/cart/privacy_and_terms_policy.dart';
 
 class OrderSummary extends StatefulWidget {
   final Map<String, dynamic> billingSummaryData;
@@ -154,6 +156,15 @@ class _OrderSummaryState extends State<OrderSummary> {
                           fontWeight: FontWeight.w500,
                           decoration: TextDecoration.underline,
                         ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PrivacyAndTermsPolicyScreen(),
+                              ),
+                            );
+                          },
                         // You can add a gesture recognizer here for tapping on the policy link
                       ),
                     ],

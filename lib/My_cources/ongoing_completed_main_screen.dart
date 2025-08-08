@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/controller/controller.dart';
 
+import '../home/home_main.dart';
 import '../utils/screen_size.dart';
 import 'completed_screen.dart';
 import 'ongoing_screen.dart';
@@ -54,7 +55,7 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> with Si
           init: OngoingCompletedController(),
           builder: (controller) => Column(
             children: [
-              SizedBox(height: 25.h),
+              SizedBox(height: 50.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.h),
                 child: Row(
@@ -63,6 +64,10 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> with Si
                       onTap: () {
                         Get.back();
                         // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                        // Navigate to HomeMainScreen and set the Home tab (index 0)
+                        final HomeMainController controller = Get.find<HomeMainController>();
+                        controller.onChange(0); // Set the Home tab as active
+                        Get.offAll(() => const HomeMainScreen());
                       },
                       child: Image(
                         image: const AssetImage("assets/back_arrow.png"),
@@ -79,7 +84,6 @@ class _OngoingCompletedScreenState extends State<OngoingCompletedScreen> with Si
                   ],
                 ),
               ),
-              SizedBox(height: 10.h,),
               // Padding(
               //   padding: EdgeInsets.symmetric(horizontal: 20.w),
               //   child: Container(

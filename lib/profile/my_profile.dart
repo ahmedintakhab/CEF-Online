@@ -19,6 +19,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../My_cources/ongoing_completed_main_screen.dart';
 import '../controller/controller.dart';
+import '../home/home_main.dart';
 import '../login/login_empty_state.dart';
 import '../models/new_user_detail.dart';
 import '../models/profile_option.dart';
@@ -115,7 +116,11 @@ class _MyProfileState extends State<MyProfile> {
                           children: [
                             GestureDetector(
                                 onTap: () {
-                                  SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                                  // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                                  // Navigate to HomeMainScreen and set the Home tab (index 0)
+                                  final HomeMainController controller = Get.find<HomeMainController>();
+                                  controller.onChange(0); // Set the Home tab as active
+                                  Get.offAll(() => const HomeMainScreen());
                                 },
                                 child: Image(
                                   image: AssetImage("assets/back_arrow.png"),

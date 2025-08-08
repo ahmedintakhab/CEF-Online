@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
@@ -11,7 +12,10 @@ import 'payment_method.dart';
 import 'custom_dropdown.dart';
 
 class BillingAddress extends StatefulWidget {
-  const BillingAddress({Key? key}) : super(key: key);
+  final int paymentId;
+  final int paymentType;
+  const BillingAddress({Key? key, required this.paymentId,
+    required this.paymentType,}) : super(key: key);
 
   @override
   State<BillingAddress> createState() => _BillingAddressState();
@@ -51,7 +55,7 @@ class _BillingAddressState extends State<BillingAddress> {
       String token = prefs.getString('auth_token') ?? '';
 
       final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}student/checkout/1'),
+        Uri.parse('${ApiConstants.baseUrl}student/checkout/${widget.paymentType}/${widget.paymentId}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -244,16 +248,46 @@ class _BillingAddressState extends State<BillingAddress> {
                       SizedBox(height: 16.h),
                       _buildLabel("Country", false),
                       SizedBox(height: 8.h),
-                      CustomDropdown(
-                        hint: "Select Country",
-                        value: _selectedCountry,
+                      DropdownSearch<String>(
+                        popupProps: PopupProps.menu(
+                          showSearchBox: true,
+                          searchFieldProps: TextFieldProps(
+                            decoration: InputDecoration(
+                              hintText: "Search country...",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                                borderSide: BorderSide(color: Color(0XFFDEDEDE)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
+                                borderSide: BorderSide(color: Color(0xFF8CC13F), width: 1.0 ),
+                              ),
+                            ),
+                          ),
+                        ),
                         items: _countries,
+                        dropdownDecoratorProps: DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            hintText: "Select Country",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                              borderSide: BorderSide(color: Color(0XFFDEDEDE)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                              borderSide: BorderSide(color: Color(0xFF8CC13F), width: 1.0),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 18.h),
+                          ),
+                        ),
                         onChanged: (String? newValue) {
                           setState(() {
                             _selectedCountry = newValue;
                           });
                         },
+                        selectedItem: _selectedCountry,
                       ),
+
                       SizedBox(height: 16.h),
                       Row(
                         children: [

@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/api_constants.dart';
+import '../utils/cache_api_service.dart';
 import '../utils/screen_size.dart';
 import 'cources_details.dart';
 
@@ -42,49 +43,35 @@ class _OngoingScreenState extends State<OngoingScreen> {
     fetchOngoingCourses();
   }
   Future<void> fetchOngoingCourses() async {
-    final url = Uri.parse("${ApiConstants.baseUrl}student/my-learning");
+    final url = "${ApiConstants.baseUrl}student/my-learning";
+
     try {
       // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
 
-      // Make the API request
-      final response = await http.get(
+      // Use fetchDataWithCache to get data from cache or network
+      final data = await fetchDataWithCache(
         url,
         headers: {
-          'Content-Type': 'application/json', // Set content type
-           'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
         },
       );
 
-      if (response.statusCode == 200) {
-        print("Ongoing Page API status code: ${response.statusCode}");
-        print("API fetched data successfully!");
-        final data = json.decode(response.body);
-        // print("API Data on Ongoing Page: $data"); // Debug: Print the full API data
-        ongoingCourses = data['on_going']; // Adjust key based on API response
-        // print("API fetched ongoing course data!: $ongoingCource");
-        completeCourses = data['completed'];
-        // print('Complete courses data strore in completeCourses: $completeCourses');
-        completedController.setCompletedCourses(completeCourses ?? []);
+      print("✅ Ongoing Page API fetched successfully!");
 
-        setState(() {
-          isLoading = false;
+      // Process the fetched data
+      ongoingCourses = data['on_going'];
+      completeCourses = data['completed'];
+      completedController.setCompletedCourses(completeCourses ?? []);
 
-        });
-      } else {
-        // Debug errors
-        print("Error: Failed to fetch data. Status Code: ${response.statusCode}");
-        print("Response Body: ${response.body}");
-
-        setState(() {
-          errorMessage = "Failed to fetch data. Status: ${response.statusCode}";
-          isLoading = false;
-        });
-      }
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
-      // Catch and debug exceptions
-      print("Exception occurred: $e");
+      // Handle exceptions
+      print("❌ Exception occurred in Ongoing Courses API: $e");
       setState(() {
         errorMessage = "An error occurred: $e";
         isLoading = false;

@@ -100,41 +100,32 @@ class _PendingPaymentState extends State<PendingPayment> {
 
       if (response.statusCode == 200) {
         print("Checkout API Response: ${response.statusCode}");
-        Get.snackbar('Payment Checkout','Payment checkout Successfully', snackPosition: SnackPosition.BOTTOM);
+        // print("Checkout API Response: ${response.body}");
+        // Get.snackbar('Payment Checkout','Payment checkout Successfully', snackPosition: SnackPosition.TOP);
 
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(content: Text('Payment checked out successfully')),
-        // );
         // Optionally refresh the list after checkout
         await _fetchPendingPayments();
         // Navigate to BillingAddress page
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => BillingAddress()));
+            context, MaterialPageRoute(builder: (context) =>
+            BillingAddress(
+              paymentId: int.tryParse(paymentId) ?? 0,
+          paymentType: int.tryParse(paymentType) ?? 0,)));
       } else {
         final error = jsonDecode(response.body);
         print("Checkout API Error: ${response.statusCode} - ${response.body}");
         Get.snackbar('Failed Payment Checkout',error['message'] , snackPosition: SnackPosition.BOTTOM);
-
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //       content: Text(
-        //           error['message'] ?? 'Failed to checkout payment. Please try again.')),
-        // );
       }
     } catch (e) {
       print("Checkout Exception: $e");
       Get.snackbar('Checkout Exception', 'Error: $e', snackPosition: SnackPosition.BOTTOM);
 
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Error: $e')),
-      // );
     } finally {
       setState(() {
         isCheckingOut = false;
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

@@ -133,24 +133,12 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
           _addressController.clear();
           _zipCodeController.clear();
         });
-
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(content: Text('Address and Location updated successfully')),
-        // );
       } else {
         final error = jsonDecode(response.body);
         Get.snackbar('Failed Update Address',error['message'] , snackPosition: SnackPosition.BOTTOM);
-
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text(error['message'] ?? 'Failed to update address')),
-        // );
       }
     } catch (e) {
       Get.snackbar('Failed Update Address', 'Error: $e', snackPosition: SnackPosition.BOTTOM);
-
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Error: $e')),
-      // );
     } finally {
       setState(() {
         _isUpdating = false;

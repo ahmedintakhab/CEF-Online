@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/home/home_main.dart';
 import 'package:learn_megnagmet/login/forgot_password.dart';
-import 'package:learn_megnagmet/login/sign_up/signup_radio_button.dart';
+import 'package:learn_megnagmet/login/sign_up/signup_tab.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -76,6 +76,7 @@ class _EmptyStateState extends State<EmptyState> {
         await PrefData.setLogin(true); // Update login state
         print("Login successful!");
         print("Login API response code: ${response.statusCode}");
+        Get.snackbar('Success', 'User Successfully Login', snackPosition: SnackPosition.TOP);
 
         // Include token in userDetails
         final userDetails = data['userDetails']as Map<String, dynamic>;
@@ -318,7 +319,7 @@ class _EmptyStateState extends State<EmptyState> {
             TextSpan(
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  Get.to(const SignupRadioButton());
+                  Get.to(const SignupTab());
                 },
               text: ' Sign up',
               style:  TextStyle(

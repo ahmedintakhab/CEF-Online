@@ -3,13 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/My_cources/ongoing_completed_main_screen.dart';
-import 'package:learn_megnagmet/My_cources/ongoing_screen.dart';
 import 'package:learn_megnagmet/cart/cart_count.dart';
 import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/cources/cources.dart';
-import 'package:learn_megnagmet/home/recent_added_cource_detail.dart';
 import 'package:learn_megnagmet/home/recent_added_courses.dart';
-import 'package:learn_megnagmet/home/recently_added_cources.dart';
 import 'package:learn_megnagmet/home/search_screen.dart';
 import 'package:learn_megnagmet/home/trending_cource.dart';
 import 'package:learn_megnagmet/models/design_list.dart';
@@ -19,12 +16,11 @@ import 'package:learn_megnagmet/models/trending_cource.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../Course_details_tabbar/tabbar_details.dart';
 import '../utils/api_constants.dart';
+import '../utils/cache_api_service.dart';
 import '../utils/screen_size.dart';
 import 'category_wise_courses.dart';
 
@@ -96,39 +92,39 @@ class _HomeScreenState extends State<HomeScreen> {
       }});
   }
   Future<void> fetchApiData() async {
-    final url = Uri.parse("${ApiConstants.baseUrl}frontend/home");
+    final url = "${ApiConstants.baseUrl}frontend/home";
+
     try {
       // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
 
-      final response = await http.get(url,
+      // Use fetchDataWithCache to get the data (cached or fresh)
+      final data = await fetchDataWithCache(
+        url,
         headers: {
-          'Authorization': 'Bearer $token', // Pass the token as a Bearer token
-          'Content-Type': 'application/json', // Optional: Set content type
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
         },
       );
 
-      if (response.statusCode == 200) {
-        print("API successfully fetched data!");
-        print("Home Page API Status Code: ${response.statusCode}");
-        final data = json.decode(response.body);
-        setState(() {
-          apiData = data;
-          fetchtrendingCourses = data['trendingCourses']; // Extract trendingCourses
-          if (fetchtrendingCourses.isNotEmpty) {
-            courseSlug = fetchtrendingCourses[0]['slug']; // Fetch the first course's slug
-          isLoading = false; // Set loading to false after data is fetched
-        }});
-      } else {
-        print("Error: Failed to fetch data. Status Code: ${response.statusCode}");
-        print("Response Body: ${response.body}");
-        throw Exception('Failed to load data');
-      }
-    } catch (e) {
-      print("Exception occurred: $e");
+      // Update UI state
       setState(() {
-        isLoading = false; // Stop loading if there's an error
+        apiData = data;
+        fetchtrendingCourses = data['trendingCourses'];
+
+        if (fetchtrendingCourses.isNotEmpty) {
+          courseSlug = fetchtrendingCourses[0]['slug'];
+        }
+
+        isLoading = false;
+      });
+
+      print("✅ Home Page API successfully fetched data!");
+    } catch (e) {
+      print("❌ Exception occurred: $e");
+      setState(() {
+        isLoading = false;
       });
     }
   }
@@ -143,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
     //   child:
 
       return WillPopScope(
-        onWillPop: () async => false, // Prevent back navigation
+        onWillPop: () async => true, // Prevent back navigation
         child: Scaffold(
           body: SafeArea(
             child: SizedBox(
@@ -170,10 +166,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Get.back(); // Navigate back to the previous screen
+                                    },
+                                    child: Image(
+                                      image: const AssetImage("assets/back_arrow.png"),
+                                      height: 24.h,
+                                      width: 24.w,
+                                    ),
+                                  ),
+                                  SizedBox(width: 5.w,),
                                   // User Profile Image
                                   Container(
-                                    height: 50.h,
-                                    width: 50.w,
+                                    height: 35.h,
+                                    width: 35.w,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle, // Optional: Make the image circular
                                       color: Colors.grey[200], // Background color for placeholder
@@ -193,8 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                             Uri.tryParse(userImage)?.hasAbsolutePath == true
                                             ? NetworkImage(userImage)
                                             : const AssetImage('assets/person.png') as ImageProvider,
-                                        height: 50.h,
-                                        width: 50.w,
+                                        height: 40.h,
+                                        width: 40.w,
                                         fit: BoxFit.cover,
                                         errorBuilder: (context, error, stackTrace) {
                                           return Container(
@@ -216,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       style: TextStyle(
                                         fontFamily: 'Gilroy',
                                         color: const Color(0xFF000000),
-                                        fontSize: 20.sp,
+                                        fontSize: 18.sp,
                                         fontWeight: FontWeight.w700,
                                       ),
                                       maxLines: 1,
@@ -234,8 +241,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   // Search Button
                                   Container(
-                                    height: 40.h,
-                                    width: 40.h, // Made square
+                                    height: 35.h,
+                                    width: 35.h, // Made square
                                     margin: EdgeInsets.only(right: 8.w), // Reduced spacing
                                     decoration: BoxDecoration(
                                       color: const Color(0xFF8CC13F),
