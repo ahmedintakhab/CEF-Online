@@ -131,13 +131,17 @@ class _LessonState extends State<Lesson> {
                                     ),
                                   ),
                                   SizedBox(width: 14.w),
-                                  Text(
-                                    lesson['lesson_name'] ?? 'No Name',
-                                    style: TextStyle(
-                                        fontSize: 14.sp,
-                                        color: Color(0XFF000000),
-                                        fontFamily: 'Gilroy',
-                                        fontWeight: FontWeight.bold),
+                                  Expanded(
+                                    child: Text(
+                                      lesson['lesson_name'] ?? 'No Name',
+                                      style: TextStyle(
+                                          fontSize: 14.sp,
+                                          color: Color(0XFF000000),
+                                          fontFamily: 'Gilroy',
+                                          fontWeight: FontWeight.bold),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                 ],
                               ),

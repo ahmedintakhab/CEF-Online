@@ -93,9 +93,10 @@ class _CourseSelectionScreenState extends State<CourseSelectionScreen> {
         const Spacer(),
         Padding(
           padding: const EdgeInsets.all(16.0),
-          child: CustomButton(onTap: _nextStep, buttonText: 'NEXT'),
+          child: SizedBox(height: 45.h,
+              child: CustomButton(onTap: _nextStep, buttonText: 'NEXT')),
         ),
-        SizedBox(height: 10.0),
+        // SizedBox(height: 10.0),
       ],
     );
   }

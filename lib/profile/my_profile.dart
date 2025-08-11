@@ -39,6 +39,7 @@ class _MyProfileState extends State<MyProfile> {
   String userName = "User Name"; // Default placeholder
   String email = "Email"; // Default placeholder
   String userImage = "";
+  bool isLoggingOut = false;
   @override
   void initState() {
     super.initState();
@@ -74,6 +75,8 @@ class _MyProfileState extends State<MyProfile> {
       if (response.statusCode == 200) {
         // Successfully logged out
         print("Logout successful");
+        Get.snackbar('Success', 'User Successfully Logout', snackPosition: SnackPosition.TOP);
+
         // Clear user data from SharedPreferences
         // Only remove login-related data, not the intro flag
         await prefs.remove('auth_token');
@@ -357,89 +360,120 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   void showLogoutDialog() {
+    bool isLoggingOut = false;
+
     Get.defaultDialog(
       barrierDismissible: false,
       title: '',
-      content: Padding(
-        padding: EdgeInsets.only(left: 10.w, right: 10.w),
-        child: Column(
-          children: [
-            Text(
-              "Are you sure you want to Logout!",
-              style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Gilroy'),
-              textAlign: TextAlign.center,
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 25.h, bottom: 13.h),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () async {
-                        // Call logout API
-                        await logoutApiCall();
-                       await PrefData.setLogin(false);
-                        Get.offAll(() => const EmptyState());                      },
-                      child: Container(
-                        height: 56.h,
-                        width: double.infinity.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(22.h),
-                          color: const Color(0XFF78A03F),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Yes",
-                            style: TextStyle(
-                                fontFamily: 'Gilroy',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0XFFFFFFFF),
-                                fontStyle: FontStyle.normal,
-                                fontSize: 18.sp),
+      content: StatefulBuilder(
+        builder: (context, setStateDialog) {
+          return Padding(
+            padding: EdgeInsets.only(left: 10.w, right: 10.w),
+            child: Column(
+              children: [
+                Text(
+                  "Are you sure you want to Logout!",
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Gilroy',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 25.h, bottom: 13.h),
+                  child: Row(
+                    children: [
+                      // YES Button
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: isLoggingOut
+                              ? null
+                              : () async {
+                            // Use dialog-local setState so dialog rebuilds
+                            setStateDialog(() => isLoggingOut = true);
+
+                            try {
+                              await logoutApiCall();
+                              await PrefData.setLogin(false);
+
+                              // optional small delay so user sees spinner briefly
+                              await Future.delayed(Duration(milliseconds: 300));
+
+                              // close dialog / navigate after successful logout
+                              Get.offAll(() => const EmptyState());
+                            } catch (e) {
+                              // handle error (keep dialog open and show the text again)
+                              print('Logout error: $e');
+                              setStateDialog(() => isLoggingOut = false);
+                            }
+                          },
+                          child: Container(
+                            height: 56.h,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(22.h),
+                              color: const Color(0XFF78A03F),
+                            ),
+                            child: Center(
+                              child: isLoggingOut
+                                  ? SizedBox(
+                                height: 20.h,
+                                width: 20.h,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Colors.white,
+                                ),
+                              )
+                                  : Text(
+                                "Yes",
+                                style: TextStyle(
+                                  fontFamily: 'Gilroy',
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0XFFFFFFFF),
+                                  fontSize: 18.sp,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.back();
-                      },
-                      child: Container(
-                        height: 56.h,
-                        width: double.infinity.w,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(0xFF78A03F),
-                            style: BorderStyle.solid,
-                            width: 1.0.w,
-                          ),
-                          borderRadius: BorderRadius.circular(22.h),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "No",
-                            style: TextStyle(
-                                fontFamily: 'Gilroy',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF78A03F),
-                                fontStyle: FontStyle.normal,
-                                fontSize: 18.sp),
+
+                      SizedBox(width: 10.w),
+
+                      // NO Button
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: isLoggingOut ? null : () => Get.back(),
+                          child: Container(
+                            height: 56.h,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color(0xFF78A03F),
+                                width: 1.0.w,
+                              ),
+                              borderRadius: BorderRadius.circular(22.h),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "No",
+                                style: TextStyle(
+                                  fontFamily: 'Gilroy',
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF78A03F),
+                                  fontSize: 18.sp,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

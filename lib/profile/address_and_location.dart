@@ -46,7 +46,7 @@ class _AddressAndLocationState extends State<AddressAndLocation> {
       String token = prefs.getString('auth_token') ?? '';
 
       final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}student/checkout/1'),
+        Uri.parse('${ApiConstants.baseUrl}student/get-address-location'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

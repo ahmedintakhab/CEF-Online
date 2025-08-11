@@ -72,7 +72,7 @@ class _SignupSubmitScreenState extends State<SignupSubmitScreen> {
         'preferred_teacher': widget.formData['gender'],
         'how_many_students': widget.formData['how_many_students'],
         'preferDate': widget.formData['preferDate'],
-        'preferSlot': widget.formData['preferSlot'],
+        if (widget.courseTypeId == 1) 'preferSlot': widget.formData['preferSlot'] ?? '',
         'password': widget.formData['password'],
       });
 
@@ -158,22 +158,26 @@ class _SignupSubmitScreenState extends State<SignupSubmitScreen> {
             ),
             const Spacer(),
             Padding(
-              padding: EdgeInsets.only(bottom: 30.h),
+              padding: EdgeInsets.only(bottom: 20.h),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: CustomButton(onTap: widget.onBack, buttonText: 'BACK')),
+                  Expanded(child: SizedBox(height: 45.h,
+                      child: CustomButton(onTap: widget.onBack, buttonText: 'BACK'))),
                   SizedBox(width: 20.w),
                   Expanded(
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        CustomButton(
-                          onTap: _isLoading ? () {} : () => _submitSignup(),
-                          buttonText: 'SUBMIT',
+                        SizedBox(height: 45.h,
+                          child: CustomButton(
+                            onTap: _isLoading ? () {} : () => _submitSignup(),
+                            buttonText: 'SUBMIT',
+                          ),
                         ),
                         if (_isLoading)
                           CircularProgressIndicator(
+                            strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                       ],

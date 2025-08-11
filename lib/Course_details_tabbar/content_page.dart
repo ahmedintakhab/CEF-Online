@@ -30,33 +30,33 @@ class ContentPage extends StatelessWidget {
             onLectureOpen: onLectureOpen,
           ),
         ),
-        GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 40.h, top: 15.h),
-            child: Container(
-              height: 56.h,
-              width: 374.w,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.h),
-                color: const Color(0XFF78A03F),
-              ),
-              child: Center(
-                child: Text(
-                  "Continue Course",
-                  style: TextStyle(
-                    color: Color(0XFFFFFFFF),
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Gilroy',
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+        // GestureDetector(
+        //   onTap: () {
+        //     Navigator.pop(context);
+        //   },
+        //   child: Padding(
+        //     padding: EdgeInsets.only(bottom: 40.h, top: 15.h),
+        //     child: Container(
+        //       height: 56.h,
+        //       width: 374.w,
+        //       decoration: BoxDecoration(
+        //         borderRadius: BorderRadius.circular(20.h),
+        //         color: const Color(0XFF78A03F),
+        //       ),
+        //       child: Center(
+        //         child: Text(
+        //           "Continue Course",
+        //           style: TextStyle(
+        //             color: Color(0XFFFFFFFF),
+        //             fontSize: 18.sp,
+        //             fontWeight: FontWeight.w700,
+        //             fontFamily: 'Gilroy',
+        //           ),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

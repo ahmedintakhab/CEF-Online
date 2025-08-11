@@ -1,16 +1,13 @@
 import 'dart:convert';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:learn_megnagmet/login/login_empty_state.dart';
 import 'package:learn_megnagmet/login/sign_up/phone_number_field.dart';
 import 'package:learn_megnagmet/widget/button.dart';
 import 'package:learn_megnagmet/widget/custom_text_form_field.dart';
 import '../../cart/custom_dropdown.dart';
 import '../../utils/api_constants.dart';
+import '../../utils/cache_api_service.dart';
 import '../../utils/screen_size.dart';
 import 'countries_dropdown.dart';
 
@@ -110,17 +107,15 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
 
   Future<void> _fetchTimeSlots(DateTime selectedDate) async {
     try {
-      final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}frontend/get-time-slots'),
-      );
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonResponse = json.decode(response.body);
-        setState(() {
-          timeSlots = jsonResponse.cast<Map<String, dynamic>>();
-        });
-      } else {
-        print('Failed to fetch time slots: ${response.statusCode}');
-      }
+      final url = '${ApiConstants.baseUrl}frontend/get-time-slots';
+
+      // Use your caching function
+      final jsonResponse = await fetchDataWithCache(url);
+
+      setState(() {
+        timeSlots = jsonResponse.cast<Map<String, dynamic>>();
+      });
+
     } catch (e) {
       print('Error fetching time slots: $e');
     }
@@ -141,12 +136,12 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         });
         return;
       }
-      if (selectedSlotId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please select a time slot')),
-        );
-        return;
-      }
+      // if (selectedSlotId == null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('Please select a time slot')),
+      //   );
+      //   return;
+      // }
       final formData = {
         'fullname': fullnameController.text,
         'phone': phoneNumber,
@@ -184,33 +179,29 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
                 child:ListView(
                   children: [
                     detailform(),
-                    SizedBox(height: 25.h),
-                    // term_condition_cheakbox(),
-                    // SizedBox(height: 25.h),
-                    // sign_up_button(),
+                    SizedBox(height: 20.h),
                   ],
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(bottom: 30.h),
+                padding: EdgeInsets.only(bottom: 15.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(child: CustomButton(onTap: widget.onBack, buttonText: 'BACK')),
+                    Expanded(child: SizedBox(height: 45.h,
+                        child: CustomButton(onTap: widget.onBack, buttonText: 'BACK'))),
                     SizedBox(width: 20.w),
                     Expanded(
-                      child: CustomButton(
-                        onTap: _submitForm,
-                        buttonText: 'NEXT',
+                      child: SizedBox(height: 45.h,
+                        child: CustomButton(
+                          onTap: _submitForm,
+                          buttonText: 'NEXT',
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              // Padding(
-              //   padding: EdgeInsets.only(bottom: 20.h),
-              //   child: already_login_button(),
-              // ),
             ],
           ),
         ),
@@ -356,7 +347,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
             ),
           ),
         ),
-          SizedBox(height: 20.h),
+        if (widget.courseTypeId == 1) ...[
+
+    SizedBox(height: 20.h),
           CustomDropdown(
             hint: "Gender",
             value: _selectedGender,
@@ -455,36 +448,12 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               },
             ),
           ],
+    ]
         ],
 
       ),
     );
   }
-
-  Widget already_login_button() {
-    return Align(
-      alignment: Alignment.center,
-      child: RichText(
-          text: TextSpan(
-              text: 'Already have an account? ',
-              style:  TextStyle(color: Colors.black, fontSize: 15.sp,fontFamily: 'Gilroy'),
-              children: [
-            TextSpan(
-              recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  Get.off(const EmptyState());
-                },
-              text: 'Login',
-              style:  TextStyle(
-                  color: const Color(0XFF000000),
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Gilroy'),
-            )
-          ])),
-    );
-  }
-
   Widget back_button() {
     return GestureDetector(
         onTap: () {

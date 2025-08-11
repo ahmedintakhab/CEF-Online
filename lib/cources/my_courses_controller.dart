@@ -1,11 +1,14 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_megnagmet/Course_details_tabbar/tabbar_details.dart';
+import 'package:learn_megnagmet/cources/cources.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:learn_megnagmet/home/home_main.dart';
+import '../My_cources/ongoing_completed_main_screen.dart';
 import '../utils/api_constants.dart';
+import '../utils/custom_cache_manager.dart';
 
 class CourseController extends GetxController with SingleGetTickerProviderMixin {
   late TabController tabController;
@@ -26,26 +29,29 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
     pController.dispose();
     super.onClose();
   }
+  Future<void> refreshCourseDetails(String slug) async {
+    final detailUrl = '${ApiConstants.baseUrl}frontend/course/detail/$slug';
+    await CustomCacheManager.instance.removeFile(detailUrl);
+    print("🗑️ Cleared course detail cache for slug: $slug");
+    await fetchCourseDetails(slug);
+    await fetchOngoingCourses(); // Also refresh ongoing courses if needed
+  }
 
   Future<Map<String, dynamic>> fetchCourseDetails(String slug) async {
     final url = '${ApiConstants.baseUrl}frontend/course/detail/$slug';
+
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
 
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'content-Type': 'Application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      // Try loading from cache
+      final fileInfo = await CustomCacheManager.instance.getFileFromCache(url);
+      if (fileInfo != null && fileInfo.file != null) {
+        print("✅ Loaded course details from cache");
+        final cachedData = await fileInfo.file.readAsString();
+        final data = json.decode(cachedData);
         coursePreviewSrc = data['course_image'] ?? data['course_preview_src'] ?? '';
         courseType = data['course_type'];
-        // Set previewSrcType based on course_image or course_preview_src_type
         previewSrcType = data['course_image'] != null &&
             data['course_image'].isNotEmpty &&
             (data['course_image'].endsWith('.png') ||
@@ -58,6 +64,41 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
         print("check coursePreviewSrc: $coursePreviewSrc");
         return data;
       }
+
+      // Fetch from API if not in cache
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'content-Type': 'Application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        // Save to cache
+        await CustomCacheManager.instance.putFile(
+          url,
+          response.bodyBytes,
+          fileExtension: 'json',
+        );
+
+        coursePreviewSrc = data['course_image'] ?? data['course_preview_src'] ?? '';
+        courseType = data['course_type'];
+        previewSrcType = data['course_image'] != null &&
+            data['course_image'].isNotEmpty &&
+            (data['course_image'].endsWith('.png') ||
+                data['course_image'].endsWith('.jpg') ||
+                data['course_image'].endsWith('.jpeg'))
+            ? 'course_intro_image'
+            : data['course_preview_src_type'] ?? 'course_intro_youtube_video';
+        print("check course type for tabs: $courseType");
+        print("check previewSrcType: $previewSrcType");
+        print("check coursePreviewSrc: $coursePreviewSrc");
+        return data;
+      }
+
       throw Exception('Failed to load course details');
     } catch (e) {
       print('Error fetching course details: $e');
@@ -115,11 +156,21 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
         if (response.statusCode == 200) {
           print("Enroll API response status code: ${response.statusCode}");
           print("API Successfully Enroll Course.");
-          Get.to(() => HomeMainScreen());
+// 🧹 Invalidate course detail cache after enrollment
+          final detailUrl = '${ApiConstants.baseUrl}frontend/course/detail/$slug';
+          await CustomCacheManager.instance.removeFile(detailUrl);
+          print("🗑️ Cleared course detail cache for slug: $slug");
+          // 🔄 Fetch fresh data before navigation
+          await refreshCourseDetails(slug);
+          // 🔄 Fetch fresh data before navigation
+          // Navigate to TabBarDetails and remove MyCourses from stack
+          Get.off(() => TabBarDetails(courseType: courseType, slug: slug));
+          // await fetchCourseDetails( slug);
+
           Get.snackbar(
             'Success',
             'Successfully enrolled in the course',
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.black.withOpacity(0.2),
             colorText: Colors.black,
             borderRadius: 10,

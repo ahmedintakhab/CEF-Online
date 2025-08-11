@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/api_constants.dart';
+import '../utils/custom_cache_manager.dart';
 
 class SearchScreenController extends GetxController {
   TextEditingController searchController = TextEditingController();
@@ -46,15 +47,18 @@ class SearchScreenController extends GetxController {
     update();
 
     String url = '${ApiConstants.baseUrl}frontend/course/search';
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        body: query.isNotEmpty ? json.encode({'keyword': query}) : null,
-        headers: {'Content-Type': 'application/json'},
-      );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+    // Create a unique cache key based on query
+    final cacheKey = "$url?keyword=$query";
+
+    try {
+      // Try loading from cache first
+      final fileInfo = await CustomCacheManager.instance.getFileFromCache(cacheKey);
+
+      if (fileInfo != null && fileInfo.file != null) {
+        print('✅ Loaded search results from Cache');
+        final cachedData = await fileInfo.file.readAsString();
+        final data = json.decode(cachedData);
         final results = List<Map<String, dynamic>>.from(data['course_results'] ?? []);
         courseSuggestions = results;
         noResultsFound = results.isEmpty && query.isNotEmpty;
@@ -62,7 +66,32 @@ class SearchScreenController extends GetxController {
         categorywithimages = List<Map<String, dynamic>>.from(data['categories_with_images'] ?? []);
         courseResult = List<Map<String, dynamic>>.from(data['course_results'] ?? []);
       } else {
-        print("Error: ${response.statusCode}");
+        // If not cached, fetch from API
+        final response = await http.post(
+          Uri.parse(url),
+          body: query.isNotEmpty ? json.encode({'keyword': query}) : null,
+          headers: {'Content-Type': 'application/json'},
+        );
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+
+          // Save to cache
+          await CustomCacheManager.instance.putFile(
+            cacheKey,
+            utf8.encode(response.body),
+            fileExtension: 'json',
+          );
+
+          final results = List<Map<String, dynamic>>.from(data['course_results'] ?? []);
+          courseSuggestions = results;
+          noResultsFound = results.isEmpty && query.isNotEmpty;
+          searchData = data;
+          categorywithimages = List<Map<String, dynamic>>.from(data['categories_with_images'] ?? []);
+          courseResult = List<Map<String, dynamic>>.from(data['course_results'] ?? []);
+        } else {
+          print("Error: ${response.statusCode}");
+        }
       }
     } catch (error) {
       print("API Error: $error");

@@ -21,6 +21,7 @@ class MyCources extends StatefulWidget {
 class _MyCourcesState extends State<MyCources> {
   late CourseController courseController;
   bool isLoading = true;
+  bool isEnrolling = false;
   late String courseId;
   List<dynamic>? ongoingCourses;
   String courseType = '';
@@ -264,15 +265,37 @@ class _MyCourcesState extends State<MyCources> {
   Widget _buildEnrollButton() {
     return Padding(
       padding: EdgeInsets.only(bottom: 30.h),
-      child: CustomButton(
-        onTap: () {
-          print("Enroll Button Clicked!");
-          print("Button Text: $btnText");
-          print("API Route: $btnApiRoute");
-          courseController.enrollInCourse(courseId, widget.slug, btnText, btnApiRoute);
-        },
-        buttonText: btnText.isNotEmpty ? btnText : 'Enroll Now',
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomButton(
+            onTap: () async {
+              setState(() => isEnrolling = true); // 🔹 Show loader
+              print("Enroll Button Clicked!");
+              print("Button Text: $btnText");
+              print("API Route: $btnApiRoute");
+
+              await courseController.enrollInCourse(
+                  courseId, widget.slug, btnText, btnApiRoute);
+
+              setState(() => isEnrolling = false); // 🔹 Hide loader
+            },
+            buttonText: isEnrolling
+                ? '' // 🔹 Hide text when loading
+                : (btnText.isNotEmpty ? btnText : 'Enroll Now'),
+          ),
+          if (isEnrolling)
+            const Positioned(
+              child: SizedBox(
+                height: 26,
+                width: 26,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+        ],
       ),
     );
-  }
-}
+  }}

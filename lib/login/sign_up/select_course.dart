@@ -71,13 +71,15 @@ class _SelectCourseState extends State<SelectCourse> {
           ),
         const Spacer(),
         Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(15.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: CustomButton(onTap: widget.onBack, buttonText: 'BACK')),
+              Expanded(child: SizedBox(height: 45.h,
+                  child: CustomButton(onTap: widget.onBack, buttonText: 'BACK'))),
               SizedBox(width: 30.w),
-              Expanded(child: CustomButton(onTap: _nextStep, buttonText: 'NEXT')),
+              Expanded(child: SizedBox(height: 45.h,
+              child: CustomButton(onTap: _nextStep, buttonText: 'NEXT'))),
             ],
           ),
         ),

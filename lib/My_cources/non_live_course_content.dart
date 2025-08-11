@@ -152,7 +152,7 @@ class NonLiveCourseContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(bottom: 20.h, top: 20.h),
+                padding: EdgeInsets.only(bottom: 20.h,),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -5,6 +6,7 @@ import 'package:learn_megnagmet/login/sign_up/custom_progress_bar.dart';
 import 'package:learn_megnagmet/login/sign_up/select_course.dart';
 import 'package:learn_megnagmet/login/sign_up/sign_up_empty_screen.dart';
 import 'package:learn_megnagmet/login/sign_up/signup_submit_screen.dart';
+import '../login_empty_state.dart';
 import 'course_type_selection.dart';
 import 'instructor_signup_screen.dart';
 
@@ -139,7 +141,12 @@ class _SignupTabState extends State<SignupTab> with SingleTickerProviderStateMix
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 20.h),
+          SizedBox(height: 10.h),
+          Padding(
+            padding: const EdgeInsets.only(right: 110.0),
+            child: already_login_button(),
+          ),
+          SizedBox(height: 10.h),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Text(
@@ -152,7 +159,7 @@ class _SignupTabState extends State<SignupTab> with SingleTickerProviderStateMix
               ),
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 5.h),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Text(
@@ -163,7 +170,7 @@ class _SignupTabState extends State<SignupTab> with SingleTickerProviderStateMix
               ),
             ),
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 10.h),
           Container(
             height: 54.h,
             width: double.infinity,
@@ -240,4 +247,28 @@ class _SignupTabState extends State<SignupTab> with SingleTickerProviderStateMix
       ),
     );
   }
+  Widget already_login_button() {
+    return Align(
+      alignment: Alignment.center,
+      child: RichText(
+          text: TextSpan(
+              text: 'Already have an account? ',
+              style:  TextStyle(color: Colors.black, fontSize: 15.sp,fontFamily: 'Gilroy'),
+              children: [
+                TextSpan(
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Get.off(const EmptyState());
+                    },
+                  text: 'Login',
+                  style:  TextStyle(
+                      color: const Color(0XFF000000),
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Gilroy'),
+                )
+              ])),
+    );
+  }
+
 }

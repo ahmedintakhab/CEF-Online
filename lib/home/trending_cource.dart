@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../cources/cources.dart';
 import '../login/login_empty_state.dart';
 import '../utils/api_constants.dart';
+import '../utils/cache_api_service.dart';
 import '../utils/screen_size.dart';
 import '../utils/slider_page_data_model.dart';
 
@@ -41,31 +42,33 @@ class _TrendingCourceState extends State<TrendingCource> {
     });
   }
   Future<void> fetchAllCourses() async {
-     String apiUrl = "${ApiConstants.baseUrl}frontend/all-courses?sortBy_id=2";
+    final apiUrl = "${ApiConstants.baseUrl}frontend/all-courses?sortBy_id=2";
 
     try {
       // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
-      final response = await http.get(Uri.parse(apiUrl),
-      headers: {'Authorization': 'Bearer $token',
-        'content-Type': 'application/json'}
+
+      // Use fetchDataWithCache to get data from cache or network
+      final data = await fetchDataWithCache(
+        apiUrl,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
-      print("API Response Status: ${response.statusCode}");
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print("API Data Fetched Successfully on Trending Page");
+      print("✅ API Data Fetched Successfully on Trending Page");
 
-        setState(() {
-          Allcourses = data;
-          isLoading = false; // Hide the loading spinner
-        });
-      } else {
-        print("Failed to fetch data. Status code: ${response.statusCode}");
-      }
+      setState(() {
+        Allcourses = data;
+        isLoading = false; // Hide the loading spinner
+      });
     } catch (e) {
-      print("Error fetching data: $e");
+      print("❌ Error fetching All Courses data: $e");
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
