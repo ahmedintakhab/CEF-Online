@@ -32,6 +32,7 @@ class _BillingAddressState extends State<BillingAddress> {
   String? _selectedCountry;
   String? _selectedState;
   String? _selectedCity;
+  String? _selectedPaymentMethodId; // Store selected payment method ID
 
   final List<String> _countries = []; // List to store country names
   final List<String> _states = ['Select state'];
@@ -376,12 +377,22 @@ class _BillingAddressState extends State<BillingAddress> {
                 ),
                 SizedBox(height: 16.h),
                 // Payment Method Section
-                const PaymentMethod(),
+                PaymentMethod(
+                  onPaymentMethodSelected: (String? paymentMethodId) {
+                    setState(() {
+                      _selectedPaymentMethodId = paymentMethodId;
+                    });
+                  },
+                ),
                 SizedBox(height: 16.h),
 
                 // Order Summary Section with fetched data
-                OrderSummary(billingSummaryData: _billingSummaryData),
-
+                BillingSummary(
+                  billingSummaryData: _billingSummaryData,
+                  paymentId: widget.paymentId,
+                  paymentType: widget.paymentType,
+                  selectedPaymentMethodId: _selectedPaymentMethodId,
+                ),
                 SizedBox(height: 24.h),
               ],
             ),

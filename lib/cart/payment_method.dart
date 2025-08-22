@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PaymentMethod extends StatefulWidget {
-  const PaymentMethod({Key? key}) : super(key: key);
-
+  final Function(String?) onPaymentMethodSelected; // Callback to send selected payment method ID
+  const PaymentMethod({Key? key, required this.onPaymentMethodSelected}) : super(key: key);
   @override
   State<PaymentMethod> createState() => _PaymentMethodState();
 }
@@ -131,6 +131,7 @@ class _PaymentMethodState extends State<PaymentMethod> {
         onChanged: (String? value) {
           setState(() {
             _selectedPaymentMethod = value;
+            widget.onPaymentMethodSelected(value); // Call the callback with the selected ID
           });
         },
       ),

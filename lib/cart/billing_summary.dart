@@ -2,18 +2,25 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:learn_megnagmet/cart/privacy_and_terms_policy.dart';
+import 'package:learn_megnagmet/widget/button.dart';
 
-class OrderSummary extends StatefulWidget {
+class BillingSummary extends StatefulWidget {
   final Map<String, dynamic> billingSummaryData;
+  final int paymentId;
+  final int paymentType;
+  final String? selectedPaymentMethodId; // Add this parameter
 
-  const OrderSummary({Key? key, required this.billingSummaryData,
-  }) : super(key: key);
+  const BillingSummary({Key? key,
+    required this.billingSummaryData,
+    required this.paymentId,
+    required this.paymentType,
+    this.selectedPaymentMethodId,  }) : super(key: key);
 
   @override
-  State<OrderSummary> createState() => _OrderSummaryState();
+  State<BillingSummary> createState() => _BillingSummaryState();
 }
 
-class _OrderSummaryState extends State<OrderSummary> {
+class _BillingSummaryState extends State<BillingSummary> {
 
 
   // Checkbox state
@@ -21,6 +28,9 @@ class _OrderSummaryState extends State<OrderSummary> {
 
   @override
   Widget build(BuildContext context) {
+    print('Check id: ${widget.paymentId}');
+    print('Check Type: ${widget.paymentType}');
+    print('Check method: ${widget.selectedPaymentMethodId}');
     // Extract billing summary data
     final subtotal = widget.billingSummaryData['subtotal'] ?? 0;
     final discount = widget.billingSummaryData['discount'] ?? 0;
@@ -177,30 +187,7 @@ class _OrderSummaryState extends State<OrderSummary> {
           SizedBox(height: 24.h),
 
           // Pay button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                // Process payment
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF78A03F),
-                padding: EdgeInsets.symmetric(vertical: 16.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-              child: Text(
-                "PAY",
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Gilroy',
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
+          CustomButton(onTap: (){}, buttonText: "PAY")
         ],
       ),
     );
