@@ -152,17 +152,21 @@ class NonLiveCourseContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(bottom: 20.h,),
+                padding: EdgeInsets.only(bottom: 10.h,),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      lessonCategory['lesson_name'] ?? 'Lessons',
-                      style: TextStyle(
-                        fontFamily: 'Gilroy',
-                        color: Color(0XFF6E758A),
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Text(
+                        lessonCategory['lesson_name'] ?? 'Lessons',
+                        style: TextStyle(
+                          fontFamily: 'Gilroy',
+                          color: Color(0XFF6E758A),
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

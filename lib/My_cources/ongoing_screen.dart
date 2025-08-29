@@ -50,25 +50,35 @@ class _OngoingScreenState extends State<OngoingScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
 
-      // Use fetchDataWithCache to get data from cache or network
-      final data = await fetchDataWithCache(
-        url,
+      // Direct API request without caching
+      final response = await http.get(
+        Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
 
-      print("✅ Ongoing Page API fetched successfully!");
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
 
-      // Process the fetched data
-      ongoingCourses = data['on_going'];
-      completeCourses = data['completed'];
-      completedController.setCompletedCourses(completeCourses ?? []);
+        print("✅ Ongoing Page API fetched successfully!");
 
-      setState(() {
-        isLoading = false;
-      });
+        // Process the fetched data
+        ongoingCourses = data['on_going'];
+        completeCourses = data['completed'];
+        completedController.setCompletedCourses(completeCourses ?? []);
+
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        print("❌ API Error: ${response.statusCode}");
+        setState(() {
+          errorMessage = "Failed to load data (Code: ${response.statusCode})";
+          isLoading = false;
+        });
+      }
     } catch (e) {
       // Handle exceptions
       print("❌ Exception occurred in Ongoing Courses API: $e");
@@ -78,7 +88,6 @@ class _OngoingScreenState extends State<OngoingScreen> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

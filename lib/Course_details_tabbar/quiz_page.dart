@@ -73,9 +73,13 @@ class _QuizPageState extends State<QuizPage> {
                       'Quiz Name',
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                     ),
-                    Text(
-                      quiz['quiz_name']?.toString() ?? '',
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    SizedBox(width: 80,),
+                    Expanded(
+                      child: Text(
+                        quiz['quiz_name']?.toString() ?? '',
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

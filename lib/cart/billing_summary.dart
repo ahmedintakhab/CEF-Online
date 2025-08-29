@@ -1,42 +1,49 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:learn_megnagmet/cart/privacy_and_terms_policy.dart';
-import 'package:learn_megnagmet/widget/button.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import '../utils/api_constants.dart';
+import '../cart/privacy_and_terms_policy.dart';
+import '../widget/button.dart';
+import 'checkout_webview_screen.dart';
 
 class BillingSummary extends StatefulWidget {
   final Map<String, dynamic> billingSummaryData;
   final int paymentId;
   final int paymentType;
-  final String? selectedPaymentMethodId; // Add this parameter
+  final String? selectedPaymentMethodId;
 
-  const BillingSummary({Key? key,
+  const BillingSummary({
+    Key? key,
     required this.billingSummaryData,
     required this.paymentId,
     required this.paymentType,
-    this.selectedPaymentMethodId,  }) : super(key: key);
+    this.selectedPaymentMethodId,
+  }) : super(key: key);
 
   @override
   State<BillingSummary> createState() => _BillingSummaryState();
 }
 
 class _BillingSummaryState extends State<BillingSummary> {
-
-
-  // Checkbox state
   bool isChecked = false;
+  bool isLoading = false;
+  String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
     print('Check id: ${widget.paymentId}');
     print('Check Type: ${widget.paymentType}');
     print('Check method: ${widget.selectedPaymentMethodId}');
-    // Extract billing summary data
+
     final subtotal = widget.billingSummaryData['subtotal'] ?? 0;
     final discount = widget.billingSummaryData['discount'] ?? 0;
     final platformCharge = widget.billingSummaryData['platform_charge'] ?? 0;
     final grandTotal = widget.billingSummaryData['grand_total'] ?? 0;
     final conversionRate = widget.billingSummaryData['conversion_rate'] ?? "1 PKR = ?";
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -63,51 +70,38 @@ class _BillingSummaryState extends State<BillingSummary> {
             ),
           ),
           SizedBox(height: 18.h),
-
-          // Subtotal row
           _buildSummaryRow(
             title: "Subtotal",
             value: "Rs ${subtotal.toStringAsFixed(2)}",
             isBold: false,
           ),
           SizedBox(height: 16.h),
-
-          // Discount row
           _buildSummaryRow(
             title: "Discount",
             value: "- Rs ${discount.toStringAsFixed(2)}",
             isBold: false,
           ),
-
           Divider(
             color: Colors.grey[300],
             thickness: 1.h,
             height: 32.h,
           ),
-
-          // Grand Total row
           _buildSummaryRow(
             title: "Grand Total",
             value: "Rs ${grandTotal.toStringAsFixed(2)}",
             isBold: true,
           ),
-
           SizedBox(height: 16.h),
-
-          // Conversion Rate row
           _buildSummaryRow(
             title: "Conversion Rate",
             value: "$conversionRate",
             isBold: false,
           ),
-
           Divider(
             color: Colors.grey[300],
             thickness: 1.h,
             height: 32.h,
           ),
-
-          // Currency selection row
           Row(
             children: [
               Text(
@@ -121,10 +115,7 @@ class _BillingSummaryState extends State<BillingSummary> {
               ),
             ],
           ),
-
           SizedBox(height: 16.h),
-
-          // Terms and conditions checkbox
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -175,7 +166,6 @@ class _BillingSummaryState extends State<BillingSummary> {
                               ),
                             );
                           },
-                        // You can add a gesture recognizer here for tapping on the policy link
                       ),
                     ],
                   ),
@@ -183,14 +173,109 @@ class _BillingSummaryState extends State<BillingSummary> {
               ),
             ],
           ),
-
+          if (errorMessage != null) ...[
+            SizedBox(height: 16.h),
+            Text(
+              errorMessage!,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.red,
+                fontFamily: 'Gilroy',
+              ),
+            ),
+          ],
           SizedBox(height: 24.h),
-
-          // Pay button
-          CustomButton(onTap: (){}, buttonText: "PAY")
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              CustomButton(
+                onTap: isLoading
+                    ? () {} // Empty callback to disable button
+                    : () {
+                  // Wrap async function in synchronous callback
+                  if (!isChecked) {
+                    setState(() {
+                      errorMessage = "Please accept the Privacy & Terms Policy";
+                    });
+                    return;
+                  }
+                  if (widget.selectedPaymentMethodId == null) {
+                    setState(() {
+                      errorMessage = "Please select a payment method";
+                    });
+                    return;
+                  }
+                  _generateSecureCheckoutUrl(context); // Call async function
+                },
+                buttonText: "PAY", // Always show "PAY" text
+                buttonColor: isLoading ? Colors.grey : const Color(0xFF78A03F), // Grey out when loading
+              ),
+              if (isLoading)
+                CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.w,
+                ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _generateSecureCheckoutUrl(BuildContext context) async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('auth_token') ?? '';
+
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}student/generate-secure-checkout-url'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'payment_id': widget.paymentId,
+          'payment_type': widget.paymentType,
+          'payment_method': widget.selectedPaymentMethodId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final String? secureCheckoutUrl = data['secure_checkout_url'];
+        final String? expiresAt = data['expires_at'];
+
+        if (secureCheckoutUrl != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CheckoutWebviewScreen(url: secureCheckoutUrl),
+            ),
+          );
+        } else {
+          setState(() {
+            errorMessage = 'Secure checkout URL not found in response';
+          });
+        }
+      } else {
+        setState(() {
+          errorMessage = 'Failed to generate checkout URL: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Widget _buildSummaryRow({
