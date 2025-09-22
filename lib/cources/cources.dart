@@ -161,7 +161,7 @@ class _MyCourcesState extends State<MyCources> {
           // borderRadius: BorderRadius.circular(22.h),
         ),
         child: Container(
-          height: 195.h,
+          height: 225.h,
           child: CourseVideoPlayer(
             videoUrl: courseController.coursePreviewSrc,
             courseType: courseType, previewSrcType: previewSrcType,

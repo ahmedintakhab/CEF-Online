@@ -44,9 +44,9 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController cityController = TextEditingController();
   TextEditingController countryController = TextEditingController();
-  TextEditingController ageController = TextEditingController();
-  TextEditingController schoolController = TextEditingController();
-  TextEditingController parentController = TextEditingController();
+  // TextEditingController ageController = TextEditingController();
+  // TextEditingController schoolController = TextEditingController();
+  // TextEditingController parentController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmpasswordController = TextEditingController();
   TextEditingController studentsController = TextEditingController();
@@ -136,21 +136,15 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
         });
         return;
       }
-      // if (selectedSlotId == null) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('Please select a time slot')),
-      //   );
-      //   return;
-      // }
       final formData = {
         'fullname': fullnameController.text,
         'phone': phoneNumber,
         'email': emailController.text,
         'city': cityController.text,
         'country': selectedCountryId?.toString(),
-        'age': ageController.text,
-        'school_grade': schoolController.text,
-        'parent_name': parentController.text,
+        // 'age': ageController.text,
+        // 'school_grade': schoolController.text,
+        // 'parent_name': parentController.text,
         'password': passwordController.text,
         'gender': _selectedGender,
         'how_many_students': studentsController.text,
@@ -281,24 +275,25 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
               });
             },
           ),
-          SizedBox(height: 20.h),
-          customTextFormField(controller:ageController, hintText: "Age",
-            validator: (val){
-              if (val!.isEmpty) return 'Enter the Age';
-              return null;
-            },),
-          SizedBox(height: 20.h),
-          customTextFormField(controller:schoolController, hintText: "School Grade",
-            validator: (val){
-              // if (val!.isEmpty) return 'Enter the school grade';
-              // return null;
-            },),
-          SizedBox(height: 20.h),
-          customTextFormField(controller:parentController, hintText: "Parent's Name",
-            validator: (val){
-              // if (val!.isEmpty) return 'Enter the parent name';
-              // return null;
-            },),
+
+          // SizedBox(height: 20.h),
+          // customTextFormField(controller:ageController, hintText: "Age",
+          //   validator: (val){
+          //     if (val!.isEmpty) return 'Enter the Age';
+          //     return null;
+          //   },),
+          // SizedBox(height: 20.h),
+          // customTextFormField(controller:schoolController, hintText: "School Grade",
+          //   validator: (val){
+          //     // if (val!.isEmpty) return 'Enter the school grade';
+          //     // return null;
+          //   },),
+          // SizedBox(height: 20.h),
+          // customTextFormField(controller:parentController, hintText: "Parent's Name",
+          //   validator: (val){
+          //     // if (val!.isEmpty) return 'Enter the parent name';
+          //     // return null;
+          //   },),
 
 
 

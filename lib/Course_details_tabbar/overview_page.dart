@@ -39,28 +39,40 @@ class OverviewPage extends StatelessWidget {
               SizedBox(height: 10.h),
 
             // Key Points (only shown if keyPoints is not empty)
-            if (keyPoints.isNotEmpty) ...[
-          ...keyPoints.map((point) => Padding(
-                padding: EdgeInsets.symmetric(vertical: 4.0.h),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('• ', style: TextStyle(fontSize: 16.sp)),
-                    Expanded(
-                      child: Text(
-                        point,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontFamily: 'Gilroy',
+              if (keyPoints.isNotEmpty) ...[
+                ...keyPoints.map((point) => Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4.0.h),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 24.w,
+                        height: 24.h,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFFEBF2C2), // Light green background
+                        ),
+                        child: Icon(
+                          Icons.check,
+                          color: const Color(0xFF8CC13F), // Green check icon
+                          size: 16.sp,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-
-              )),
-              SizedBox(height: 20.h),
-  ],
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          point,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontFamily: 'Gilroy',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+                SizedBox(height: 20.h),
+              ],
 
               // Expandable Plain Text Description
               ExpandableText(

@@ -45,6 +45,7 @@ class _EmptyStateState extends State<EmptyState> {
     prefs.setString('role', userDetails['role']?.toString() ?? '');
     prefs.setString('phone_number', userDetails['mobile_number'] ?? '');
     prefs.setString('userImage', userDetails['image_url'] ?? '');
+    prefs.setString('gender', userDetails['student']['gender'] ?? '');
     prefs.setString('auth_token', userDetails['auth_token'] ?? ''); // Save the token
     // Save any additional fields you need
   }

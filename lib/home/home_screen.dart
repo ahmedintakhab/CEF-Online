@@ -13,8 +13,6 @@ import 'package:learn_megnagmet/models/design_list.dart';
 import 'package:learn_megnagmet/models/home_slider.dart';
 import 'package:learn_megnagmet/models/recently_added.dart';
 import 'package:learn_megnagmet/models/trending_cource.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -36,6 +34,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String userName = "User Name"; // Default placeholder
+  String gender = "";
   String userImage = ""; // Default placeholder
   List<HomeSlider> pages = [];
   List<Design> design = Utils.getDesign();
@@ -67,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       userName = prefs.getString('user_name') ?? "User Name";
+      gender = prefs.getString('gender') ?? "";
       userImage = prefs.getString('userImage') ?? '';
 
     });
@@ -131,6 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('Check gender: $gender');
     initializeScreenSize(context);
     // return WillPopScope(
     //   onWillPop: (){
@@ -182,11 +183,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     height: 35.h,
                                     width: 35.w,
                                     decoration: BoxDecoration(
-                                      shape: BoxShape.circle, // Optional: Make the image circular
-                                      color: Colors.grey[200], // Background color for placeholder
+                                      shape: BoxShape.circle,
+                                      color: Colors.grey[200],
                                     ),
                                     child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(25.r), // Circular clip
+                                      borderRadius: BorderRadius.circular(25.r),
                                       child: isLoading
                                           ? Shimmer.fromColors(
                                         baseColor: Colors.grey[300]!,
@@ -199,7 +200,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         image: userImage.isNotEmpty &&
                                             Uri.tryParse(userImage)?.hasAbsolutePath == true
                                             ? NetworkImage(userImage)
-                                            : const AssetImage('assets/person.png') as ImageProvider,
+                                            : AssetImage(gender.toLowerCase() == 'male'
+                                            ? 'assets/male.jpg'
+                                            : 'assets/female.png') as ImageProvider,
                                         height: 40.h,
                                         width: 40.w,
                                         fit: BoxFit.cover,

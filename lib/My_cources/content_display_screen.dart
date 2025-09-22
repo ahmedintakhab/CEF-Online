@@ -403,7 +403,7 @@ class _ContentDisplayScreenState extends State<ContentDisplayScreen> {
           if (_isLandscape)
             Positioned(
               top: 40,
-              right: 16,
+              left: 16,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black54,
