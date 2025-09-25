@@ -213,239 +213,281 @@ class _StudentSignupScreenState extends State<StudentSignupScreen> {
       ispassHiden1 = !ispassHiden1;
     });
   }
+  // Add this widget method to your _StudentSignupScreenState class
 
+  Widget _buildRequiredFieldWithAsterisk({required Widget child, bool isRequired = true}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isRequired)
+          Padding(
+            padding: EdgeInsets.only(left: 15.w, bottom: 3.h),
+            child: Text(
+              "*",
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Gilroy',
+                color: Colors.red,
+              ),
+            ),
+          ),
+        child,
+      ],
+    );
+  }
+
+// Updated detailform method with asterisks for required fields
   Widget detailform() {
     return Form(
       key: formkey,
       child: Column(
         children: [
-          customTextFormField(controller: fullnameController, hintText: "Full Name",
+          _buildRequiredFieldWithAsterisk(
+            child: customTextFormField(
+              controller: fullnameController,
+              hintText: "Full Name",
               validator: (val) {
-                     if (val!.isEmpty) return 'Enter the Full Name';
-                    return null;
-                  },),
-          SizedBox(height: 20.h),
-          phone_number_field(
-            onPhoneNumberChanged: (String phone) {
-              setState(() {
-                phoneNumber = phone; // Store the phone number
-              });
-            },
-            validator: (String? value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter whatsapp number';
-              }
-              return null;
-            },
+                if (val!.isEmpty) return 'Enter the Full Name';
+                return null;
+              },
+            ),
           ),
           SizedBox(height: 20.h),
-          customTextFormField(controller: emailController, hintText: "Email",
-            validator: (val) {
-              if (val!.isEmpty)
-                return 'Enter the  email';
-              else {
-                if (!RegExp(
-                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                    .hasMatch(val)) {
-                  return "Please enter valid email address";
+
+          _buildRequiredFieldWithAsterisk(
+            child: phone_number_field(
+              onPhoneNumberChanged: (String phone) {
+                setState(() {
+                  phoneNumber = phone;
+                });
+              },
+              validator: (String? value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter whatsapp number';
                 }
-              }
-              return null;
-            },),
+                return null;
+              },
+            ),
+          ),
+          SizedBox(height: 20.h),
+
+          _buildRequiredFieldWithAsterisk(
+            child: customTextFormField(
+              controller: emailController,
+              hintText: "Email",
+              validator: (val) {
+                if (val!.isEmpty)
+                  return 'Enter the email';
+                else {
+                  if (!RegExp(
+                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                      .hasMatch(val)) {
+                    return "Please enter valid email address";
+                  }
+                }
+                return null;
+              },
+            ),
+          ),
 
           SizedBox(height: 20.h),
-          customTextFormField(controller:cityController, hintText: "City",
+          _buildRequiredFieldWithAsterisk(
+            child: customTextFormField(
+              controller: cityController,
+              hintText: "City",
               validator: (val){
-                   if (val!.isEmpty) return 'Enter the City';
-                   return null;
-                 },),
+                if (val!.isEmpty) return 'Enter the City';
+                return null;
+              },
+            ),
+          ),
 
           SizedBox(height: 20.h),
+          // Country is optional, so no asterisk
           CountriesDropdown(
             controller: countryController,
             hintText: "Select Country",
             validator: (val) {
-              // if (val == null || val.isEmpty) return 'Please select a country';
-              // return null;
+              // Optional field
             },
             onCountryIdChanged: (int? countryId) {
               setState(() {
-                selectedCountryId = countryId; // Store the selected country ID
-                print('Selected Country ID: $selectedCountryId'); // For debugging
+                selectedCountryId = countryId;
+                print('Selected Country ID: $selectedCountryId');
               });
             },
           ),
 
-          // SizedBox(height: 20.h),
-          // customTextFormField(controller:ageController, hintText: "Age",
-          //   validator: (val){
-          //     if (val!.isEmpty) return 'Enter the Age';
-          //     return null;
-          //   },),
-          // SizedBox(height: 20.h),
-          // customTextFormField(controller:schoolController, hintText: "School Grade",
-          //   validator: (val){
-          //     // if (val!.isEmpty) return 'Enter the school grade';
-          //     // return null;
-          //   },),
-          // SizedBox(height: 20.h),
-          // customTextFormField(controller:parentController, hintText: "Parent's Name",
-          //   validator: (val){
-          //     // if (val!.isEmpty) return 'Enter the parent name';
-          //     // return null;
-          //   },),
-
-
-
-           SizedBox(height: 20.h),
-        customTextFormField(
-          controller: passwordController,
-          hintText: "Password",
-          isPasswordField: true, // Specify it's a password field
-          obscureText: isPasswordHidden, // Dynamically updating with state
-          validator: (val) {
-            if (val == null || val.isEmpty) return 'Enter the password';
-            return null;
-          },
-          suffixIcon: GestureDetector(
-            onTap: togglePasswordVisibility,
-            child: Image(
-              image: AssetImage(isPasswordHidden
-                  ? "assets/notvisible_eye.png"
-                  : "assets/visible_eye.png"),
-              height: 20.h,
-              width: 20.w,
-              color: isPasswordHidden ? null : const Color(0XFF8CC13F),
-            ),
-          ),
-        ),
-
           SizedBox(height: 20.h),
-        customTextFormField(
-          controller: confirmpasswordController,
-          hintText: "Confirm Password",
-          isPasswordField: true,
-          obscureText: isConfirmPasswordHidden, // Dynamically updating with state
-          validator: (val) {
-            if (val == null || val.isEmpty) return 'Enter the confirm password';
-            return null;
-          },
-          suffixIcon: GestureDetector(
-            onTap: toggleConfirmPasswordVisibility,
-            child: Image(
-              image: AssetImage(isConfirmPasswordHidden
-                  ? "assets/notvisible_eye.png"
-                  : "assets/visible_eye.png"),
-              height: 20.h,
-              width: 20.w,
-              color: isConfirmPasswordHidden ? null : const Color(0XFF8CC13F),
-            ),
-          ),
-        ),
-        if (widget.courseTypeId == 1) ...[
-
-    SizedBox(height: 20.h),
-          CustomDropdown(
-            hint: "Gender",
-            value: _selectedGender,
-            items: _gender,
-            onChanged: (String? newValue) {
-              setState(() {
-                _selectedGender = newValue;
-              });
-            },
-          ),
-        SizedBox(height: 20.h),
-          customTextFormField(controller: studentsController, hintText: "Number of Students Join",
-            validator: (val) {},),
-          SizedBox(height: 20.h),
-          Text(
-            "Pick a date and time for 1 hour free trial lesson",
-            style: TextStyle(fontSize: 16.sp, fontFamily: 'Gilroy'),
-          ),
-          SizedBox(height: 10.h),
-          GestureDetector(
-            onTap: () => _selectDate(context),
-            child: AbsorbPointer(
-              child: customTextFormField(
-                controller: trialDateController,
-                hintText: "Select Date and Time",
-                validator: (val) {
-                  if (val == null || val.isEmpty) return 'Please select a trial date';
-                  return null;
-                },
-                suffixIcon: Icon(Icons.calendar_today, color: Color(0xFF8CC13F)),              ),
-            ),
-          ),
-          if (isDateSelected) ...[
-            SizedBox(height: 20.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.wb_sunny, color: Colors.orange, size: 20.sp),
-                SizedBox(width: 5.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Available Time Slots",
-                      style: TextStyle(fontSize: 16.sp, fontFamily: 'Gilroy', color: Colors.blue, fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(height: 5.h), // Space between lines
-                    Text(
-                      "Select your preferred time",
-                      style: TextStyle(fontSize: 16.sp, fontFamily: 'Gilroy'),
-                    ),
-                  ],
+          _buildRequiredFieldWithAsterisk(
+            child: customTextFormField(
+              controller: passwordController,
+              hintText: "Password",
+              isPasswordField: true,
+              obscureText: isPasswordHidden,
+              validator: (val) {
+                if (val == null || val.isEmpty) return 'Enter the password';
+                return null;
+              },
+              suffixIcon: GestureDetector(
+                onTap: togglePasswordVisibility,
+                child: Image(
+                  image: AssetImage(isPasswordHidden
+                      ? "assets/notvisible_eye.png"
+                      : "assets/visible_eye.png"),
+                  height: 20.h,
+                  width: 20.w,
+                  color: isPasswordHidden ? null : const Color(0XFF8CC13F),
                 ),
-              ],
+              ),
             ),
+          ),
+
+          SizedBox(height: 20.h),
+          _buildRequiredFieldWithAsterisk(
+            child: customTextFormField(
+              controller: confirmpasswordController,
+              hintText: "Confirm Password",
+              isPasswordField: true,
+              obscureText: isConfirmPasswordHidden,
+              validator: (val) {
+                if (val == null || val.isEmpty) return 'Enter the confirm password';
+                return null;
+              },
+              suffixIcon: GestureDetector(
+                onTap: toggleConfirmPasswordVisibility,
+                child: Image(
+                  image: AssetImage(isConfirmPasswordHidden
+                      ? "assets/notvisible_eye.png"
+                      : "assets/visible_eye.png"),
+                  height: 20.h,
+                  width: 20.w,
+                  color: isConfirmPasswordHidden ? null : const Color(0XFF8CC13F),
+                ),
+              ),
+            ),
+          ),
+
+          if (widget.courseTypeId == 1) ...[
             SizedBox(height: 20.h),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: (timeSlots.length / 4).ceil(),
-              itemBuilder: (context, index) {
-                final start = index * 4;
-                final end = start + 4;
-                final rowSlots = timeSlots.sublist(start, end > timeSlots.length ? timeSlots.length : end);
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 10.h),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: rowSlots.map((slot) {
-                      final isSelected = selectedSlotId == slot['slot_id'];
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () => _selectTimeSlot(slot['slot_id'], slot['slot_time']),
-                          child: Container(
-                            margin: EdgeInsets.symmetric(horizontal: 5.w),
-                            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
-                            decoration: BoxDecoration(
-                              color: isSelected ? Colors.blue : Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: Text(
-                              slot['slot_time'],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black,
-                                fontSize: 14.sp,
+            // Gender is optional for course type 1
+            CustomDropdown(
+              hint: "Gender",
+              value: _selectedGender,
+              items: _gender,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedGender = newValue;
+                });
+              },
+            ),
+
+            SizedBox(height: 20.h),
+            // Number of students is optional
+            customTextFormField(
+              controller: studentsController,
+              hintText: "Number of Students Join",
+              validator: (val) {},
+            ),
+
+            SizedBox(height: 20.h),
+            Text(
+              "Pick a date and time for 1 hour free trial lesson",
+              style: TextStyle(fontSize: 16.sp, fontFamily: 'Gilroy'),
+            ),
+            SizedBox(height: 10.h),
+
+            _buildRequiredFieldWithAsterisk(
+              child: GestureDetector(
+                onTap: () => _selectDate(context),
+                child: AbsorbPointer(
+                  child: customTextFormField(
+                    controller: trialDateController,
+                    hintText: "Select Date and Time",
+                    validator: (val) {
+                      if (val == null || val.isEmpty) return 'Please select a trial date';
+                      return null;
+                    },
+                    suffixIcon: Icon(Icons.calendar_today, color: Color(0xFF8CC13F)),
+                  ),
+                ),
+              ),
+            ),
+
+            if (isDateSelected) ...[
+              SizedBox(height: 20.h),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.wb_sunny, color: Colors.orange, size: 20.sp),
+                  SizedBox(width: 5.w),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Available Time Slots",
+                        style: TextStyle(
+                            fontSize: 16.sp,
+                            fontFamily: 'Gilroy',
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w500
+                        ),
+                      ),
+                      SizedBox(height: 5.h),
+                      Text(
+                        "Select your preferred time",
+                        style: TextStyle(fontSize: 16.sp, fontFamily: 'Gilroy'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.h),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: (timeSlots.length / 4).ceil(),
+                itemBuilder: (context, index) {
+                  final start = index * 4;
+                  final end = start + 4;
+                  final rowSlots = timeSlots.sublist(start, end > timeSlots.length ? timeSlots.length : end);
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: 10.h),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: rowSlots.map((slot) {
+                        final isSelected = selectedSlotId == slot['slot_id'];
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () => _selectTimeSlot(slot['slot_id'], slot['slot_time']),
+                            child: Container(
+                              margin: EdgeInsets.symmetric(horizontal: 5.w),
+                              padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.blue : Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              child: Text(
+                                slot['slot_time'],
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: isSelected ? Colors.white : Colors.black,
+                                  fontSize: 14.sp,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                );
-              },
-            ),
-          ],
-    ]
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ]
         ],
-
       ),
     );
   }

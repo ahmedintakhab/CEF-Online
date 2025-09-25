@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:expandable_text/expandable_text.dart';
 import 'package:learn_megnagmet/Course_details_tabbar/course_footer.dart';
-import '../utils/html_utils.dart'; // Import the utility function
+import 'package:flutter_html/flutter_html.dart';
 
 class OverviewPage extends StatelessWidget {
   final Map<String, dynamic> overviewData;
 
   const OverviewPage({Key? key, required this.overviewData}) : super(key: key);
+
+  String _cleanHtml(String html) {
+    // Remove CSS styles and simplify HTML
+    return html
+        .replaceAll(RegExp(r'<style[^>]*>[\s\S]*?</style>'), '') // Remove style tags
+        .replaceAll(RegExp(r'class="[^"]*"'), '') // Remove class attributes
+        .replaceAll(RegExp(r'\r\n'), '') // Remove line breaks
+        .replaceAll('maimaar-tajweed', '') // Remove specific class names
+        .replaceAll('container', '')
+        .replaceAll('section', '')
+        .replaceAll('cta', '')
+        .replaceAll('whatsapp-icon', '');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +28,11 @@ class OverviewPage extends StatelessWidget {
         ? apiKeyPoints.map((point) => point['name'] as String).toList()
         : [];
 
-    // Convert HTML description to plain text
-    final plainTextDescription = convertHtmlToPlainText(overviewData['description'] ?? '');
+    final String htmlDescription = overviewData['description'] ?? '';
+    final String cleanHtml = _cleanHtml(htmlDescription);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Padding(
@@ -27,18 +40,9 @@ class OverviewPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
-              Text(
-                'Overview Page',
-                style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Gilroy',
-                ),
-              ),
               SizedBox(height: 10.h),
 
-            // Key Points (only shown if keyPoints is not empty)
+              // Key Points
               if (keyPoints.isNotEmpty) ...[
                 ...keyPoints.map((point) => Padding(
                   padding: EdgeInsets.symmetric(vertical: 4.0.h),
@@ -50,11 +54,11 @@ class OverviewPage extends StatelessWidget {
                         height: 24.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFFEBF2C2), // Light green background
+                          color: const Color(0xFFEBF2C2),
                         ),
                         child: Icon(
                           Icons.check,
-                          color: const Color(0xFF8CC13F), // Green check icon
+                          color: const Color(0xFF8CC13F),
                           size: 16.sp,
                         ),
                       ),
@@ -74,27 +78,76 @@ class OverviewPage extends StatelessWidget {
                 SizedBox(height: 20.h),
               ],
 
-              // Expandable Plain Text Description
-              ExpandableText(
-                plainTextDescription,
-                expandText: 'Learn more',
-                collapseText: 'Learn less',
-                maxLines: 5,
-                linkColor: Colors.green,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: Colors.grey[700],
-                  fontFamily: 'Gilroy',
+              // HTML Content with custom styling
+              if (cleanHtml.isNotEmpty)
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFf9f9fb),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Html(
+                    data: cleanHtml,
+                    style: {
+                      "body": Style(
+                        margin: Margins.zero,
+                        padding: HtmlPaddings.zero,
+                        backgroundColor: const Color(0xFFf9f9fb),
+                      ),
+                      "div": Style(
+                        fontFamily: 'Gilroy',
+                        fontSize: FontSize(16.sp),
+                        color: const Color(0xFF333333),
+                        margin: Margins.zero,
+                        padding: HtmlPaddings.zero,
+                        backgroundColor: const Color(0xFFf9f9fb),
+                      ),
+                      "header": Style(
+                        backgroundColor: const Color(0xFF2c3e50),
+                        color: Colors.white,
+                        padding: HtmlPaddings.all(20),
+                        textAlign: TextAlign.center,
+                        fontSize: FontSize(28.sp),
+                        fontWeight: FontWeight.bold,
+                        margin: Margins.only(bottom: 10),
+                      ),
+                      "h2": Style(
+                        color: const Color(0xFF2c3e50),
+                        fontSize: FontSize(20.sp),
+                        fontWeight: FontWeight.bold,
+                        margin: Margins.only(bottom: 10),
+                      ),
+                      "p": Style(
+                        fontFamily: 'Gilroy',
+                        fontSize: FontSize(16.sp),
+                        color: const Color(0xFF333333),
+                        margin: Margins.only(bottom: 15),
+                        lineHeight: LineHeight(1.5),
+                      ),
+                      "strong": Style(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      "b": Style(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      "ul": Style(
+                        margin: Margins.only(bottom: 15),
+                        padding: HtmlPaddings.only(left: 20),
+                      ),
+                      "li": Style(
+                        fontFamily: 'Gilroy',
+                        fontSize: FontSize(16.sp),
+                        color: const Color(0xFF333333),
+                        margin: Margins.only(bottom: 10),
+                        lineHeight: LineHeight(1.5),
+                      ),
+                    },
+                  ),
                 ),
-              ),
               SizedBox(height: 20.h),
 
-              // Constrain CourseFooter to prevent layout issues
               ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: 20.h, // Ensure a minimum height
-                  // maxHeight: MediaQuery.of(context).size.height * 0.1, // Limit max height
-                ),
+                constraints: BoxConstraints(minHeight: 20.h),
                 child: overviewData.containsKey('footer_section')
                     ? CourseFooter(footerData: overviewData['footer_section'])
                     : CourseFooter(),

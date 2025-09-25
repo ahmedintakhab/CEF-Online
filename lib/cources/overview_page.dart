@@ -1,156 +1,162 @@
-import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:learn_megnagmet/controller/controller.dart';
 
 import '../models/overview_page_grid_model.dart';
-import '../models/overviewpage_instructur.dart';
-import '../utils/html_utils.dart';
 import '../utils/screen_size.dart';
 import '../utils/slider_page_data_model.dart';
-import '../widget/button.dart';
-import 'choose_plane_screen.dart';
-import 'overview_container.dart';
 
 class Overview extends StatefulWidget {
-  final dynamic overviewData; // Add this to accept the overviewData passed from previous page
+  final dynamic overviewData;
   final String fetchedCourseType;
-  const Overview({Key? key, required this.overviewData, required this.fetchedCourseType, }) : super(key: key);
+
+  const Overview({
+    Key? key,
+    required this.overviewData,
+    required this.fetchedCourseType,
+  }) : super(key: key);
 
   @override
   State<Overview> createState() => _OverviewState();
 }
+
 class _OverviewState extends State<Overview> {
   late final dynamic overviewData;
   HomeController homecontroller = Get.put(HomeController());
   List<OverViewGrid> grid = [];
-  // List<Instructor> instuctor = [];
   bool activevalue = false;
   List<String> selectedCategory = [];
+
+  String _cleanHtml(String html) {
+    // Reuse same cleaning logic
+    return html
+        .replaceAll(RegExp(r'<style[^>]*>[\s\S]*?</style>'), '')
+        .replaceAll(RegExp(r'class="[^"]*"'), '')
+        .replaceAll(RegExp(r'\r\n'), '')
+        .replaceAll('maimaar-tajweed', '')
+        .replaceAll('container', '')
+        .replaceAll('section', '')
+        .replaceAll('cta', '')
+        .replaceAll('whatsapp-icon', '');
+  }
+
   @override
   void initState() {
     grid = Utils.getOverView();
     super.initState();
-    overviewData = widget.overviewData;  // Assign passed data
-    // print('check tha overview data on overview page: $overviewData');
-    // print("Check the fetch course type on overview page: ${widget.fetchedCourseType}");
-
+    overviewData = widget.overviewData;
   }
+
   @override
   Widget build(BuildContext context) {
-    // List of items to pass to the OverviewContainer
-    final List<Map<String, String>> items = [
-      {'image': 'assets/gridview1.png', 'title': '${overviewData['total_lessons']} Lessons'},
-      {'image': 'assets/gridview2.png', 'title': overviewData['level'] ?? 'No Level' },
-      {'image': 'assets/gridview3.png', 'title': overviewData['duration'] ??'No Duration'},
-      {'image': 'assets/gridview4.png', 'title': overviewData['language'] ??'No Language'},
-      {'image': 'assets/gridview5.png', 'title': 'Certificate'},
-      {'image': 'assets/gridview6.png', 'title': 'Fully Secure'},
-    ];
-    final List<dynamic> skills = overviewData['skills'] ?? [];
+    // final List<Map<String, String>> items = [
+    //   {'image': 'assets/gridview1.png', 'title': '${overviewData['total_lessons']} Lessons'},
+    //   {'image': 'assets/gridview2.png', 'title': overviewData['level'] ?? 'No Level'},
+    //   {'image': 'assets/gridview3.png', 'title': overviewData['duration'] ?? 'No Duration'},
+    //   {'image': 'assets/gridview4.png', 'title': overviewData['language'] ?? 'No Language'},
+    //   {'image': 'assets/gridview5.png', 'title': 'Certificate'},
+    //   {'image': 'assets/gridview6.png', 'title': 'Fully Secure'},
+    // ];
+
+    final String htmlDescription = overviewData['description'] ?? '';
+    final String cleanHtml = _cleanHtml(htmlDescription);
+
     initializeScreenSize(context);
-    // Convert HTML description to plain text
-    final plainTextDescription = convertHtmlToPlainText(overviewData['description'] ?? '');
+
     return GetBuilder(
-        init: HomeController(),
-        builder: (controller) => SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 10.h),
-                    Text(
-                      overviewData['title'] ?? 'No Title',
-                      style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0XFF000000),
-                          fontFamily: 'Gilroy'),
-                    ),
-                    ExpandableText(
-                      plainTextDescription,
-                      expandText: 'Learn more.',
-                      collapseText: 'Learn less.',
-                      maxLines: 10,
-                      linkStyle: TextStyle(
-                        color: const Color(0XFF78A03F),
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Gilroy',
-                      ),
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        color: const Color(0XFF6E758A),
-                        fontFamily: 'Gilroy',
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-
-                    // Text(
-                    //   "Skill",
-                    //   style: TextStyle(
-                    //       fontFamily: 'Gilroy',
-                    //       fontSize: 18.sp,
-                    //       color: Color(0XFF000000),
-                    //       fontWeight: FontWeight.w700),
-                    // ),
-                    // SizedBox(height: 12.h),
-                    // Wrap(
-                    //   alignment: WrapAlignment.start,
-                    //   children: [
-                    //     for (final skill in skills)
-                    //       Padding(
-                    //         padding: EdgeInsets.only(top: 8.h, bottom: 8.h, right: 8.w),
-                    //         child: GestureDetector(
-                    //           onTap: () {
-                    //             setState(() {
-                    //               if (!selectedCategory.contains(skill)) {
-                    //                 selectedCategory.add(skill);
-                    //               } else {
-                    //                 selectedCategory.remove(skill);
-                    //               }
-                    //             });
-                    //           },
-                    //           child: Container(
-                    //             padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 13.w),
-                    //             decoration: BoxDecoration(
-                    //               color: selectedCategory.contains(skill)
-                    //                   ? const Color(0XFFEBF2C2)
-                    //                   : Colors.white,
-                    //               borderRadius: BorderRadius.circular(26.h),
-                    //               border: Border.all(
-                    //                 color: selectedCategory.contains(skill)
-                    //                     ? const Color(0XFF8CC13F)
-                    //                     : const Color(0XFF6E758A),
-                    //                 width: 1.w,
-                    //               ),
-                    //             ),
-                    //             child: Text(
-                    //               skill, // Use the skill directly here
-                    //               style: selectedCategory.contains(skill)
-                    //                   ? const TextStyle(
-                    //                 fontWeight: FontWeight.bold,
-                    //                 color: Color(0XFF78A03F),
-                    //                 fontFamily: 'Gilroy',
-                    //               )
-                    //                   : const TextStyle(
-                    //                 color: Color(0XFF6E758A),
-                    //                 fontFamily: 'Gilroy',
-                    //               ),
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //   ],
-                    // ),
-
-
-                  ],
+      init: HomeController(),
+      builder: (controller) => SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 10.h),
+              Text(
+                overviewData['title'] ?? 'No Title',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0XFF000000),
+                  fontFamily: 'Gilroy',
                 ),
               ),
-            ));
+              SizedBox(height: 12.h),
+
+              /// Apply HTML rendering here
+              if (cleanHtml.isNotEmpty)
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFf9f9fb),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Html(
+                    data: cleanHtml,
+                    style: {
+                      "body": Style(
+                        margin: Margins.zero,
+                        padding: HtmlPaddings.zero,
+                        backgroundColor: const Color(0xFFf9f9fb),
+                      ),
+                      "div": Style(
+                        fontFamily: 'Gilroy',
+                        fontSize: FontSize(16.sp),
+                        color: const Color(0xFF333333),
+                        margin: Margins.zero,
+                        padding: HtmlPaddings.zero,
+                        backgroundColor: const Color(0xFFf9f9fb),
+                      ),
+                      "header": Style(
+                        backgroundColor: const Color(0xFF2c3e50),
+                        color: Colors.white,
+                        padding: HtmlPaddings.all(20),
+                        textAlign: TextAlign.center,
+                        fontSize: FontSize(28.sp),
+                        fontWeight: FontWeight.bold,
+                        margin: Margins.only(bottom: 10),
+                      ),
+                      "h2": Style(
+                        color: const Color(0xFF2c3e50),
+                        fontSize: FontSize(20.sp),
+                        fontWeight: FontWeight.bold,
+                        margin: Margins.only(bottom: 10),
+                      ),
+                      "p": Style(
+                        fontFamily: 'Gilroy',
+                        fontSize: FontSize(16.sp),
+                        color: const Color(0xFF333333),
+                        margin: Margins.only(bottom: 15),
+                        lineHeight: LineHeight(1.5),
+                      ),
+                      "strong": Style(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      "b": Style(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      "ul": Style(
+                        margin: Margins.only(bottom: 15),
+                        padding: HtmlPaddings.only(left: 20),
+                      ),
+                      "li": Style(
+                        fontFamily: 'Gilroy',
+                        fontSize: FontSize(16.sp),
+                        color: const Color(0xFF333333),
+                        margin: Margins.only(bottom: 10),
+                        lineHeight: LineHeight(1.5),
+                      ),
+                    },
+                  ),
+                ),
+
+              SizedBox(height: 20.h),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
