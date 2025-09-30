@@ -8,6 +8,7 @@ Widget customTextFormField({
   required String? Function(String?) validator,
   bool isPasswordField = false,
   bool obscureText = false,
+  final String? labelText,
   Widget? suffixIcon,
 }) {
   return TextFormField(
@@ -16,6 +17,14 @@ Widget customTextFormField({
     cursorColor: const Color(0xFF78A03F),
     decoration: InputDecoration(
       hintText: hintText,
+      labelText: labelText,
+      labelStyle: TextStyle(
+        fontSize: 16.sp,
+        fontFamily: 'Gilroy',
+        color: Colors.grey, // Match theme color
+        // color: const Color(0xFF00AFEE), // Match theme color
+        fontWeight: FontWeight.w600,
+      ),
       hintStyle: TextStyle(
         fontSize: 15.sp,
         fontFamily: 'Gilroy',
