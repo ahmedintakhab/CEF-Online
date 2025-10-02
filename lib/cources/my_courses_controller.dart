@@ -1,12 +1,11 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_megnagmet/Course_details_tabbar/tabbar_details.dart';
-import 'package:learn_megnagmet/cources/cources.dart';
+import 'package:learn_megnagmet/cart/cart_screen.dart';
+import 'package:learn_megnagmet/cources/request_enroll_course.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:learn_megnagmet/home/home_main.dart';
-import '../My_cources/ongoing_completed_main_screen.dart';
 import '../utils/api_constants.dart';
 import '../utils/custom_cache_manager.dart';
 
@@ -203,7 +202,54 @@ class CourseController extends GetxController with SingleGetTickerProviderMixin 
           }
         }
       }
-    } catch (e) {
+      else if (btnText == "Request Enrollment"){
+        Get.to(()=> RequestEnrollCourse(courseId: courseId,));
+      }
+      else if (btnText == "Buy Now") {
+        print("API URL: $btnApiRoute");
+        print("Course ID: $courseId");
+        print("Auth Token: $token");
+        final response = await http.post(
+          Uri.parse(btnApiRoute),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'course_id': courseId,
+          }),
+        );
+        print("Enroll API Response Code: ${response.statusCode}");
+        print("Enroll API Response Body: ${response.body}");
+
+        if (response.statusCode == 200) {
+          print("Buy Now Course API response status code: ${response.statusCode}");
+// 🧹 Invalidate course detail cache after enrollment
+          final detailUrl = '${ApiConstants.baseUrl}frontend/course/detail/$slug';
+          await CustomCacheManager.instance.removeFile(detailUrl);
+          print("🗑️ Cleared course detail cache for slug: $slug");
+          // 🔄 Fetch fresh data before navigation
+          await refreshCourseDetails(slug);
+          // 🔄 Fetch fresh data before navigation
+          // Navigate to TabBarDetails and remove MyCourses from stack
+          Get.off(() => CartScreen());
+          // await fetchCourseDetails( slug);
+
+          Get.snackbar(
+            'Success',
+            'Successfully added to cart!',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.black.withOpacity(0.2),
+            colorText: Colors.black,
+            // borderRadius: 10,
+            // margin: EdgeInsets.all(15),
+            // duration: Duration(seconds: 3),
+          );
+        }
+      }
+
+    }
+    catch (e) {
       print('Error during API call: $e');
     }
   }

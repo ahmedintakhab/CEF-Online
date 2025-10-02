@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/splash/splash_screen.dart';
+import 'package:learn_megnagmet/utils/custom_cache_manager.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized
+   // await clearCache(); // Clear cache before the app runs
   runApp(const MyApp());
 }
+
+// Future<void> clearCache() async{
+//   try{
+//     await CustomCacheManager.instance.emptyCache();
+//     print('🗑️ Cache cleared successfully');
+//   }
+//   catch(e){
+//     print('❌ Error clearing cache: $e');
+//   }
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

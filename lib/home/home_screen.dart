@@ -362,129 +362,136 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget generatePage() {
-    // Assuming you have a boolean flag to track if data is loaded
-    bool isDataLoaded = apiData != null && apiData!['banners'] != null;
+    final dynamic rawBanners = apiData?['banners'];
 
+    // Normalize banners into a List
+    final List<dynamic> banners;
+    if (rawBanners is List) {
+      banners = rawBanners;
+    } else if (rawBanners is Map) {
+      banners = [rawBanners]; // wrap single map in a list
+    } else {
+      banners = [];
+    }
+
+    // If no banners, show shimmer
+    if (banners.isEmpty) {
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          height: 240.h,
+          width: ScreenUtil().screenWidth,
+          color: Colors.grey[300],
+        ),
+      );
+    }
+
+    // If only one banner, show static image (no carousel)
+    if (banners.length == 1) {
+      final banner = banners[0];
+      final imageUrl = banner['image'] ?? '';
+      final isValidImageUrl = Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false;
+
+      return Container(
+        height: 240.h,
+        width: ScreenUtil().screenWidth,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: isValidImageUrl
+                ? NetworkImage(imageUrl)
+                : const AssetImage('assets/person.png') as ImageProvider,
+            fit: BoxFit.fill,
+          ),
+        ),
+        // child: Padding(
+        //   padding: EdgeInsets.only(top: 20.h, left: 25.w, right: 110.w),
+        //   child: Text(
+        //     banner['title'] ?? '',
+        //     style: TextStyle(
+        //       fontFamily: 'Gilroy',
+        //       color: Colors.white,
+        //       fontSize: 18.sp,
+        //       fontWeight: FontWeight.w700,
+        //     ),
+        //   ),
+        // ),
+      );
+    }
+
+    // If more than one banner, show carousel
     return CarouselSlider.builder(
       options: CarouselOptions(
-        autoPlay: false,
+        autoPlay: true,
         enableInfiniteScroll: true,
-        initialPage: 0,
-        height: 180.0.h,
-        enlargeCenterPage: false,
+        height: 240.h,
         viewportFraction: 1,
         onPageChanged: (index, reason) {
           homecontroller.onChange(index.obs);
         },
       ),
-      itemBuilder: (BuildContext context, int index, int realIndex) {
-        // Check if banners field is null
-        final banners = apiData?['banners'];
+      itemCount: banners.length,
+      itemBuilder: (context, index, realIndex) {
+        final banner = banners[index];
+        final imageUrl = banner['image'] ?? '';
+        final isValidImageUrl = Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false;
 
-        // Check if image URL is valid
-        final imageUrl = banners?['image'] ?? '';
-        bool isValidImageUrl = Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false;
-
-        return Padding(
-          padding: EdgeInsets.only(
-              left: index == 0 ? 0.w : 12.w, right: index == 2 ? 12.w : 0.w),
-          child: Stack(
-            children: [
-              Container(
-                height: 180.h,
-                width: ScreenUtil().screenWidth, // Full screen width
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: isValidImageUrl
-                        ? NetworkImage(imageUrl) // Use image from API
-                        : AssetImage('assets/person.png') as ImageProvider, // Fallback image
-                    fit: BoxFit.fill, // Ensure the image covers the area
-                    alignment: Alignment.center, // Center the image
-
-                  ),
-                  // borderRadius: BorderRadius.circular(5),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 20.h, left: 25.w, right: 110.w),
-                      child: Text(
-                        banners?['title'] ?? '', // Use title from API
-                        style: TextStyle(
-                          fontFamily: 'Gilroy',
-                          color: Colors.white,
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 29.sp),
-                    Padding(
-                      padding: EdgeInsets.only(left: 25.w),
-                      child: GestureDetector(
-                        onTap: () {
-                          // Open the link when "Get Start" is clicked
-                          final link = banners?['link'];
-                          if (link != null && link != "#" && Uri.tryParse(link) != null) {
-                            launchUrl(Uri.parse(link));
-                          }
-                        },
-                        child: Text(
-                          "Get Start",
-                          style: TextStyle(
-                            color: const Color(0XFF78A03F),
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Gilroy',
-                            fontSize: 18.sp,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (!isDataLoaded)
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!, // Light grey
-                  highlightColor: Colors.grey[100]!, // Lighter grey
-                  child: Container(
-                    height: 180.h,
-                    width: ScreenUtil().screenWidth, // Full screen width
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300], // Base grey color
-                      // borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ),
-            ],
+        return Container(
+          height: 240.h,
+          width: ScreenUtil().screenWidth,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: isValidImageUrl
+                  ? NetworkImage(imageUrl)
+                  : const AssetImage('assets/person.png') as ImageProvider,
+              fit: BoxFit.fill,
+            ),
           ),
+          // child: Padding(
+          //   padding: EdgeInsets.only(top: 20.h, left: 25.w, right: 110.w),
+          //   child: Text(
+          //     banner['title'] ?? '',
+          //     style: TextStyle(
+          //       fontFamily: 'Gilroy',
+          //       color: Colors.white,
+          //       fontSize: 18.sp,
+          //       fontWeight: FontWeight.w700,
+          //     ),
+          //   ),
+          // ),
         );
       },
-      itemCount: (apiData?['banners'] != null) ? 1 : 0, // Only 1 banner object
     );
   }
 
   Widget indicator() {
+    final dynamic rawBanners = apiData?['banners'];
+    final List<dynamic> banners = rawBanners is List ? rawBanners : (rawBanners is Map ? [rawBanners] : []);
+
+    // 👇 If only one banner, don’t show indicator
+    if (banners.length <= 1) return SizedBox.shrink();
+
     return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(pages.length, (index) {
-          return Padding(
-            padding:  EdgeInsets.symmetric(horizontal: 6.w),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              height: 10.h,
-              width: 10.w,
-              //margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 30),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: (index == homecontroller.currentpage.value)
-                      ? const Color(0XFF8CC13F)
-                      : const Color(0XFFDEDEDE)),
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(banners.length, (index) {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6.w),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: 10.h,
+            width: 10.w,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: (index == homecontroller.currentpage.value)
+                  ? const Color(0XFF8CC13F)
+                  : const Color(0XFFDEDEDE),
             ),
-          );
-        }));
+          ),
+        );
+      }),
+    );
   }
+
 
   Widget design_list() {
     return Expanded(

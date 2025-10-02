@@ -264,7 +264,7 @@ class _MyCourcesState extends State<MyCources> {
 
   Widget _buildEnrollButton() {
     return Padding(
-      padding: EdgeInsets.only(bottom: 30.h),
+      padding: EdgeInsets.only(bottom: 30.h, left: 15, right: 15),
       child: Stack(
         alignment: Alignment.center,
         children: [

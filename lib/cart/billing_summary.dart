@@ -231,6 +231,7 @@ class _BillingSummaryState extends State<BillingSummary> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
+      print('check: ${widget.paymentId}, ${widget.paymentType}, ${widget.selectedPaymentMethodId}');
 
       final response = await http.post(
         Uri.parse('${ApiConstants.baseUrl}student/generate-secure-checkout-url'),
@@ -239,9 +240,10 @@ class _BillingSummaryState extends State<BillingSummary> {
           'Content-Type': 'application/json',
         },
         body: json.encode({
-          'payment_id': widget.paymentId,
           'payment_type': widget.paymentType,
           'payment_method': widget.selectedPaymentMethodId,
+          if(widget.paymentType == 2)
+            'payment_id': widget.paymentId,
         }),
       );
 
