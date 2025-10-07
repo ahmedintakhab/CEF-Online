@@ -4,12 +4,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_megnagmet/dashboard/billing_history_widget.dart';
+import 'package:learn_megnagmet/dashboard/blog_widget.dart';
+import 'package:learn_megnagmet/dashboard/class_details_widget.dart';
+import 'package:learn_megnagmet/dashboard/enroll_courses_widget.dart';
+import 'package:learn_megnagmet/dashboard/leaderboard_widget.dart';
+import 'package:learn_megnagmet/dashboard/my_schedule%20widget.dart';
+import 'package:learn_megnagmet/dashboard/overview_details_widget.dart';
+import 'package:learn_megnagmet/dashboard/welcome_banner_widget.dart';
 import 'package:learn_megnagmet/home/home_screen.dart';
+import 'package:learn_megnagmet/instructor/view_live_class_details.dart';
 import 'package:learn_megnagmet/profile/address_and_location.dart';
 import 'package:learn_megnagmet/profile/change_password.dart';
 import 'package:learn_megnagmet/profile/pending_payment.dart';
-import 'package:learn_megnagmet/profile/profile_field_container.dart';
-import 'package:learn_megnagmet/profile/rateus_dialogue_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:learn_megnagmet/profile/edit_screen.dart';
 import 'package:learn_megnagmet/utils/api_constants.dart';
@@ -36,15 +43,18 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfileState extends State<MyProfile> {
-  String userName = "User Name"; // Default placeholder
-  String email = "Email"; // Default placeholder
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String userName = "User Name";
+  String email = "Email";
   String userImage = "";
   bool isLoggingOut = false;
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
   }
+
   Future<void> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -59,7 +69,6 @@ class _MyProfileState extends State<MyProfile> {
     final String apiUrl = "${ApiConstants.baseUrl}logoutApi";
 
     try {
-      // Assuming the token is saved in shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
       print('Token check: $token');
@@ -68,24 +77,20 @@ class _MyProfileState extends State<MyProfile> {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Include token in the header
+          'Authorization': 'Bearer $token',
         },
       );
 
       if (response.statusCode == 200) {
-        // Successfully logged out
         print("Logout successful");
         Get.snackbar('Success', 'User Successfully Logout', snackPosition: SnackPosition.TOP);
 
-        // Clear user data from SharedPreferences
-        // Only remove login-related data, not the intro flag
         await prefs.remove('auth_token');
         await prefs.remove('user_name');
         await prefs.remove('email');
         await prefs.remove('role');
         await prefs.remove('phone_number');
         await prefs.remove('userImage');
-        // prefs.clear(); // Optionally clear all saved data
       } else {
         print("Logout failed: ${response.body}");
       }
@@ -102,260 +107,280 @@ class _MyProfileState extends State<MyProfile> {
   Widget build(BuildContext context) {
     initializeScreenSize(context);
     return WillPopScope(
-      onWillPop: (){
+      onWillPop: () {
         return Future.value(false);
       },
       child: Scaffold(
-        body: GetBuilder(
-            init: MyProfileController(),
-            builder: (MyProfileController) =>
-                SafeArea(
-                  child: Column(
-                    children: [
-                      SizedBox(height: 20.h),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20.w),
-                        child: Row(
-                          children: [
-                            GestureDetector(
-                                onTap: () {
-                                  // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-                                  // Navigate to HomeMainScreen and set the Home tab (index 0)
-                                  final HomeMainController controller = Get.find<HomeMainController>();
-                                  controller.onChange(0); // Set the Home tab as active
-                                  Get.offAll(() => const HomeMainScreen());
-                                },
-                                child: Image(
-                                  image: AssetImage("assets/back_arrow.png"),
-                                  height: 24.h,
-                                  width: 24.w,
-                                )),
-                            SizedBox(width: 15.w),
-                            Text(
-                              "My Profile",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 24.sp, fontFamily: 'Gilroy'),
-                            ),
-                            SizedBox(width: 40.w),
-                            // SizedBox(width: 180.w, height: 35.h,
-                            //     child: CustomButton(onTap: (){}, buttonText: 'Student Panel'))
-                          ],
+        key: _scaffoldKey,
+        drawer: _buildDrawer(),
+        appBar: AppBar(
+          leading: IconButton(onPressed:(){
+            final HomeMainController controller = Get.find<HomeMainController>();
+            controller.onChange(0);
+            Get.offAll(() => const HomeMainScreen());
+          } ,
+              icon: Image.asset(
+            "assets/back_arrow.png",
+            height: 24.h,
+            width: 24.w,
+            fit: BoxFit.contain,)),
+          title: Image.asset(
+            "assets/cef_logo.png",
+            height: 50.h,
+            width: 150.w,
+            fit: BoxFit.contain,
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 18.0),
+              child: GestureDetector(
+                onTap: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+                child: ClipOval(
+                  child: userImage.isNotEmpty
+                      ? Image.network(
+                    userImage,
+                    height: 50.h,
+                    width: 50.w,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 50.h,
+                        width: 50.w,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFF78A03F),
                         ),
-                      ),
-                      SizedBox(height: 20.h),
-                      // Shimmer effect for NetworkImage
-                      ClipOval(
-                        child: Image(
-                          image: NetworkImage(userImage),
-                          height: 100.h,
-                          width: 100.w,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            }
-                            // Show shimmer while loading
-                            return Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                height: 100.h,
-                                width: 100.w,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 100.h,
-                              width: 100.w,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey,
-                              ),
-                              child: const Icon(
-                                Icons.error,
-                                color: Colors.red,
-                                size: 40,
-                              ),
-                            );
-                          },
+                        child: const Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 24,
                         ),
-                      ),
-                      SizedBox(height: 12.h),
-                      Text(
-                        userName,
-                        style: TextStyle(
-                            fontSize: 18.sp,
-                            fontFamily: 'Gilroy',
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0XFF000000)),
-                      ),
-                      SizedBox(height: 2.h),
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     Navigator.push(
-                      //         context,
-                      //         MaterialPageRoute(
-                      //             builder: (context) =>
-                      //                 EditScreen(
-                      //                   user: widget.user_detail,
-                      //                 )));
-                      //   },
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.center,
-                      //     children: [
-                      //       Text("Edit Profile",
-                      //           style: TextStyle(
-                      //               fontSize: 15.sp,
-                      //               fontFamily: 'Gilroy',
-                      //               fontWeight: FontWeight.w400,
-                      //               color: Color(0XFF000000))),
-                      //       Image(
-                      //         image: AssetImage("assets/editsymbol.png"),
-                      //         height: 16.h,
-                      //         width: 16.w,
-                      //       )
-                      //     ],
-                      //   ),
-                      // ),
-                      SizedBox(height: 20),
-                      Expanded(
-                        child: ListView(
-                          primary: true,
-                          shrinkWrap: false,
-                          children: [
-                            // My Certification
-                            ProfileFieldContainer(
-                              title: 'Home',
-                              icon: Icon(Icons.home, color: Color(0XFF78A03F)),
-                              onTap: () {
-                                Get.to(HomeScreen());
-                                // Get.to(MyCertification());
-                              },
-                            ),
-                            // My Project
-                            ProfileFieldContainer(
-                              title: 'My Courses',
-                              icon: Icon(Icons.book, color: Color(0XFF78A03F)),
-                              onTap: () {
-                                Get.to(OngoingCompletedScreen());
-                              },
-                            ),
-                            // Saved Course
-                            ProfileFieldContainer(
-                              title: 'My Products',
-                              icon: Icon(Icons.storefront, color: Color(0XFF78A03F)),
-                              onTap: () {
-                                // Disabled as per original code
-                              },
-                            ),
-                            // Certificate Payment
-                          ProfileFieldContainer(
-                            title: 'Classes Schedule',
-                            icon: Icon(Icons.calendar_month, color: Color(0XFF78A03F)),
-                            onTap: () {
-                              Get.to(ClassScheduleScreen());
-                              // Get.to(FeedBack());
-                            },
-                          ),
-                            // Help Center
-                            ProfileFieldContainer(
-                              title: 'Classes History',
-                              icon: Icon(Icons.history, color: Color(0XFF78A03F)),
-                              onTap: () {
-                                Get.to(ClassHistoryScreen());
-                                // Get.to(PrivacyPolicy());
-                              },
-                            ),
-                            // Privacy Policy
-                            ProfileFieldContainer(
-                              title: 'Pending Payment',
-                              icon: Icon(Icons.pending_actions, color: Color(0XFF78A03F)),
-                              onTap: () {
-                                Get.to(PendingPayment());
-                                // Get.to(CertificatePayment());
-
-                                // Disabled as per original code
-                              },
-                            ),
-                            // Feedback
-                            ProfileFieldContainer(
-                              title: 'Profile',
-                              icon: Icon(Icons.person, color: Color(0XFF78A03F)),
-                              onTap: () {
-                                Get.to(EditScreen(user: widget.user_detail));
-                              },
-                            ),
-                            // Rate Us
-                            ProfileFieldContainer(
-                              title: 'Address & Location',
-                              icon: Icon(Icons.location_on_outlined, color: Color(0XFF78A03F)),
-                              onTap: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context)=>AddressAndLocation()));
-                              },
-                            ),
-                            ProfileFieldContainer(
-                              title: 'Change Password',
-                              icon: Icon(Icons.settings, color: Color(0XFF78A03F)),
-                              onTap: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context)=>ChangePassword()));
-                              },
-                            ),
-                            SizedBox(height: 30.h),
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 40.h, left: 20.h, right: 20.h),
-                              child: GestureDetector(
-                                onTap: () {
-                                  showLogoutDialog();
-                                },
-                                child: Container(
-                                  height: 56.h,
-                                  width: 374.w,
-                                  decoration: BoxDecoration(
-                                    color: Color(0XFF78A03F),
-                                    border: Border.all(
-                                      color: const Color(0xFF78A03F),
-                                      style: BorderStyle.solid,
-                                      width: 1.0.w,
-                                    ),
-                                    borderRadius: BorderRadius.circular(20.h),
-                                  ),
-                                  child: Center(
-                                    child: Text("Logout",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 22.sp,
-                                            fontWeight: FontWeight.w700,
-                                            fontFamily: 'Gilroy')),
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
+                      );
+                    },
+                  )
+                      : Container(
+                    height: 50.h,
+                    width: 50.w,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFF78A03F),
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
-                )),
+                ),
+              ),
+            ),
+
+          ],
+        ),
+        body: GetBuilder(
+          init: MyProfileController(),
+          builder: (MyProfileController) => SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(height: 20.h),
+                  WelcomeBannerWidget(),
+                  ClassDetailsWidget(),
+                  OverviewDetailsWidget(),
+                  MyScheduleWidget(),
+                  EnrollCoursesWidget(),
+                  BlogWidget(),
+                  BillingHistoryWidget(),
+                  Leaderboard()
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  Widget _buildDrawer() {
+    return Drawer(
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 20.w),
+            decoration: BoxDecoration(
+              color: Color(0XFF78A03F),
+            ),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipOval(
+                    child: userImage.isNotEmpty
+                        ? Image.network(
+                      userImage,
+                      height: 80.h,
+                      width: 80.w,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 80.h,
+                          width: 80.w,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            color: Color(0XFF78A03F),
+                            size: 40,
+                          ),
+                        );
+                      },
+                    )
+                        : Container(
+                      height: 80.h,
+                      width: 80.w,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                      ),
+                      child: Icon(
+                        Icons.person,
+                        color: Color(0XFF78A03F),
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15.h),
+                  Text(
+                    userName,
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontFamily: 'Gilroy',
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 5.h),
+                  Text(
+                    email,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontFamily: 'Gilroy',
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildDrawerItem(
+                  icon: Icons.home,
+                  title: 'Home',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Get.to(HomeScreen());
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.book,
+                  title: 'My Courses',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Get.to(OngoingCompletedScreen());
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.storefront,
+                  title: 'My Products',
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.calendar_month,
+                  title: 'Classes Schedule',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Get.to(ClassScheduleScreen());
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.history,
+                  title: 'Classes History',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Get.to(ClassHistoryScreen());
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.pending_actions,
+                  title: 'Pending Payment',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Get.to(PendingPayment());
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.person,
+                  title: 'Profile',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Get.to(EditScreen(user: widget.user_detail));
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.location_on_outlined,
+                  title: 'Address & Location',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => AddressAndLocation()));
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.settings,
+                  title: 'Change Password',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePassword()));
+                  },
+                ),
+                Divider(),
+                _buildDrawerItem(
+                  icon: Icons.logout,
+                  title: 'Logout',
+                  onTap: () {
+                    Navigator.pop(context);
+                    showLogoutDialog();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  void showRateUsDialog() {
-    RateUsDialog.show(
-      onSubmit: () {
-        Get.back();
-        controller.onChange(0);
-      },
-      onCancel: () {
-        Get.back();
-      },
+  Widget _buildDrawerItem({required IconData icon, required String title, required VoidCallback onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Color(0XFF78A03F)),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16.sp,
+          fontFamily: 'Gilroy',
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 
@@ -384,26 +409,21 @@ class _MyProfileState extends State<MyProfile> {
                   padding: EdgeInsets.only(top: 25.h, bottom: 13.h),
                   child: Row(
                     children: [
-                      // YES Button
                       Expanded(
                         child: GestureDetector(
                           onTap: isLoggingOut
                               ? null
                               : () async {
-                            // Use dialog-local setState so dialog rebuilds
                             setStateDialog(() => isLoggingOut = true);
 
                             try {
                               await logoutApiCall();
                               await PrefData.setLogin(false);
 
-                              // optional small delay so user sees spinner briefly
                               await Future.delayed(Duration(milliseconds: 300));
 
-                              // close dialog / navigate after successful logout
                               Get.offAll(() => const EmptyState());
                             } catch (e) {
-                              // handle error (keep dialog open and show the text again)
                               print('Logout error: $e');
                               setStateDialog(() => isLoggingOut = false);
                             }
@@ -437,10 +457,7 @@ class _MyProfileState extends State<MyProfile> {
                           ),
                         ),
                       ),
-
                       SizedBox(width: 10.w),
-
-                      // NO Button
                       Expanded(
                         child: GestureDetector(
                           onTap: isLoggingOut ? null : () => Get.back(),
