@@ -155,7 +155,9 @@ class _ClassDetailsWidgetState extends State<ClassDetailsWidget> {
                             ? Colors.yellow
                             : classData['Btn_Status'] == 'Missed'
                             ? Colors.red[400]
-                            : Colors.grey[200],
+                            : classData['Btn_Status'] == 'Completed'
+                        ?Colors.green[400]
+                        :Colors.grey[200],
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Center(
@@ -165,6 +167,8 @@ class _ClassDetailsWidgetState extends State<ClassDetailsWidget> {
                             fontSize: 14.sp,
                             color: classData['Btn_Status'] == 'Missed'
                                 ? Colors.white
+                                 :classData['Btn_Status'] == 'Completed'
+                                  ?Colors.black
                                 : Colors.black,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Gilroy',

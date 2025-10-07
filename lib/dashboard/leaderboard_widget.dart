@@ -84,7 +84,7 @@ class _LeaderboardState extends State<Leaderboard> {
         children: [
           // Header
           Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.only(left:16.w, right: 16.w),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -122,19 +122,23 @@ class _LeaderboardState extends State<Leaderboard> {
               ],
             ),
           ),
+          Divider(
+            thickness: 1.0,
+            color: Colors.grey,
+          ),
 
           // Loading/Error/Empty States
           if (isLoading)
             const Center(
               child: Padding(
-                padding: EdgeInsets.all(20.0),
+                padding: EdgeInsets.all(10.0),
                 child: CircularProgressIndicator(color: Color(0xFF78A03F)),
               ),
             )
           else if (leaderboardData == null || leaderboardData!.isEmpty)
               const Center(
                 child: Padding(
-                  padding: EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(10.0),
                   child: Text(
                     'No Leaderboard Data',
                     style: TextStyle(fontSize: 16, color: Colors.grey),

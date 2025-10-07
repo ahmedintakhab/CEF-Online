@@ -92,7 +92,7 @@ class _BillingHistoryWidgetState extends State<BillingHistoryWidget> {
         children: [
           // Header
           Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.only(left:16.w, right: 16.w , top: 10.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -121,6 +121,10 @@ class _BillingHistoryWidgetState extends State<BillingHistoryWidget> {
                 ),
               ],
             ),
+          ),
+          Divider(
+            thickness: 1.0,
+            color: Colors.grey,
           ),
           // Loading/Error/Empty States
           if (isLoading)
