@@ -63,11 +63,10 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
   }
 
   Future<Map<String, dynamic>> _submitAnswer(String questionUuid, String selectedOptionUuid, int takeExamId) async {
-    const String apiUrl = '${ApiConstants.baseUrl}student/course/submit-quiz-answer';
+    const String apiUrl = '${ApiConstants.baseUrl}student/course/submit-quiz-answer-api';
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
-
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
@@ -135,18 +134,32 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
       );
 
       if (isLastQuestion) {
-        // Store the final response in resultData and navigate to QuizResult
+        final normalizedData = response;
+        final examQuestions = normalizedData['examQuestions'] as List<dynamic>? ?? [];
+        for (var question in examQuestions) {
+          for (var option in question['options']) {
+            if (option['answer_class'] == 'given-answer-right') {
+              option['user_answer'] = true;
+            } else if (option['answer_class'] == 'given-answer-wrong') {
+              option['user_answer'] = false;
+            }
+            option.remove('answer_class');
+          }
+        }
+
         final resultData = {
-          'status': response['status'],
-          'message': response['message'],
-          'obtained_percentage': response['obtained_percentage'],
-          'passing_percentage': response['passing_percentage'],
-          'data': response['data'],
+          'quizID': normalizedData['quizID'] ?? widget.quizId,
+          'courseSlug': normalizedData['courseSlug'] ?? '',
+          'quizName': normalizedData['quizName'] ?? widget.quizName,
+          'TotalScore': normalizedData['TotalScore'] ?? 0,
+          'YourScore': normalizedData['YourScore'] ?? 0,
+          'examQuestions': examQuestions,
+          'action_api_routes': normalizedData['action_api_routes'] ?? {},
         };
         Get.to(() => QuizResult(resultData: resultData));
       } else {
         setState(() {
-          _currentQuizData = response['data'];
+          _currentQuizData = response['data'] ?? {};
           _selectedAnswer = null;
           _updateProgress();
         });
@@ -178,10 +191,11 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
         : 'Next';
 
     return Scaffold(
-      appBar: AppBar(centerTitle: true,
-        title: Text(widget.quizName, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(widget.quizName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
         backgroundColor: const Color(0xFF78A03F),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
         padding: const EdgeInsets.all(16.0),
@@ -211,7 +225,7 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
             LinearProgressIndicator(
               value: _progress,
               backgroundColor: Colors.grey[300],
-              color: Color(0xFF78A03F),
+              color: const Color(0xFF78A03F),
               minHeight: 10.h,
             ),
             SizedBox(height: 20.h),

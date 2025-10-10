@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:learn_megnagmet/quiz/leaderboard_screen.dart';
 
 class QuizResult extends StatelessWidget {
   final Map<String, dynamic> resultData;
@@ -11,6 +14,7 @@ class QuizResult extends StatelessWidget {
     final examQuestions = resultData['examQuestions'] ?? [];
     final totalScore = resultData['TotalScore']?.toString() ?? '0';
     final yourScore = resultData['YourScore']?.toString() ?? '0';
+    final quizId = resultData['quizID']?.toString() ?? '0';
 
     return Scaffold(
       appBar: AppBar(
@@ -128,6 +132,7 @@ class QuizResult extends StatelessWidget {
                     height: 55.h,
                     child: ElevatedButton(
                       onPressed: () {
+                        Get.to(()=> LeaderboardScreen(quizId: quizId));
                         // Navigate to leaderboard if needed
                       },
                       style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF78A03F)),
