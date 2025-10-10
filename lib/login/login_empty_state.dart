@@ -35,9 +35,20 @@ class _EmptyStateState extends State<EmptyState> {
       isPasswordHidden = !isPasswordHidden;
     });
   }
-  Future<void> saveUserData(Map<String, dynamic> userDetails) async {
+  Future<void> saveUserData(Map<String, dynamic> userDetails , int role) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print('Saving role: ${userDetails['role']}');
+
+    // Determine gender based on role
+    String? gender;
+    if (role == 3 && userDetails['student'] != null) {
+      // Student case
+      gender = userDetails['student']['gender'];
+    } else if (role == 2 && userDetails['instructor'] != null) {
+      // Instructor case
+      gender = userDetails['instructor']['gender'];
+    }
+    gender ??= ''; // fallback if null
 
     // Save user details
     prefs.setString('user_name', userDetails['name'] ?? '');
@@ -45,7 +56,7 @@ class _EmptyStateState extends State<EmptyState> {
     prefs.setString('role', userDetails['role']?.toString() ?? '');
     prefs.setString('phone_number', userDetails['mobile_number'] ?? '');
     prefs.setString('userImage', userDetails['image_url'] ?? '');
-    prefs.setString('gender', userDetails['student']['gender'] ?? '');
+    prefs.setString('gender', gender);
     prefs.setString('auth_token', userDetails['auth_token'] ?? ''); // Save the token
     // Save any additional fields you need
   }
@@ -83,7 +94,8 @@ class _EmptyStateState extends State<EmptyState> {
         final userDetails = data['userDetails']as Map<String, dynamic>;
         userDetails['auth_token'] = data['token']; // Add token to userDetails
         // Save userDetails with token
-        await saveUserData(userDetails);
+        final int role = data['role'];
+        await saveUserData(userDetails, role);
 
         print("User details and token saved successfully!");
         Get.off(const HomeMainScreen());

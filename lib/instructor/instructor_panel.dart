@@ -90,7 +90,6 @@ class _InstructorPanelState extends State<InstructorPanel> {
     final String apiUrl = "${ApiConstants.baseUrl}logoutApi";
 
     try {
-      // Assuming the token is saved in shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String token = prefs.getString('auth_token') ?? '';
       print('Token check: $token');
@@ -99,15 +98,20 @@ class _InstructorPanelState extends State<InstructorPanel> {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Include token in the header
+          'Authorization': 'Bearer $token',
         },
       );
 
       if (response.statusCode == 200) {
-        // Successfully logged out
         print("Logout successful");
-        // Clear user data from SharedPreferences
-        prefs.clear(); // Optionally clear all saved data
+        Get.snackbar('Success', 'User Successfully Logout', snackPosition: SnackPosition.TOP);
+
+        await prefs.remove('auth_token');
+        await prefs.remove('user_name');
+        await prefs.remove('email');
+        await prefs.remove('role');
+        await prefs.remove('phone_number');
+        await prefs.remove('userImage');
       } else {
         print("Logout failed: ${response.body}");
       }
@@ -391,90 +395,112 @@ class _InstructorPanelState extends State<InstructorPanel> {
   }
 
   void showLogoutDialog() {
+    bool isLoggingOut = false;
+
     Get.defaultDialog(
       barrierDismissible: false,
       title: '',
-      content: Padding(
-        padding: EdgeInsets.only(left: 10.w, right: 10.w),
-        child: Column(
-          children: [
-            Text(
-              "Are you sure you want to Logout!",
-              style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Gilroy'),
-              textAlign: TextAlign.center,
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 25.h, bottom: 13.h),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () async {
-                        // Call logout API
-                        await logoutApiCall();
-                        PrefData.setLogin(false);
-                        Get.off(EmptyState());
-                      },
-                      child: Container(
-                        height: 56.h,
-                        width: double.infinity.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(22.h),
-                          color: const Color(0XFF78A03F),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Yes",
-                            style: TextStyle(
-                                fontFamily: 'Gilroy',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0XFFFFFFFF),
-                                fontStyle: FontStyle.normal,
-                                fontSize: 18.sp),
+      content: StatefulBuilder(
+        builder: (context, setStateDialog) {
+          return Padding(
+            padding: EdgeInsets.only(left: 10.w, right: 10.w),
+            child: Column(
+              children: [
+                Text(
+                  "Are you sure you want to Logout!",
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Gilroy',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 25.h, bottom: 13.h),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: isLoggingOut
+                              ? null
+                              : () async {
+                            setStateDialog(() => isLoggingOut = true);
+
+                            try {
+                              await logoutApiCall();
+                              await PrefData.setLogin(false);
+
+                              await Future.delayed(Duration(milliseconds: 300));
+
+                              Get.offAll(() => const EmptyState());
+                            } catch (e) {
+                              print('Logout error: $e');
+                              setStateDialog(() => isLoggingOut = false);
+                            }
+                          },
+                          child: Container(
+                            height: 56.h,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(22.h),
+                              color: const Color(0XFF78A03F),
+                            ),
+                            child: Center(
+                              child: isLoggingOut
+                                  ? SizedBox(
+                                height: 20.h,
+                                width: 20.h,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Colors.white,
+                                ),
+                              )
+                                  : Text(
+                                "Yes",
+                                style: TextStyle(
+                                  fontFamily: 'Gilroy',
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0XFFFFFFFF),
+                                  fontSize: 18.sp,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.back();
-                      },
-                      child: Container(
-                        height: 56.h,
-                        width: double.infinity.w,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(0xFF78A03F),
-                            style: BorderStyle.solid,
-                            width: 1.0.w,
-                          ),
-                          borderRadius: BorderRadius.circular(22.h),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "No",
-                            style: TextStyle(
-                                fontFamily: 'Gilroy',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF78A03F),
-                                fontStyle: FontStyle.normal,
-                                fontSize: 18.sp),
+                      SizedBox(width: 10.w),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: isLoggingOut ? null : () => Get.back(),
+                          child: Container(
+                            height: 56.h,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color(0xFF78A03F),
+                                width: 1.0.w,
+                              ),
+                              borderRadius: BorderRadius.circular(22.h),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "No",
+                                style: TextStyle(
+                                  fontFamily: 'Gilroy',
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF78A03F),
+                                  fontSize: 18.sp,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

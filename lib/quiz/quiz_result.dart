@@ -84,12 +84,16 @@ class QuizResult extends StatelessWidget {
                                 size: 16.sp,
                               ),
                               SizedBox(width: 8.w),
-                              Text(
-                                option['name'],
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  color: optionColor,
-                                  fontWeight: isSelected || isIncorrect ? FontWeight.bold : FontWeight.normal,
+                              Flexible(
+                                child: Text(
+                                  option['name'] ?? '',
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    color: optionColor,
+                                    fontWeight: isSelected || isIncorrect ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
