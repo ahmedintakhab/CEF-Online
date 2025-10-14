@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_megnagmet/quiz/quiz_result_failed.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
@@ -135,6 +136,8 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
 
       if (isLastQuestion) {
         final normalizedData = response;
+        final obtainedPercentage = normalizedData['obtained_percentage'] ?? '';
+        print('Check obtained per ${obtainedPercentage}');
         final examQuestions = normalizedData['examQuestions'] as List<dynamic>? ?? [];
         for (var question in examQuestions) {
           for (var option in question['options']) {
@@ -156,14 +159,23 @@ class _StartQuizScreenState extends State<StartQuizScreen> {
           'examQuestions': examQuestions,
           'action_api_routes': normalizedData['action_api_routes'] ?? {},
         };
-        Get.to(() => QuizResult(resultData: resultData));
-      } else {
+        if (obtainedPercentage >=80) {
+          Get.off(() => QuizResult(resultData: resultData));
+        }
+        else
+        {
+        Get.off ( () => QuizResultFailed(normalizedData: normalizedData)
+    );
+    }
+        }
+        else {
         setState(() {
           _currentQuizData = response['data'] ?? {};
           _selectedAnswer = null;
           _updateProgress();
         });
       }
+
     } catch (e) {
       print('Error submitting answer: $e');
     } finally {
